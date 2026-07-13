@@ -26,7 +26,7 @@ import os
 import sys
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from hermes_cli.fallback_config import get_fallback_chain
 
@@ -300,6 +300,7 @@ def _run_agent(
     provider: Optional[str] = None,
     toolsets: object = None,
     use_config_toolsets: bool = True,
+    proof_controls: Optional[dict[str, Any]] = None,
 ) -> tuple[str, dict]:
     """Build an AIAgent exactly like a normal CLI chat turn would, then
     run a single conversation.  Returns ``(final_response, run_result)``."""
@@ -312,6 +313,18 @@ def _run_agent(
     from run_agent import AIAgent
 
     cfg = load_config()
+
+    controls = dict(proof_controls or {})
+    proof_mode = bool(controls)
+    if proof_mode:
+        if controls.get("max_provider_attempts") != 1:
+            raise ValueError("bounded proof requires max_provider_attempts=1")
+        if controls.get("allow_fallback", False):
+            raise ValueError("bounded proof does not allow fallback providers")
+        if not controls.get("force_no_tools", False):
+            raise ValueError("bounded proof requires force_no_tools=true")
+        if int(controls.get("max_output_tokens") or 0) < 1:
+            raise ValueError("bounded proof requires a positive max_output_tokens")
 
     # Resolve effective model: explicit arg → env var → config.
     model_cfg = cfg.get("model") or {}
@@ -378,11 +391,23 @@ def _run_agent(
     toolsets_list = _normalize_toolsets(toolsets)
     if toolsets_list is None and use_config_toolsets:
         toolsets_list = sorted(_get_platform_tools(cfg, "cli"))
+    if proof_mode:
+        toolsets_list = []
 
     session_db = _create_session_db_for_oneshot()
     # Read the effective fallback chain from profile config so oneshot workers
     # honour the same merge semantics as interactive CLI and gateway sessions.
     _fb = get_fallback_chain(cfg)
+
+    proof_tool_events: list[dict[str, Any]] = []
+
+    def _proof_tool_start(call_id, name, _args):
+        proof_tool_events.append({
+            "sequence": len(proof_tool_events) + 1,
+            "type": "tool_start",
+            "call_id": str(call_id),
+            "name": str(name),
+        })
 
     agent = AIAgent(
         api_key=runtime.get("api_key"),
@@ -393,9 +418,11 @@ def _run_agent(
         enabled_toolsets=toolsets_list,
         quiet_mode=True,
         platform="cli",
+        max_tokens=controls.get("max_output_tokens") if proof_mode else None,
         session_db=session_db,
-        credential_pool=runtime.get("credential_pool"),
-        fallback_model=_fb or None,
+        credential_pool=None if proof_mode else runtime.get("credential_pool"),
+        fallback_model=None if proof_mode else (_fb or None),
+        tool_start_callback=_proof_tool_start if proof_mode else None,
         # Interactive callbacks are intentionally NOT wired beyond this
         # one.  In oneshot mode there's no user sitting at a terminal:
         #   - clarify  → returns a synthetic "pick a default" instruction
@@ -416,7 +443,38 @@ def _run_agent(
     agent.stream_delta_callback = None
     agent.tool_gen_callback = None
 
+    if proof_mode:
+        if agent.valid_tool_names:
+            raise RuntimeError(
+                "bounded proof expected zero effective tools, got: "
+                + ", ".join(sorted(agent.valid_tool_names))
+            )
+        agent._api_max_retries = 1
+        agent._proof_provider_attempt_limit = 1
+        agent._proof_provider_attempt_count = 0
+        agent._proof_blocked_provider_attempt_count = 0
+        agent._proof_provider_attempt_events = []
+
     result = agent.run_conversation(prompt)
+    if proof_mode:
+        result["proof"] = {
+            "provider": agent.provider,
+            "model": agent.model,
+            "api_mode": agent.api_mode,
+            "session_id": agent.session_id,
+            "provider_attempts": list(agent._proof_provider_attempt_events),
+            "provider_attempt_count": agent._proof_provider_attempt_count,
+            "blocked_provider_attempt_count": agent._proof_blocked_provider_attempt_count,
+            "tool_events": list(proof_tool_events),
+            "tool_event_count": len(proof_tool_events),
+            "requested_toolsets": [],
+            "effective_toolsets": [],
+            "effective_tools": sorted(agent.valid_tool_names),
+            "fallback_allowed": False,
+            "fallback_activated": bool(getattr(agent, "_fallback_activated", False)),
+            "max_output_tokens": controls["max_output_tokens"],
+            "reported_output_tokens": agent.session_output_tokens,
+        }
     return (result.get("final_response") or "", result)
 
 

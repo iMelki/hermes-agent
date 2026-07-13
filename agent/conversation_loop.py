@@ -1263,6 +1263,8 @@ def run_conversation(
                 if env_var_enabled("HERMES_DUMP_REQUESTS"):
                     agent._dump_api_request_debug(api_kwargs, reason="preflight")
 
+                _record_bounded_proof_provider_attempt(agent)
+
                 # Always prefer the streaming path — even without stream
                 # consumers.  Streaming gives us fine-grained health
                 # checking (90s stale-stream detection, 60s read timeout)
@@ -5350,6 +5352,30 @@ def run_conversation(
         _pending_verification_response=_pending_verification_response,
     )
 
+
+
+def _record_bounded_proof_provider_attempt(agent) -> None:
+    """Record one proof request immediately before dispatch, or fail closed."""
+    attempt_limit = getattr(agent, "_proof_provider_attempt_limit", None)
+    if attempt_limit is None:
+        return
+    attempt_count = getattr(agent, "_proof_provider_attempt_count", 0)
+    if attempt_count >= attempt_limit:
+        agent._proof_blocked_provider_attempt_count = (
+            getattr(agent, "_proof_blocked_provider_attempt_count", 0) + 1
+        )
+        raise RuntimeError(
+            "bounded proof provider-attempt limit reached before request dispatch"
+        )
+    attempt_count += 1
+    agent._proof_provider_attempt_count = attempt_count
+    agent._proof_provider_attempt_events.append({
+        "sequence": attempt_count,
+        "type": "provider_attempt",
+        "provider": agent.provider,
+        "model": agent.model,
+        "api_mode": agent.api_mode,
+    })
 
 
 __all__ = ["run_conversation"]
