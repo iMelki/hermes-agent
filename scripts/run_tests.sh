@@ -39,19 +39,27 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # ── Activate venv ───────────────────────────────────────────────────────────
 VENV=""
+PYTHON=""
 for candidate in "$REPO_ROOT/.venv" "$REPO_ROOT/venv" "$HOME/.hermes/hermes-agent/venv"; do
   if [ -f "$candidate/bin/activate" ]; then
     VENV="$candidate"
+    PYTHON="$VENV/bin/python"
+    break
+  fi
+  # Git Bash can execute the Windows venv's python.exe directly, but that
+  # environment intentionally has ``Scripts`` rather than POSIX ``bin``.
+  # Keep this branch scoped to MSYS so WSL/Linux retain the normal venv path.
+  if [ -n "${MSYSTEM:-}" ] && [ -x "$candidate/Scripts/python.exe" ]; then
+    VENV="$candidate"
+    PYTHON="$VENV/Scripts/python.exe"
     break
   fi
 done
 
-if [ -z "$VENV" ]; then
+if [ -z "$PYTHON" ]; then
   echo "error: no virtualenv found in $REPO_ROOT/.venv or $REPO_ROOT/venv" >&2
   exit 1
 fi
-
-PYTHON="$VENV/bin/python"
 
 
 # ── Live-gateway plugin (computed before we drop env) ───────────────────────
@@ -71,12 +79,23 @@ echo "  (TZ=UTC LANG=C.UTF-8 PYTHONHASHSEED=0; clean env)"
 
 cd "$REPO_ROOT"
 
+# Windows Python resolves Path.home() from USERPROFILE, which is deliberately
+# absent from the normal POSIX clean environment. Under Git Bash provide only
+# the equivalent local profile path; credentials remain excluded. UTF-8 mode
+# also keeps the runner's progress glyphs from failing under cp1252.
+WINDOWS_USERPROFILE=""
+if [ -n "${MSYSTEM:-}" ]; then
+  WINDOWS_USERPROFILE="$(cygpath -w "$HOME")"
+fi
+
 exec env -i \
   PATH="$PATH" \
   HOME="$HOME" \
+  ${WINDOWS_USERPROFILE:+USERPROFILE="$WINDOWS_USERPROFILE"} \
   TZ=UTC \
   LANG=C.UTF-8 \
   LC_ALL=C.UTF-8 \
+  PYTHONUTF8=1 \
   PYTHONHASHSEED=0 \
   PYTHONDONTWRITEBYTECODE=1 \
   ${HERMES_RUN_SLOW_PET_TESTS:+HERMES_RUN_SLOW_PET_TESTS="$HERMES_RUN_SLOW_PET_TESTS"} \
