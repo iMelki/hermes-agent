@@ -1,0 +1,106 @@
+[
+  {
+    "file": "web/src/components/AuthWidget.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/AutoField.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/AutomationBlueprints.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ChatSessionList.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ChatSidebar.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ConfirmDialog.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/DeleteConfirmDialog.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/HermesConsoleModal.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/LanguageSwitcher.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/Markdown.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ModelInfoCard.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ModelPickerDialog.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ModelReloadConfirm.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/OAuthLoginModal.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/OAuthProvidersCard.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/PlatformsCard.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ProfileScopeBanner.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ProfileSwitcher.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ReasoningPicker.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ScheduleBuilder.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/SidebarFooter.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/SidebarStatusStrip.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/SkillEditorDialog.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/SlashPopover.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ThemeSwitcher.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  },
+  {
+    "file": "web/src/components/ToolsetConfigDrawer.tsx",
+    "reason": "pre-gate baseline 2026-08-12 (fork governance import, iMelki/hermes#45)"
+  }
+]
