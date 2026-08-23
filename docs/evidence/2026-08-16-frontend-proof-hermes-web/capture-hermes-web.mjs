@@ -2,8 +2,17 @@
 import { chromium } from 'file:///S:/source/CCAI/Assistants/tools/content-factory/node_modules/.pnpm/playwright-core@1.59.1/node_modules/playwright-core/index.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
+import {
+  captureBundleProvenance,
+  verifyProvenance,
+  selfTest as provenanceSelfTest,
+  negativeControl as provenanceNegativeControl,
+} from '../lib/bundle-provenance.mjs';
 
-const BASE = 'http://127.0.0.1:9119';
+// Overridable so the provenance gate below can be pointed at a fixture and
+// PROVEN to reject. A gate that can only ever be aimed at the healthy live
+// dashboard is a gate nobody can demonstrate failing.
+const BASE = process.env.HERMES_WEB_BASE || 'http://127.0.0.1:9119';
 const OUT = process.argv[2];
 const SHOTS = path.join(OUT, 'screenshots');
 fs.mkdirSync(SHOTS, { recursive: true });
@@ -380,6 +389,41 @@ const run = async (browser, vpName, routes, opts = {}) => {
 };
 
 const main = async () => {
+  // ---- PROVENANCE GATE -----------------------------------------------------
+  // Runs BEFORE the browser launches. A capture whose served artifact cannot be
+  // identified is unfalsifiable, and a capture of a down / 500ing /
+  // login-redirecting dashboard is worse than none: it looks like evidence.
+  // Both controls must prove themselves in this run before the verdict is
+  // trusted — selfTest proves the digests discriminate, negativeControl proves
+  // the verifier can reject (and, via its accept case, that it does not reject
+  // everything).
+  const provControl = provenanceSelfTest();
+  if (!provControl.proven) {
+    console.error('ABORT: provenance self-test failed', JSON.stringify(provControl, null, 2));
+    process.exitCode = 1;
+    return;
+  }
+  const provNegative = await provenanceNegativeControl();
+  if (!provNegative.proven) {
+    console.error('ABORT: provenance negative control failed', JSON.stringify(provNegative, null, 2));
+    process.exitCode = 1;
+    return;
+  }
+  const provenance = await captureBundleProvenance(BASE);
+  const provVerdict = verifyProvenance(provenance);
+  if (!provVerdict.ok) {
+    console.error(
+      `ABORT: ${BASE} did not serve an identifiable Hermes dashboard build; refusing to capture.\n  - ` +
+        provVerdict.reasons.join('\n  - ')
+    );
+    process.exitCode = 2;
+    return;
+  }
+  console.log(
+    'PROVENANCE OK entry=' + provenance.entryHtml.sha256Normalized.slice(0, 16) +
+    ' assets=' + provenance.assets.map((a) => `${a.url.replace('/assets/', '')}:${a.sha256.slice(0, 16)}`).join(' ')
+  );
+
   const browser = await chromium.launch({ headless: true });
   const shotRoutes = new Set(['/sessions', '/skills', '/system', '/logs', '/profiles', '/config']);
   // Pass A: every route at desktop
@@ -395,6 +439,15 @@ const main = async () => {
     capturedAt: new Date().toISOString(),
     base: BASE,
     harness: 'playwright-core 1.59.1 (chromium headless) via content-factory pnpm store, read-only',
+    // Build identity of the artifact the browser actually loaded. web_dist is
+    // gitignored and built out-of-band, so these digests are the ONLY thing
+    // tying these pixels to an artifact — without them the score is
+    // unfalsifiable. provenanceControl/provenanceNegativeControl are recorded
+    // alongside so a reader can see the gate proved itself in THIS run.
+    provenance,
+    provenanceVerdict: provVerdict,
+    provenanceControl: provControl,
+    provenanceNegativeControl: provNegative,
     results,
   }, null, 2));
   console.log('WROTE ' + path.join(OUT, 'telemetry.json'));
