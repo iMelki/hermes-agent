@@ -435,6 +435,56 @@ const main = async () => {
   // Pass C: reduced motion desktop
   await run(browser, 'desktop', ['/sessions', '/profiles'], { reducedMotion: true, shot: true });
   await browser.close();
+
+  // ---- POST-CAPTURE LIVENESS RE-ASSERTION ----------------------------------
+  // The provenance gate above is a PRE-FLIGHT check: it proves the dashboard was
+  // serving an identifiable build at the moment the run started, and then never
+  // looks again. That is not enough, and this is not hypothetical. On 2026-08-24
+  // a full run started against a healthy 9119 (gate accepted, digests recorded),
+  // the gateway stopped answering partway through, and the record still carried
+  // provenanceVerdict.ok === true while 13 of its 30 results were
+  // `page.goto` timeouts and net::ERR_CONNECTION_REFUSED. A capture of a
+  // dashboard that died mid-run looked exactly like a capture of a healthy one —
+  // the same fail-open class the pre-flight gate was written to close, one level
+  // down. Exhibit: docs/evidence/2026-08-24-midcapture-liveness-gap/.
+  //
+  // So the target is re-asserted AFTER the browser work, and the results are
+  // asserted against themselves. A navigation that threw produced no probe data,
+  // so any such result means the numbers in this record describe fewer surfaces
+  // than it claims to cover.
+  const navFailures = results.filter((r) => r.error || !r.nav);
+  const provenanceAfter = await captureBundleProvenance(BASE);
+  const provAfterVerdict = verifyProvenance(provenanceAfter);
+  if (navFailures.length > 0 || !provAfterVerdict.ok) {
+    const lines = [];
+    if (navFailures.length > 0) {
+      lines.push(
+        `CAPTURE_INCOMPLETE: ${navFailures.length} of ${results.length} results have no navigation ` +
+        `(${navFailures.slice(0, 5).map((r) => r.tag).join(', ')}${navFailures.length > 5 ? ', …' : ''})`
+      );
+    }
+    if (!provAfterVerdict.ok) {
+      lines.push('TARGET_NOT_HEALTHY_AFTER_CAPTURE: ' + provAfterVerdict.reasons.join('; '));
+    }
+    console.error(
+      `ABORT: refusing to write a capture record for a target that did not stay healthy for the whole run.\n  - ` +
+      lines.join('\n  - ')
+    );
+    process.exitCode = 2;
+    return;
+  }
+  const entryBefore = provenance.entryHtml.sha256Normalized;
+  const entryAfter = provenanceAfter.entryHtml.sha256Normalized;
+  if (entryBefore !== entryAfter) {
+    console.error(
+      `ABORT: the served build changed during the run (entry ${entryBefore.slice(0, 16)} -> ${entryAfter.slice(0, 16)}); ` +
+      'these results describe two different artifacts.'
+    );
+    process.exitCode = 2;
+    return;
+  }
+  console.log(`PROVENANCE STABLE across the run entry=${entryAfter.slice(0, 16)} navFailures=0`);
+
   fs.writeFileSync(path.join(OUT, 'telemetry.json'), JSON.stringify({
     capturedAt: new Date().toISOString(),
     base: BASE,
@@ -446,6 +496,17 @@ const main = async () => {
     // alongside so a reader can see the gate proved itself in THIS run.
     provenance,
     provenanceVerdict: provVerdict,
+    // The same target, re-measured after the browser work, plus the assertion
+    // that no result lost its navigation. Without these two, a record cannot
+    // distinguish "the app was healthy throughout" from "the app was healthy for
+    // the first request and then fell over".
+    provenanceAfter,
+    provenanceAfterVerdict: provAfterVerdict,
+    captureIntegrity: {
+      resultCount: results.length,
+      navFailureCount: navFailures.length,
+      entrySha256Stable: entryBefore === entryAfter,
+    },
     provenanceControl: provControl,
     provenanceNegativeControl: provNegative,
     results,

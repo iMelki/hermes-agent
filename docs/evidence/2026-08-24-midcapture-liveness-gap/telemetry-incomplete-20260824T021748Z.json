@@ -1,0 +1,5262 @@
+{
+  "capturedAt": "2026-08-24T02:17:48.930Z",
+  "base": "http://127.0.0.1:9119",
+  "harness": "playwright-core 1.59.1 (chromium headless) via content-factory pnpm store, read-only",
+  "provenance": {
+    "fetchedAt": "2026-08-24T02:04:36.356Z",
+    "base": "http://127.0.0.1:9119",
+    "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
+    "sessionTokenStripped": true,
+    "entryHtml": {
+      "status": 200,
+      "redirected": false,
+      "finalUrl": "http://127.0.0.1:9119/",
+      "bytesRaw": 722,
+      "bytesNormalized": 511,
+      "sha256Normalized": "a5d68cc25cf2138f51c1f5471cd8e20dfe77eaa814543db9071f926ca36a38cb"
+    },
+    "assets": [
+      {
+        "url": "/assets/index-B4nfmVYw.js",
+        "status": 200,
+        "bytes": 1588948,
+        "sha256": "3d6d6a65f88688def5a76472f9abab623ed67e31ad5e0fe78a0ad791d830dfae"
+      },
+      {
+        "url": "/assets/index-CpQhiCeR.css",
+        "status": 200,
+        "bytes": 101506,
+        "sha256": "ec7a3c4bbcfc50c91da6d37ace1bc0445bc7e881e8e06e07fc572c6c94315771"
+      }
+    ],
+    "error": null
+  },
+  "provenanceVerdict": {
+    "ok": true,
+    "reasons": []
+  },
+  "provenanceControl": {
+    "proven": true,
+    "checks": {
+      "digestsDiffer": true,
+      "digestStable": true,
+      "stripperFires": true,
+      "tokenGone": true,
+      "stableAcrossRestarts": true,
+      "extractorFinds": true,
+      "extractorExcludesNonAssets": true
+    }
+  },
+  "provenanceNegativeControl": {
+    "proven": true,
+    "cases": [
+      {
+        "name": "healthy dashboard (accept case)",
+        "expectedVerdict": "accept",
+        "actualVerdict": "accept",
+        "matchedReason": null,
+        "reasons": [],
+        "passed": true
+      },
+      {
+        "name": "dead port",
+        "expectedVerdict": "FETCH_FAILED",
+        "actualVerdict": "reject",
+        "matchedReason": "FETCH_FAILED: TypeError: fetch failed",
+        "reasons": [
+          "FETCH_FAILED: TypeError: fetch failed",
+          "NO_ENTRY_HTML: the entry document was never retrieved",
+          "NO_BUILD_ASSETS: entry document references no /assets/ build output",
+          "NO_SESSION_BOOTSTRAP: no injected window.__HERMES_* script found — this is not the Hermes dashboard entry"
+        ],
+        "passed": true
+      },
+      {
+        "name": "http 500",
+        "expectedVerdict": "ENTRY_STATUS_NOT_200",
+        "actualVerdict": "reject",
+        "matchedReason": "ENTRY_STATUS_NOT_200: got 500",
+        "reasons": [
+          "ENTRY_STATUS_NOT_200: got 500",
+          "NO_BUILD_ASSETS: entry document references no /assets/ build output",
+          "NO_SESSION_BOOTSTRAP: no injected window.__HERMES_* script found — this is not the Hermes dashboard entry"
+        ],
+        "passed": true
+      },
+      {
+        "name": "login redirect",
+        "expectedVerdict": "ENTRY_REDIRECTED",
+        "actualVerdict": "reject",
+        "matchedReason": "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:65466/login — served document is not the dashboard entry",
+        "reasons": [
+          "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:65466/login — served document is not the dashboard entry",
+          "NO_BUILD_ASSETS: entry document references no /assets/ build output",
+          "NO_SESSION_BOOTSTRAP: no injected window.__HERMES_* script found — this is not the Hermes dashboard entry"
+        ],
+        "passed": true,
+        "observedEntryStatus": 200,
+        "observedRedirected": true
+      }
+    ]
+  },
+  "results": [
+    {
+      "route": "/sessions",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "sessions-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/sessions",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 366,
+          "links": 15,
+          "buttons": 10,
+          "inputs": 1,
+          "svgs": 30,
+          "canvases": 2,
+          "headings": 3,
+          "textChars": 1297,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Sessions",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "JetBrains Mono",
+            "Mondwest",
+            "Rules Compressed",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 21,
+          "under44": 20,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "Plugins",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 19,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 1,
+          "animationNames": [
+            "pulse"
+          ],
+          "elementsWithTransition": 36,
+          "canvases": 2,
+          "canvasSizes": [
+            "640x432",
+            "640x432"
+          ],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION Plugins KANBAN ACHIEVEMENTS System Gateway Status: Running Activ"
+      }
+    },
+    {
+      "route": "/files",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "files-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/sessions",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 248,
+          "links": 15,
+          "buttons": 8,
+          "inputs": 1,
+          "svgs": 19,
+          "canvases": 2,
+          "headings": 1,
+          "textChars": 252,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Sessions",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "JetBrains Mono",
+            "Mondwest",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 19,
+          "under44": 18,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "Plugins",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 9,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 34,
+          "canvases": 2,
+          "canvasSizes": [
+            "640x432",
+            "640x432"
+          ],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION Plugins KANBAN ACHIEVEMENTS System Gateway Status: Running Activ"
+      }
+    },
+    {
+      "route": "/analytics",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "analytics-desktop",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/analytics\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/models",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "models-desktop",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/models\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/logs",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "logs-desktop",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/logs\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/cron",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "cron-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/cron",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 2,
+            "withControl": 3,
+            "afterRemoval": 2
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [
+            {
+              "tag": "DIV",
+              "cls": "flex min-w-0 sm:max-w-md sm:flex-1 w-full justify-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            }
+          ],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 394,
+          "links": 15,
+          "buttons": 26,
+          "inputs": 0,
+          "svgs": 38,
+          "canvases": 0,
+          "headings": 2,
+          "textChars": 3835,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Cron",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "Mondwest",
+            "Rules Compressed",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 39,
+          "under44": 38,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 10.5,
+        "minTextSample": {
+          "text": "Create",
+          "tag": "BUTTON",
+          "px": 10.5
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 15,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 36,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION Plugins KANBAN ACHIEVEMENTS System Gateway Status: Running Activ"
+      }
+    },
+    {
+      "route": "/skills",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "skills-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/skills",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 181,
+          "links": 12,
+          "buttons": 6,
+          "inputs": 0,
+          "svgs": 16,
+          "canvases": 0,
+          "headings": 1,
+          "textChars": 170,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Skills",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "Mondwest",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 16,
+          "under44": 16,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "System",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 8,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 1,
+          "animationNames": [
+            "pulse"
+          ],
+          "elementsWithTransition": 28,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION System Restart Gateway Update Hermes HERMES TEAL EN — Nous Researc"
+      }
+    },
+    {
+      "route": "/plugins",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "plugins-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/plugins",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 1,
+            "withControl": 2,
+            "afterRemoval": 1
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            }
+          ],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 214,
+          "links": 12,
+          "buttons": 10,
+          "inputs": 1,
+          "svgs": 17,
+          "canvases": 0,
+          "headings": 3,
+          "textChars": 547,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Plugins",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "Mondwest",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 21,
+          "under44": 21,
+          "under24": 5,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 34,
+              "h": 19,
+              "label": ""
+            },
+            {
+              "tag": "BUTTON",
+              "w": 34,
+              "h": 19,
+              "label": ""
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 10.5,
+        "minTextSample": {
+          "text": "Install",
+          "tag": "BUTTON",
+          "px": 10.5
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 8,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 1,
+          "animationNames": [
+            "pulse"
+          ],
+          "elementsWithTransition": 34,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION System Restart Gateway Update Hermes HERMES TEAL EN — Nous Researc"
+      }
+    },
+    {
+      "route": "/mcp",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "mcp-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/sessions",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 248,
+          "links": 15,
+          "buttons": 8,
+          "inputs": 1,
+          "svgs": 19,
+          "canvases": 2,
+          "headings": 1,
+          "textChars": 252,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Sessions",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "JetBrains Mono",
+            "Mondwest",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 19,
+          "under44": 18,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "Plugins",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 9,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 34,
+          "canvases": 2,
+          "canvasSizes": [
+            "640x432",
+            "640x432"
+          ],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION Plugins KANBAN ACHIEVEMENTS System Gateway Status: Running Activ"
+      }
+    },
+    {
+      "route": "/pairing",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "pairing-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/sessions",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 248,
+          "links": 15,
+          "buttons": 8,
+          "inputs": 1,
+          "svgs": 19,
+          "canvases": 2,
+          "headings": 1,
+          "textChars": 252,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Sessions",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "JetBrains Mono",
+            "Mondwest",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 19,
+          "under44": 18,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "Plugins",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 9,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 34,
+          "canvases": 2,
+          "canvasSizes": [
+            "640x432",
+            "640x432"
+          ],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION Plugins KANBAN ACHIEVEMENTS System Gateway Status: Running Activ"
+      }
+    },
+    {
+      "route": "/channels",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "channels-desktop",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/channels\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/webhooks",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "webhooks-desktop",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/webhooks\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/system",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "system-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/system",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 178,
+          "links": 12,
+          "buttons": 6,
+          "inputs": 0,
+          "svgs": 16,
+          "canvases": 0,
+          "headings": 1,
+          "textChars": 168,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "System",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "Mondwest",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 16,
+          "under44": 16,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "System",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 6,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 1,
+          "animationNames": [
+            "pulse"
+          ],
+          "elementsWithTransition": 28,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION System Restart Gateway Update Hermes HERMES TEAL EN — Nous Researc"
+      }
+    },
+    {
+      "route": "/profiles",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "profiles-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/profiles",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 1,
+            "withControl": 2,
+            "afterRemoval": 1
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [
+            {
+              "tag": "SPAN",
+              "cls": "sr-only",
+              "over": 62,
+              "overflowX": "hidden",
+              "scrollable": false
+            }
+          ],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 182,
+          "links": 12,
+          "buttons": 6,
+          "inputs": 0,
+          "svgs": 16,
+          "canvases": 0,
+          "headings": 1,
+          "textChars": 183,
+          "skeletonish": 1
+        },
+        "typography": {
+          "h1Text": "Profiles",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "Mondwest",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 16,
+          "under44": 16,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "System",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 9,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 1,
+          "animationNames": [
+            "pulse"
+          ],
+          "elementsWithTransition": 28,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION System Restart Gateway Update Hermes HERMES TEAL EN — Nous Researc"
+      }
+    },
+    {
+      "route": "/config",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "config-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/config",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 7,
+            "withControl": 8,
+            "afterRemoval": 7
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [
+            {
+              "tag": "DIV",
+              "cls": "w-full min-w-0 pb-[calc(2rem+env(safe-area-inset-b",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "DIV",
+              "cls": "flex flex-col gap-4",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "DIV",
+              "cls": "flex min-w-0 flex-col gap-3 sm:flex-row sm:items-c",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "DIV",
+              "cls": "flex flex-wrap items-center gap-1.5 sm:shrink-0",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "INPUT",
+              "cls": "flex h-9 w-full border border-border bg-background",
+              "over": 1176,
+              "overflowX": "clip",
+              "scrollable": false
+            }
+          ],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 631,
+          "links": 15,
+          "buttons": 47,
+          "inputs": 15,
+          "svgs": 60,
+          "canvases": 0,
+          "headings": 2,
+          "textChars": 1747,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Config",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "Mondwest",
+            "Rules Compressed",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 74,
+          "under44": 73,
+          "under24": 38,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 193,
+              "h": 23,
+              "label": "General\n16"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 193,
+              "h": 23,
+              "label": "Agent\n38"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 193,
+              "h": 23,
+              "label": "Terminal\n21"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 193,
+              "h": 23,
+              "label": "Display\n52"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 193,
+              "h": 23,
+              "label": "Delegation\n13"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 10.5,
+        "minTextSample": {
+          "text": "YAML",
+          "tag": "BUTTON",
+          "px": 10.5
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 18,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 88,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION Plugins KANBAN ACHIEVEMENTS System Gateway Status: Running Activ"
+      }
+    },
+    {
+      "route": "/env",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "env-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/env",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 26,
+            "withControl": 27,
+            "afterRemoval": 26
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [
+            {
+              "tag": "DIV",
+              "cls": "w-full min-w-0 pb-[calc(2rem+env(safe-area-inset-b",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "DIV",
+              "cls": "flex flex-col gap-6",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "DIV",
+              "cls": "flex items-center justify-between",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "DIV",
+              "cls": "flex items-center gap-2 shrink-0",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "DIV",
+              "cls": "flex items-center gap-2 shrink-0",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "DIV",
+              "cls": "flex items-center gap-2 shrink-0",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "BUTTON",
+              "cls": "font-mono group relative grid cursor-pointer grid-",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            }
+          ],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 755,
+          "links": 32,
+          "buttons": 58,
+          "inputs": 0,
+          "svgs": 82,
+          "canvases": 0,
+          "headings": 6,
+          "textChars": 2489,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Keys",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "Mondwest",
+            "Rules Compressed",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 88,
+          "under44": 86,
+          "under24": 28,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 56,
+              "h": 21,
+              "label": "OAUTH"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 79,
+              "h": 21,
+              "label": "PROVIDERS"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 55,
+              "h": 21,
+              "label": "TOOLS"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 81,
+              "h": 21,
+              "label": "MESSAGING"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 73,
+              "h": 21,
+              "label": "SETTINGS"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 10.5,
+        "minTextSample": {
+          "text": "Hide Advanced",
+          "tag": "BUTTON",
+          "px": 10.5
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 22,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 79,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://aistudio.google.com",
+          "https://console.x.ai",
+          "https://discord.com",
+          "https://huggingface.co",
+          "https://modelstudio.console.alibabacloud.com",
+          "https://nousresearch.com",
+          "https://opencode.ai",
+          "https://openrouter.ai",
+          "https://platform.deepseek.com",
+          "https://platform.moonshot.cn",
+          "https://platform.openai.com",
+          "https://platform.xiaomimimo.com",
+          "https://t.me",
+          "https://www.minimax.io",
+          "https://www.minimaxi.com",
+          "https://z.ai"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION Plugins KANBAN ACHIEVEMENTS System Gateway Status: Running Activ"
+      }
+    },
+    {
+      "route": "/docs",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "docs-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/docs",
+        "title": "Hermes Agent - Swagger UI",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 78,
+            "withControl": 84,
+            "afterRemoval": 78
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            },
+            {
+              "tag": "SPAN",
+              "cls": "json-schema-2020-12-accordion__icon json-schema-20",
+              "over": 2,
+              "overflowX": "visible",
+              "scrollable": false
+            }
+          ],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "visible",
+            "body": "visible",
+            "root": null
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 5718,
+          "links": 223,
+          "buttons": 821,
+          "inputs": 0,
+          "svgs": 523,
+          "canvases": 0,
+          "headings": 2,
+          "textChars": 13681,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Hermes Agent\n 0.16.0 \nOAS 3.1",
+          "h1": {
+            "fontFamily": "sans-serif",
+            "fontSize": "36px",
+            "fontWeight": "700",
+            "letterSpacing": "normal",
+            "lineHeight": "normal",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "\"Times New Roman\"",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "normal",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "monospace",
+            "fontSize": "16px",
+            "fontWeight": "600",
+            "letterSpacing": "normal",
+            "lineHeight": "normal",
+            "textTransform": "none"
+          },
+          "loadedFonts": [],
+          "bodyBackground": "rgba(0, 0, 0, 0)"
+        },
+        "hitTargets": {
+          "total": 1044,
+          "under44": 1044,
+          "under24": 379,
+          "under24Samples": [
+            {
+              "tag": "A",
+              "w": 71,
+              "h": 14,
+              "label": "/openapi.json"
+            },
+            {
+              "tag": "A",
+              "w": 88,
+              "h": 19,
+              "label": "/api/media"
+            },
+            {
+              "tag": "A",
+              "w": 88,
+              "h": 19,
+              "label": "/api/files"
+            },
+            {
+              "tag": "A",
+              "w": 88,
+              "h": 19,
+              "label": "/api/files"
+            },
+            {
+              "tag": "A",
+              "w": 132,
+              "h": 19,
+              "label": "/api/files/read"
+            },
+            {
+              "tag": "A",
+              "w": 150,
+              "h": 19,
+              "label": "/api/files/upload"
+            },
+            {
+              "tag": "A",
+              "w": 141,
+              "h": 19,
+              "label": "/api/files/mkdir"
+            },
+            {
+              "tag": "A",
+              "w": 106,
+              "h": 19,
+              "label": "/api/fs/list"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 71,
+              "h": 14,
+              "label": "/openapi.json"
+            },
+            {
+              "tag": "A",
+              "w": 79,
+              "h": 28,
+              "label": "default"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 32,
+              "h": 30,
+              "label": "Collapse operation"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 1340,
+              "h": 28,
+              "label": "GET\n/api/media\nGet Media"
+            },
+            {
+              "tag": "A",
+              "w": 88,
+              "h": 19,
+              "label": "/api/media"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 27,
+              "h": 25,
+              "label": "Copy path to clipboard"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 32,
+              "h": 26,
+              "label": "get ​/api​/media"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 1340,
+              "h": 28,
+              "label": "GET\n/api/files\nList Managed Files"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": []
+        },
+        "minTextPx": 12,
+        "minTextSample": {
+          "text": "/openapi.json",
+          "tag": "SPAN",
+          "px": 12
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 24,
+          "failingPairs": 22,
+          "worst": [
+            {
+              "fg": "rgb(255, 255, 255)",
+              "bg": "rgb(80, 227, 194)",
+              "px": 14,
+              "weight": "700",
+              "ratio": 1.6,
+              "large": false,
+              "pass": false,
+              "sample": "PATCH",
+              "count": 5
+            },
+            {
+              "fg": "rgb(59, 65, 81)",
+              "bg": "rgb(8, 23, 20)",
+              "px": 16,
+              "weight": "600",
+              "ratio": 1.8,
+              "large": false,
+              "pass": false,
+              "sample": "/api",
+              "count": 21
+            },
+            {
+              "fg": "rgb(59, 65, 81)",
+              "bg": "rgb(8, 23, 20)",
+              "px": 13,
+              "weight": "400",
+              "ratio": 1.8,
+              "large": false,
+              "pass": false,
+              "sample": "Rename Session Endpoint",
+              "count": 5
+            },
+            {
+              "fg": "rgb(59, 65, 81)",
+              "bg": "rgb(7, 21, 15)",
+              "px": 16,
+              "weight": "600",
+              "ratio": 1.83,
+              "large": false,
+              "pass": false,
+              "sample": "/api",
+              "count": 306
+            },
+            {
+              "fg": "rgb(59, 65, 81)",
+              "bg": "rgb(7, 21, 15)",
+              "px": 13,
+              "weight": "400",
+              "ratio": 1.83,
+              "large": false,
+              "pass": false,
+              "sample": "Upload Managed File",
+              "count": 78
+            },
+            {
+              "fg": "rgb(59, 65, 81)",
+              "bg": "rgb(26, 16, 5)",
+              "px": 16,
+              "weight": "600",
+              "ratio": 1.84,
+              "large": false,
+              "pass": false,
+              "sample": "/api",
+              "count": 75
+            }
+          ],
+          "bestOfFailing": 3.76
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 305,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://cdn.jsdelivr.net",
+          "https://fastapi.tiangolo.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "Hermes Agent 0.16.0 OAS 3.1 /openapi.json default GET /api/media Get Media GET /api/files List Managed Files DELETE /api/files Delete Managed File GET /api/fi"
+      }
+    },
+    {
+      "route": "/chat",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "chat-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/chat",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 183,
+          "links": 12,
+          "buttons": 6,
+          "inputs": 0,
+          "svgs": 16,
+          "canvases": 0,
+          "headings": 1,
+          "textChars": 182,
+          "skeletonish": 1
+        },
+        "typography": {
+          "h1Text": "Chat",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "Mondwest",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 16,
+          "under44": 16,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "System",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 7,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 1,
+          "animationNames": [
+            "pulse"
+          ],
+          "elementsWithTransition": 28,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION System Restart Gateway Update Hermes HERMES TEAL EN — Nous Researc"
+      }
+    },
+    {
+      "route": "/profiles/new",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "profiles_new-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/profiles/new",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 207,
+          "links": 15,
+          "buttons": 6,
+          "inputs": 0,
+          "svgs": 18,
+          "canvases": 0,
+          "headings": 1,
+          "textChars": 248,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Profiles/new",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "Mondwest",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 19,
+          "under44": 18,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "Plugins",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 8,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 33,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION Plugins KANBAN ACHIEVEMENTS System Gateway Status: Running Activ"
+      }
+    },
+    {
+      "route": "/__does_not_exist_control__",
+      "viewport": "desktop",
+      "reducedMotion": false,
+      "tag": "__does_not_exist_control__-desktop",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/sessions",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 248,
+          "links": 15,
+          "buttons": 8,
+          "inputs": 1,
+          "svgs": 19,
+          "canvases": 2,
+          "headings": 1,
+          "textChars": 252,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Sessions",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "JetBrains Mono",
+            "Mondwest",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 19,
+          "under44": 18,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 109,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PLUGINS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "PROFILES"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "Plugins",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 9,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 34,
+          "canvases": 2,
+          "canvasSizes": [
+            "640x432",
+            "640x432"
+          ],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION Plugins KANBAN ACHIEVEMENTS System Gateway Status: Running Activ"
+      }
+    },
+    {
+      "route": "/sessions",
+      "viewport": "mobile",
+      "reducedMotion": false,
+      "tag": "sessions-mobile",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/sessions\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/skills",
+      "viewport": "mobile",
+      "reducedMotion": false,
+      "tag": "skills-mobile",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/skills\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/system",
+      "viewport": "mobile",
+      "reducedMotion": false,
+      "tag": "system-mobile",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/system\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/logs",
+      "viewport": "mobile",
+      "reducedMotion": false,
+      "tag": "logs-mobile",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/logs\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/sessions",
+      "viewport": "narrow",
+      "reducedMotion": false,
+      "tag": "sessions-narrow",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/sessions\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/skills",
+      "viewport": "narrow",
+      "reducedMotion": false,
+      "tag": "skills-narrow",
+      "nav": null,
+      "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/skills\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 0,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/system",
+      "viewport": "narrow",
+      "reducedMotion": false,
+      "tag": "system-narrow",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 6,
+      "pageErrors": 0,
+      "requestsFailed": 5,
+      "http4xxPlus": 0,
+      "consoleSamples": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      ],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [
+        "http://127.0.0.1:9119/api/dashboard/plugins net::ERR_CONNECTION_REFUSED",
+        "http://127.0.0.1:9119/api/sessions?limit=20&offset=0 net::ERR_CONNECTION_REFUSED",
+        "http://127.0.0.1:9119/api/sessions?limit=50&offset=0 net::ERR_CONNECTION_REFUSED"
+      ],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/sessions",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 259,
+          "links": 13,
+          "buttons": 7,
+          "inputs": 2,
+          "svgs": 19,
+          "canvases": 0,
+          "headings": 1,
+          "textChars": 270,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Sessions",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "JetBrains Mono",
+            "Mondwest",
+            "Rules Compressed",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 20,
+          "under44": 19,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 28,
+              "h": 21,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 8,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 28,
+              "h": 28,
+              "label": "Open navigation"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 28,
+              "h": 28,
+              "label": "Close navigation"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "System",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 11,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 31,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION System Gateway Status: Running Active Sessions: 0 "
+      }
+    },
+    {
+      "route": "/logs",
+      "viewport": "narrow",
+      "reducedMotion": false,
+      "tag": "logs-narrow",
+      "nav": {
+        "status": 200
+      },
+      "error": null,
+      "consoleErrors": 3,
+      "pageErrors": 0,
+      "requestsFailed": 2,
+      "http4xxPlus": 0,
+      "consoleSamples": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "WebSocket connection to 'ws://127.0.0.1:9119/api/pty?token=HLWP3MnXoqMPe2sUSoxuZz0jCVTusP2AyDsVWDKVRPs&channel=d5624f96-618e-4ed4-b9bd-3ab172c1bf1a' failed: Error in connection establishment: net::ERR"
+      ],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [
+        "http://127.0.0.1:9119/dashboard-plugins/hermes-achievements/dist/index.js net::ERR_CONNECTION_REFUSED",
+        "http://127.0.0.1:9119/dashboard-plugins/kanban/dist/index.js net::ERR_CONNECTION_REFUSED"
+      ],
+      "http4xxSamples": [],
+      "probe": {
+        "url": "/logs",
+        "title": "Hermes Agent - Dashboard",
+        "control": {
+          "signalA_documentElement": {
+            "baseline": 0,
+            "withControl": 300,
+            "afterRemoval": 0
+          },
+          "signalA_body_DEAD_CHECK": {
+            "baseline": 0,
+            "withControl": 0,
+            "afterRemoval": 0
+          },
+          "signalA_scrollingElement": {
+            "baseline": 0,
+            "withControl": 300
+          },
+          "signalB_clippedCount": {
+            "baseline": 0,
+            "withControl": 1,
+            "afterRemoval": 0
+          },
+          "signalC_pastViewportCount": {
+            "baseline": 0,
+            "withControl": 1
+          },
+          "detectorProvenA": true,
+          "detectorProvenB": true,
+          "detectorProvenC": true,
+          "bodySignalAlive": false,
+          "restoredA": true,
+          "restoredB": true,
+          "detectorProven": true
+        },
+        "overflow": {
+          "pageOverflowPx": 0,
+          "clippedElements": [],
+          "pastViewportElements": [],
+          "pastViewportCount": 0,
+          "clipStyles": {
+            "html": "hidden",
+            "body": "hidden",
+            "root": "hidden"
+          }
+        },
+        "lateralScrollers": [],
+        "counts": {
+          "elements": 417,
+          "links": 15,
+          "buttons": 26,
+          "inputs": 1,
+          "svgs": 21,
+          "canvases": 0,
+          "headings": 2,
+          "textChars": 11121,
+          "skeletonish": 0
+        },
+        "typography": {
+          "h1Text": "Logs",
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px",
+            "lineHeight": "18.75px",
+            "textTransform": "none"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "23.25px",
+            "textTransform": "none"
+          },
+          "mono": {
+            "fontFamily": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace",
+            "fontSize": "11.25px",
+            "fontWeight": "400",
+            "letterSpacing": "normal",
+            "lineHeight": "15px",
+            "textTransform": "none"
+          },
+          "loadedFonts": [
+            "Collapse",
+            "JetBrains Mono",
+            "Mondwest",
+            "Rules Compressed",
+            "Rules Expanded"
+          ],
+          "bodyBackground": "color(srgb 0.0156863 0.109804 0.109804)"
+        },
+        "hitTargets": {
+          "total": 40,
+          "under44": 39,
+          "under24": 3,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 28,
+              "h": 21,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 8,
+              "label": "Switch to Chinese"
+            },
+            {
+              "tag": "A",
+              "w": 83,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "under44Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 28,
+              "h": 28,
+              "label": "Open navigation"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 28,
+              "h": 28,
+              "label": "Close navigation"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CHAT"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SESSIONS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "MODELS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "LOGS"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "CRON"
+            },
+            {
+              "tag": "A",
+              "w": 239,
+              "h": 38,
+              "label": "SKILLS"
+            }
+          ],
+          "unlabeledIconOnly": 0,
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "minTextPx": 11.3,
+        "minTextSample": {
+          "text": "Plugins",
+          "tag": "SPAN",
+          "px": 11.25
+        },
+        "contrast": {
+          "selfTest": {
+            "whiteOnBlack": 21,
+            "sameOnSame": 1,
+            "oklabResolved": true,
+            "oklabAsRgb": "rgb(255, 230, 203)",
+            "unresolvedColorStrings": 0,
+            "proven": true
+          },
+          "distinctPairs": 14,
+          "failingPairs": 0,
+          "worst": [],
+          "bestOfFailing": null
+        },
+        "motion": {
+          "prefersReducedMotionMatches": false,
+          "elementsWithAnimation": 0,
+          "animationNames": [],
+          "elementsWithTransition": 52,
+          "canvases": 0,
+          "canvasSizes": [],
+          "videos": 0
+        },
+        "externalOrigins": [
+          "https://nousresearch.com"
+        ],
+        "emojiCount": 0,
+        "emojiSamples": [],
+        "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS MODELS LOGS CRON SKILLS PLUGINS PROFILES CONFIG KEYS DOCUMENTATION Plugins KANBAN ACHIEVEMENTS System Gateway Status: R"
+      }
+    },
+    {
+      "route": "/sessions",
+      "viewport": "desktop",
+      "reducedMotion": true,
+      "tag": "sessions-desktop-rm",
+      "nav": null,
+      "error": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:9119/sessions\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/sessions\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 1,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [
+        "http://127.0.0.1:9119/sessions net::ERR_CONNECTION_REFUSED"
+      ],
+      "http4xxSamples": [],
+      "probe": null
+    },
+    {
+      "route": "/profiles",
+      "viewport": "desktop",
+      "reducedMotion": true,
+      "tag": "profiles-desktop-rm",
+      "nav": null,
+      "error": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:9119/profiles\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9119/profiles\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "requestsFailed": 1,
+      "http4xxPlus": 0,
+      "consoleSamples": [],
+      "pageErrorSamples": [],
+      "reqFailedSamples": [
+        "http://127.0.0.1:9119/profiles net::ERR_CONNECTION_REFUSED"
+      ],
+      "http4xxSamples": [],
+      "probe": null
+    }
+  ]
+}
