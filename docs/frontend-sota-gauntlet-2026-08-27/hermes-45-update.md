@@ -30,7 +30,7 @@ The dashboard is usable now. This score does not block Hermes runtime work. It d
 
 ### Related Docs / Evidence Links
 
-On the iMelki fork, `dev`:
+On the iMelki fork, `dev` at `6e5602e4a`:
 
 - `docs/frontend-sota-gauntlet-2026-08-27/scorecard.md`
 - `docs/frontend-sota-gauntlet-2026-08-27/verification.md`
