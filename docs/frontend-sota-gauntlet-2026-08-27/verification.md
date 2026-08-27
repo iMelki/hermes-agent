@@ -23,10 +23,9 @@ GET JS              200  1972971 B  sha256:526c6ed2e33172b0b35ea86e52d4303e76deb
 disk source JS      same hash
 disk runtime JS     same hash
 GET /api/status     200  version 0.18.2 (no git SHA field; no SPA session header)
+source HEAD         9cb51827e18a81d03f45cda779ee49075b690be2
+runtime HEAD        9cb51827e18a81d03f45cda779ee49075b690be2  (detached via imelki)
 ```
-
-Source and runtime git SHAs are stamped after the `dev` commit that contains
-this recapture.
 
 ## `/system` API probe (tokened, no secrets printed)
 

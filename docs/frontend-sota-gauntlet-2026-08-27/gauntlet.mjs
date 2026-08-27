@@ -24,7 +24,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SHOTDIR = path.join(HERE, 'shots');
 fs.mkdirSync(SHOTDIR, { recursive: true });
 
-const AUDITED_TIP = 'PENDING_HEAD';
+const AUDITED_TIP = '9cb51827e18a81d03f45cda779ee49075b690be2';
 const EXPECTED_JS = {
   url: '/assets/index-BloUMaE8.js',
   bytes: 1972971,

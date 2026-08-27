@@ -1,7 +1,7 @@
 {
   "capturedAt": "2026-08-27T18:33:34.126Z",
   "base": "http://127.0.0.1:9119",
-  "auditedTip": "PENDING_HEAD",
+  "auditedTip": "9cb51827e18a81d03f45cda779ee49075b690be2",
   "harness": "playwright-core 1.59.1 (chromium headless) via content-factory store; waitUntil=commit; never networkidle",
   "recipe": "isolated-loopback 1440+390 reduced-motion never-networkidle",
   "provenance": {

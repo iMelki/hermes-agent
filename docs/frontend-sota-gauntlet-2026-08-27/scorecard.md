@@ -6,7 +6,7 @@ Workflow: `frontend-sota-gauntlet` (`agent-settings/shared/prompts/frontend-sota
 Previous score: **15 / 21** on served `3bea4c4819062f0a7c491a20f6cae13144778422` / `index-CAurVnFC.js`.
 Scored served artifact: **`index-BloUMaE8.js`** (1,972,971 B,
 `sha256:526c6ed2e33172b0b35ea86e52d4303e76deb816e134edb7e653670e35bad47e`)
-Audited tip: **PENDING_HEAD** (stamped to `dev` HEAD after commit)
+Audited tip: **9cb51827e18a81d03f45cda779ee49075b690be2**
 Harness: Playwright 1.59.1, isolated loopback, `waitUntil: commit`, never
 `networkidle`, 1440×900 + 390×844, reduced-motion pair
 Cost: **$0.00**, 0 paid provider calls, 0 generated assets
@@ -39,7 +39,7 @@ stays **no 8+** (6.0 carried / UNSCORABLE for award claims). Do not quote 19–2
 | Entry HTML (token-stripped) | `sha256:46266caf6595b4399f852c82f04063a9258c03fd1d7a5d875c86f2c2862362d6` (511 B) |
 | JS | `/assets/index-BloUMaE8.js` 1,972,971 B `526c6ed2…35bad47e` |
 | CSS | `/assets/index-DS6owGOh.css` 114,669 B `fc5e7b52…5b82aa50` |
-| Source `git log -1` | PENDING_HEAD |
+| Source `git log -1` | 9cb51827e18a81d03f45cda779ee49075b690be2 |
 | Runtime checkout | `%LOCALAPPDATA%\Hermes\hermes-agent` detached via `imelki` only |
 | Disk `web_dist` JS | **byte-identical** to served |
 | `/api/status` | HTTP **200** without SPA session header, `version` 0.18.2 (no git SHA field) |
