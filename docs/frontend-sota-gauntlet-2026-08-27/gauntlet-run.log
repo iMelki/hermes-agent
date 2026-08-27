@@ -1,7 +1,7 @@
-PROVENANCE OK entry=1bb0c5e2f19937c0 js=index-CAurVnFC.js css=index-BBNSWGzv.css auditedTip=3bea4c481906
-sessions-1440 st=200 settled=true h1="Sessions" over=0 u24=3/27 anim=1 rm=false err=0
-skills-1440 st=200 settled=true h1="Skills" over=0 u24=3/251 anim=0 rm=false err=0
-system-1440 st=200 settled=true h1="System" over=0 u24=4/43 anim=1 rm=false err=0
-sessions-390 st=200 settled=true h1="Sessions" over=0 u24=3/28 anim=1 rm=false err=0
-sessions-1440-rm st=200 settled=true h1="Sessions" over=0 u24=3/27 anim=0 rm=true err=0
+PROVENANCE OK entry=99675638ecef42fb js=index-DFSF3_kR.js css=index-DS6owGOh.css auditedTip=pending-comm
+sessions-1440 st=200 settled=true h1="Sessions" over=0 u24=0/27 anim=1 rm=false err=0
+skills-1440 st=200 settled=true h1="Skills" over=0 u24=0/251 anim=0 rm=false err=0
+system-1440 st=200 settled=true h1="System" over=0 u24=0/65 anim=1 rm=false err=0
+sessions-390 st=200 settled=true h1="Sessions" over=0 u24=0/28 anim=1 rm=false err=0
+sessions-1440-rm st=200 settled=true h1="Sessions" over=0 u24=0/27 anim=0 rm=true err=0
 WROTE S:\source\CCAI\Assistants\tools\hermes-agent-imelki\docs\frontend-sota-gauntlet-2026-08-27\gauntlet.json

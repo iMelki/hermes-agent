@@ -1,12 +1,12 @@
-# Frontend SOTA Gauntlet — Scorecard (hermes-web, chrome + /system follow-up)
+# Frontend SOTA Gauntlet — Scorecard (hermes-web, /system in-page 24px)
 
 Subject: **hermes-web** (`web/` in `iMelki/hermes-agent`, served at `http://127.0.0.1:9119`)
-Date: 2026-08-27 (chrome 24px floor + `/system` first-paint load)
+Date: 2026-08-27 (/system in-page 24px links + labeled redact checkbox)
 Workflow: `frontend-sota-gauntlet` (`agent-settings/shared/prompts/frontend-sota-gauntlet.md`)
-Previous score: **15 / 21** on served `3bea4c4819062f0a7c491a20f6cae13144778422` / `index-CAurVnFC.js`.
-Scored served artifact: **`index-BloUMaE8.js`** (1,972,971 B,
-`sha256:526c6ed2e33172b0b35ea86e52d4303e76deb816e134edb7e653670e35bad47e`)
-Audited tip: **9cb51827e18a81d03f45cda779ee49075b690be2**
+Previous score: **15 / 21** on served `9cb51827e18a81d03f45cda779ee49075b690be2` / `index-BloUMaE8.js`.
+Scored served artifact: **`index-DFSF3_kR.js`** (1,973,248 B,
+`sha256:89bc089d96d2d58edadbbc6c0d4332eb9ea92cbba3b1b77d222ce1471e97cbdb`)
+Audited tip: **d5ca89ca2a52c58a470d8714d487720abaeb8348**
 Harness: Playwright 1.59.1, isolated loopback, `waitUntil: commit`, never
 `networkidle`, 1440×900 + 390×844, reduced-motion pair
 Cost: **$0.00**, 0 paid provider calls, 0 generated assets
@@ -21,13 +21,13 @@ stays **no 8+** (6.0 carried / UNSCORABLE for award claims). Do not quote 19–2
 
 | # | Area | Score | Why |
 |---|---|---:|---|
-| 1 | Visual direction | **2** | Same Hermes Teal / Nous chrome. `h1` still **18.75px** vs body **15px**. Still not memorable at the pixel. |
-| 2 | UX clarity | **3** | `/system` now shows a real host/portal/curator body (2906 chars, 10 headings). Console still `err=0`. Still a 17-item flat nav. |
-| 3 | Motion / interactivity | **1** | No signature beat. `/sessions` 1440 ran `pulse` (1) with motion allowed. Reduced-motion `/sessions` ran **0** animations (`pulse` gated). No GSAP on this ops surface. |
-| 4 | Technical quality | **2** | Served JS + disk source/runtime hashes agree. Headerless `GET /api/status` 200 is the public liveness contract. Tokened `/system` reads are 200. No auth bypass and no new unauthenticated write tool. The 1046-char failure notice is gone because the first-paint set no longer races the 10s git update-check. |
-| 5 | Responsiveness | **2** | **0px** page overflow at 1440 and 390. Skills under-24px **3/251 → 0/251**. Sessions **0/27** (390: **0/28**). Nav links **239×45**. `/system` still has 4 under-24 in-page links/buttons (15px text links + one 15×15 unlabeled button) now that the page actually loaded. |
+| 1 | Visual direction | **2** | Same Hermes Teal / Nous chrome. Live `h1` is **18.75px** vs body **15px** (heading larger; not inverted). Still not memorable at the pixel. No heading-scale change this pass. |
+| 2 | UX clarity | **3** | `/system` still shows a real host/portal/curator body (2905 chars, 10 headings). In-page Manage subscription / Plugins links now meet the 24px floor. Console `err=0`. Still a 17-item flat nav. |
+| 3 | Motion / interactivity | **1** | No signature beat. `/sessions` 1440 ran `pulse` (1) with motion allowed. Reduced-motion `/sessions` ran **0** animations (`pulse` already gated). No GSAP on this ops surface. |
+| 4 | Technical quality | **2** | Served JS + disk source/runtime hashes agree. Headerless `GET /api/status` 200 is the public liveness contract. No auth bypass and no new unauthenticated write tool. |
+| 5 | Responsiveness | **2** | **0px** page overflow at 1440 and 390. Skills under-24px **0/251**. Sessions **0/27** (390: **0/28**). `/system` under-24 **4/65 → 0/65**. Nav links **239×45**. Under-44 leftovers remain (system 46, skills 231). |
 | 6 | Verification | **2** | Browser shots, console, provenance self-test + negative control, before/after digest stability. No repo test suite for the page and no canvas-nonblank proof. |
-| 7 | Complexity fit | **3** | Operator dashboard, honest empty/error retained for real failures, no GSAP/Canvas/Framer novelty on this cockpit page. |
+| 7 | Complexity fit | **3** | Operator dashboard, no GSAP/Canvas/Framer novelty on this cockpit page. |
 
 ---
 
@@ -36,17 +36,16 @@ stays **no 8+** (6.0 carried / UNSCORABLE for award claims). Do not quote 19–2
 | Surface | Value |
 |---|---|
 | Served URL | `http://127.0.0.1:9119` HTTP **200**, no login redirect |
-| Entry HTML (token-stripped) | `sha256:46266caf6595b4399f852c82f04063a9258c03fd1d7a5d875c86f2c2862362d6` (511 B) |
-| JS | `/assets/index-BloUMaE8.js` 1,972,971 B `526c6ed2…35bad47e` |
+| JS | `/assets/index-DFSF3_kR.js` 1,973,248 B `89bc089d…1e97cbdb` |
 | CSS | `/assets/index-DS6owGOh.css` 114,669 B `fc5e7b52…5b82aa50` |
-| Source `git log -1` | 9cb51827e18a81d03f45cda779ee49075b690be2 |
+| Source `git log -1` (fix) | d5ca89ca2a52c58a470d8714d487720abaeb8348 |
 | Runtime checkout | `%LOCALAPPDATA%\Hermes\hermes-agent` detached via `imelki` only |
 | Disk `web_dist` JS | **byte-identical** to served |
 | `/api/status` | HTTP **200** without SPA session header, `version` 0.18.2 (no git SHA field) |
 
 The launcher session token was stripped before hashing. No new operator login
-was required (`sessionTokenStripped: true`). NousResearch `origin` on the
-runtime checkout was **not** fetched, pushed, or mutated.
+was required. NousResearch `origin` on the runtime checkout was **not** fetched,
+pushed, or mutated.
 
 ---
 
@@ -56,34 +55,24 @@ runtime checkout was **not** fetched, pushed, or mutated.
 |---|---|---|---|---|---:|---:|---|
 | `shots/sessions-1440.png` | `/sessions` | 1440×900 | yes | Sessions 18.75px | 0 | 0/27 | none |
 | `shots/skills-1440.png` | `/skills` | 1440×900 | yes | Skills 18.75px | 0 | 0/251 | none |
-| `shots/system-1440.png` | `/system` | 1440×900 | yes | System 18.75px | 0 | 4/65 | none |
+| `shots/system-1440.png` | `/system` | 1440×900 | yes | System 18.75px | 0 | 0/65 | none |
 | `shots/sessions-390.png` | `/sessions` | 390×844 | yes | Sessions 18.75px | 0 | 0/28 | none |
 | `shots/sessions-1440-rm.png` | `/sessions` | 1440×900 RM | yes | Sessions 18.75px | 0 | 0/27 | none |
 
-`/system` body is **2906** text chars with live host facts. It does **not**
-invent host or gateway numbers. The previous 1046-char first-paint notice is
-gone on this receipt.
-
----
-
-## `/system` diagnosis (fixed the client race, not invented stats)
-
-Tokened sequential and parallel probes of the nine `/system` reads all returned
-**200** in under 2s / 4s. Paths are correct. The leftover notice was the SPA
-5s `settleWithTimeout` racing `GET /api/hermes/update/check`, whose server git
-`ls-remote`/`fetch` is allowed **10s**. That call is now off the first-paint
-failure set (15s, badge-only). Failed first-paint names are labeled
-`(timeout)` or `(NNN)` so a future miss stays honest.
+`/system` body is **2905** text chars with live host facts. It does **not**
+invent host or gateway numbers.
 
 ---
 
 ## What this does and does not unlock
 
-**Unlocked.** `:9119` is attributable to `index-BloUMaE8.js`. Theme, language,
-and Nous footer chrome meet the 24px floor on sessions/skills/390.
+**Unlocked.** `:9119` is attributable to `index-DFSF3_kR.js`. `/system` in-page
+15px text links and the unlabeled 15×15 redact checkbox now meet the 24px /
+named-control floor.
 
 **Not unlocked.** 15/21 is still the usable band. Do not quote 19–21/21. Do not
-quote Awwwards 8+.
+quote Awwwards 8+. Command Center scoreboard hermes row stays **15/21** (number
+unchanged).
 
 ---
 
@@ -91,7 +80,8 @@ quote Awwwards 8+.
 
 Tracked on [iMelki/hermes#45](https://github.com/iMelki/hermes/issues/45):
 
-1. `/system` in-page under-24 leftovers: Manage subscription / Plugins text
-   links at 15px, plus one unlabeled 15×15 button.
-2. `/sessions` still runs `pulse` when motion is allowed (live badge).
-3. Visual hierarchy still 18.75px `h1` vs 15px body.
+1. Under-44 leftovers: `/system` **46/65**, Skills **231/251**. WCAG 2.5.5 AAA
+   is 44×44; 2.5.8 AA (24×24) is now met on captured surfaces.
+2. Motion-allowed `pulse` on live/status badges (`/sessions`, `/system`). RM
+   already 0. Do not add GSAP.
+3. Visual hierarchy remains 18.75px `h1` vs 15px body (not inverted; modest).

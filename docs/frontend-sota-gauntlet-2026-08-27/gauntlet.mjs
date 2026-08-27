@@ -24,11 +24,11 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SHOTDIR = path.join(HERE, 'shots');
 fs.mkdirSync(SHOTDIR, { recursive: true });
 
-const AUDITED_TIP = '9cb51827e18a81d03f45cda779ee49075b690be2';
+const AUDITED_TIP = 'd5ca89ca2a52c58a470d8714d487720abaeb8348';
 const EXPECTED_JS = {
-  url: '/assets/index-BloUMaE8.js',
-  bytes: 1972971,
-  sha256: '526c6ed2e33172b0b35ea86e52d4303e76deb816e134edb7e653670e35bad47e',
+  url: '/assets/index-DFSF3_kR.js',
+  bytes: 1973248,
+  sha256: '89bc089d96d2d58edadbbc6c0d4332eb9ea92cbba3b1b77d222ce1471e97cbdb',
 };
 const EXPECTED_CSS = {
   url: '/assets/index-DS6owGOh.css',
@@ -183,7 +183,7 @@ const main = async () => {
     return;
   }
   if (!assetMatch(provenance, EXPECTED_JS) || !assetMatch(provenance, EXPECTED_CSS)) {
-    console.error('ABORT: served bundle does not match audited index-CAurVnFC.js / index-BBNSWGzv.css');
+    console.error('ABORT: served bundle does not match audited ' + EXPECTED_JS.url + ' / ' + EXPECTED_CSS.url);
     console.error(JSON.stringify(provenance.assets, null, 2));
     process.exitCode = 2;
     return;

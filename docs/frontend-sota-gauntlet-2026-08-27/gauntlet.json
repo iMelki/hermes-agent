@@ -1,11 +1,11 @@
 {
-  "capturedAt": "2026-08-27T18:33:34.126Z",
+  "capturedAt": "2026-08-27T18:44:18.402Z",
   "base": "http://127.0.0.1:9119",
-  "auditedTip": "9cb51827e18a81d03f45cda779ee49075b690be2",
+  "auditedTip": "d5ca89ca2a52c58a470d8714d487720abaeb8348",
   "harness": "playwright-core 1.59.1 (chromium headless) via content-factory store; waitUntil=commit; never networkidle",
   "recipe": "isolated-loopback 1440+390 reduced-motion never-networkidle",
   "provenance": {
-    "fetchedAt": "2026-08-27T18:33:16.002Z",
+    "fetchedAt": "2026-08-27T18:43:57.398Z",
     "base": "http://127.0.0.1:9119",
     "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
     "sessionTokenStripped": true,
@@ -15,14 +15,14 @@
       "finalUrl": "http://127.0.0.1:9119/",
       "bytesRaw": 722,
       "bytesNormalized": 511,
-      "sha256Normalized": "46266caf6595b4399f852c82f04063a9258c03fd1d7a5d875c86f2c2862362d6"
+      "sha256Normalized": "99675638ecef42fb5a51f8aeff8ad5db3235be1608b71a14fb7787ce85a6abc7"
     },
     "assets": [
       {
-        "url": "/assets/index-BloUMaE8.js",
+        "url": "/assets/index-DFSF3_kR.js",
         "status": 200,
-        "bytes": 1972971,
-        "sha256": "526c6ed2e33172b0b35ea86e52d4303e76deb816e134edb7e653670e35bad47e"
+        "bytes": 1973248,
+        "sha256": "89bc089d96d2d58edadbbc6c0d4332eb9ea92cbba3b1b77d222ce1471e97cbdb"
       },
       {
         "url": "/assets/index-DS6owGOh.css",
@@ -38,7 +38,7 @@
     "reasons": []
   },
   "provenanceAfter": {
-    "fetchedAt": "2026-08-27T18:33:33.978Z",
+    "fetchedAt": "2026-08-27T18:44:18.248Z",
     "base": "http://127.0.0.1:9119",
     "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
     "sessionTokenStripped": true,
@@ -48,14 +48,14 @@
       "finalUrl": "http://127.0.0.1:9119/",
       "bytesRaw": 722,
       "bytesNormalized": 511,
-      "sha256Normalized": "46266caf6595b4399f852c82f04063a9258c03fd1d7a5d875c86f2c2862362d6"
+      "sha256Normalized": "99675638ecef42fb5a51f8aeff8ad5db3235be1608b71a14fb7787ce85a6abc7"
     },
     "assets": [
       {
-        "url": "/assets/index-BloUMaE8.js",
+        "url": "/assets/index-DFSF3_kR.js",
         "status": 200,
-        "bytes": 1972971,
-        "sha256": "526c6ed2e33172b0b35ea86e52d4303e76deb816e134edb7e653670e35bad47e"
+        "bytes": 1973248,
+        "sha256": "89bc089d96d2d58edadbbc6c0d4332eb9ea92cbba3b1b77d222ce1471e97cbdb"
       },
       {
         "url": "/assets/index-DS6owGOh.css",
@@ -122,9 +122,9 @@
         "name": "login redirect",
         "expectedVerdict": "ENTRY_REDIRECTED",
         "actualVerdict": "reject",
-        "matchedReason": "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:53507/login — served document is not the dashboard entry",
+        "matchedReason": "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:62666/login — served document is not the dashboard entry",
         "reasons": [
-          "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:53507/login — served document is not the dashboard entry",
+          "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:62666/login — served document is not the dashboard entry",
           "NO_BUILD_ASSETS: entry document references no /assets/ build output",
           "NO_SESSION_BOOTSTRAP: no injected window.__HERMES_* script found — this is not the Hermes dashboard entry"
         ],
@@ -340,40 +340,15 @@
           "links": 23,
           "buttons": 40,
           "headings": 10,
-          "textChars": 2906,
+          "textChars": 2905,
           "canvases": 0
         },
         "overflowPx": 0,
         "hitTargets": {
           "total": 65,
-          "under24": 4,
+          "under24": 0,
           "under44": 46,
-          "under24Samples": [
-            {
-              "tag": "A",
-              "w": 104,
-              "h": 15,
-              "label": "Manage subscription"
-            },
-            {
-              "tag": "A",
-              "w": 102,
-              "h": 15,
-              "label": "Change in Plugins →"
-            },
-            {
-              "tag": "A",
-              "w": 98,
-              "h": 15,
-              "label": "configure in Plugins"
-            },
-            {
-              "tag": "BUTTON",
-              "w": 15,
-              "h": 15,
-              "label": ""
-            }
-          ],
+          "under24Samples": [],
           "navLinkSizes": [
             "239x45",
             "239x45",
