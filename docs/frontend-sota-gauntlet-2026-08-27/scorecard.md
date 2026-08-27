@@ -1,12 +1,12 @@
-# Frontend SOTA Gauntlet — Scorecard (hermes-web, 401 follow-up)
+# Frontend SOTA Gauntlet — Scorecard (hermes-web, chrome + /system follow-up)
 
 Subject: **hermes-web** (`web/` in `iMelki/hermes-agent`, served at `http://127.0.0.1:9119`)
-Date: 2026-08-27 (loopback `/api/auth/me` skip + hit-target floors)
+Date: 2026-08-27 (chrome 24px floor + `/system` first-paint load)
 Workflow: `frontend-sota-gauntlet` (`agent-settings/shared/prompts/frontend-sota-gauntlet.md`)
-Previous score: **15 / 21** on served `9faae85d9732a241c8ac67d5e11908bcfd3bd29a` / `index-3A4qXw6p.js`.
-Scored served artifact: **`index-CAurVnFC.js`** (1,972,319 B,
-`sha256:99c71e0b32af84b36bd21bf93bd01987c828f3cb3d4a430ab7617137e16a1498`)
-Audited tip: **3bea4c4819062f0a7c491a20f6cae13144778422**
+Previous score: **15 / 21** on served `3bea4c4819062f0a7c491a20f6cae13144778422` / `index-CAurVnFC.js`.
+Scored served artifact: **`index-BloUMaE8.js`** (1,972,971 B,
+`sha256:526c6ed2e33172b0b35ea86e52d4303e76deb816e134edb7e653670e35bad47e`)
+Audited tip: **PENDING_HEAD** (stamped to `dev` HEAD after commit)
 Harness: Playwright 1.59.1, isolated loopback, `waitUntil: commit`, never
 `networkidle`, 1440×900 + 390×844, reduced-motion pair
 Cost: **$0.00**, 0 paid provider calls, 0 generated assets
@@ -22,12 +22,12 @@ stays **no 8+** (6.0 carried / UNSCORABLE for award claims). Do not quote 19–2
 | # | Area | Score | Why |
 |---|---|---:|---|
 | 1 | Visual direction | **2** | Same Hermes Teal / Nous chrome. `h1` still **18.75px** vs body **15px**. Still not memorable at the pixel. |
-| 2 | UX clarity | **3** | `/system` body stays operator-readable. Console 401s are gone on every captured surface. Still a 17-item flat nav. |
-| 3 | Motion / interactivity | **1** | No signature beat. `/sessions` 1440 ran `pulse` (1) with motion allowed. Reduced-motion `/sessions` ran **0** animations (`pulse` gated). |
-| 4 | Technical quality | **2** | Identity-matched restamp: served JS + disk source/runtime hashes agree. SPA 401 was the expected loopback `/api/auth/me` probe, not a missing session header. Headerless `GET /api/status` 200 is the public liveness contract. No auth bypass and no new unauthenticated write tool. `/system` still shows the honest load-failure notice (1046 chars) for non-401 failures. |
-| 5 | Responsiveness | **2** | **0px** page overflow at 1440 and 390. Skills under-24px **205/250 → 3/251** (switches cleared the 24px floor). Nav links **239×38 → 239×45**. Remaining under-24 cluster is chrome: theme 23px, language 23px, Nous footer 15px. |
-| 6 | Verification | **2** | Browser shots, console, 401-path logging, provenance self-test + negative control, before/after digest stability. No repo test suite for the page and no canvas-nonblank proof. |
-| 7 | Complexity fit | **3** | Operator dashboard, honest empty/error state, no GSAP/Canvas/Framer novelty on this cockpit page. |
+| 2 | UX clarity | **3** | `/system` now shows a real host/portal/curator body (2906 chars, 10 headings). Console still `err=0`. Still a 17-item flat nav. |
+| 3 | Motion / interactivity | **1** | No signature beat. `/sessions` 1440 ran `pulse` (1) with motion allowed. Reduced-motion `/sessions` ran **0** animations (`pulse` gated). No GSAP on this ops surface. |
+| 4 | Technical quality | **2** | Served JS + disk source/runtime hashes agree. Headerless `GET /api/status` 200 is the public liveness contract. Tokened `/system` reads are 200. No auth bypass and no new unauthenticated write tool. The 1046-char failure notice is gone because the first-paint set no longer races the 10s git update-check. |
+| 5 | Responsiveness | **2** | **0px** page overflow at 1440 and 390. Skills under-24px **3/251 → 0/251**. Sessions **0/27** (390: **0/28**). Nav links **239×45**. `/system` still has 4 under-24 in-page links/buttons (15px text links + one 15×15 unlabeled button) now that the page actually loaded. |
+| 6 | Verification | **2** | Browser shots, console, provenance self-test + negative control, before/after digest stability. No repo test suite for the page and no canvas-nonblank proof. |
+| 7 | Complexity fit | **3** | Operator dashboard, honest empty/error retained for real failures, no GSAP/Canvas/Framer novelty on this cockpit page. |
 
 ---
 
@@ -36,14 +36,13 @@ stays **no 8+** (6.0 carried / UNSCORABLE for award claims). Do not quote 19–2
 | Surface | Value |
 |---|---|
 | Served URL | `http://127.0.0.1:9119` HTTP **200**, no login redirect |
-| Entry HTML (token-stripped) | `sha256:1bb0c5e2f19937c0f2956a0d950e023070f5a620197736786a378e9ddaa8e6e0` (511 B) |
-| JS | `/assets/index-CAurVnFC.js` 1,972,319 B `99c71e0b…16a1498` |
-| CSS | `/assets/index-BBNSWGzv.css` 114,638 B `ca240640…998ddc` |
-| Source `git log -1` | 3bea4c4819062f0a7c491a20f6cae13144778422 |
+| Entry HTML (token-stripped) | `sha256:46266caf6595b4399f852c82f04063a9258c03fd1d7a5d875c86f2c2862362d6` (511 B) |
+| JS | `/assets/index-BloUMaE8.js` 1,972,971 B `526c6ed2…35bad47e` |
+| CSS | `/assets/index-DS6owGOh.css` 114,669 B `fc5e7b52…5b82aa50` |
+| Source `git log -1` | PENDING_HEAD |
 | Runtime checkout | `%LOCALAPPDATA%\Hermes\hermes-agent` detached via `imelki` only |
 | Disk `web_dist` JS | **byte-identical** to served |
 | `/api/status` | HTTP **200** without SPA session header, `version` 0.18.2 (no git SHA field) |
-| `/health` | SPA fallback HTML **200**, same `index-CAurVnFC.js` |
 
 The launcher session token was stripped before hashing. No new operator login
 was required (`sessionTokenStripped: true`). NousResearch `origin` on the
@@ -55,37 +54,33 @@ runtime checkout was **not** fetched, pushed, or mutated.
 
 | Shot | Route | Viewport | Settled | h1 | Overflow | under24 | Console |
 |---|---|---|---|---|---:|---:|---|
-| `shots/sessions-1440.png` | `/sessions` | 1440×900 | yes | Sessions 18.75px | 0 | 3/27 | none |
-| `shots/skills-1440.png` | `/skills` | 1440×900 | yes | Skills 18.75px | 0 | 3/251 | none |
-| `shots/system-1440.png` | `/system` | 1440×900 | yes | System 18.75px | 0 | 4/43 | none |
-| `shots/sessions-390.png` | `/sessions` | 390×844 | yes | Sessions 18.75px | 0 | 3/28 | none |
-| `shots/sessions-1440-rm.png` | `/sessions` | 1440×900 RM | yes | Sessions 18.75px | 0 | 3/27 | none |
+| `shots/sessions-1440.png` | `/sessions` | 1440×900 | yes | Sessions 18.75px | 0 | 0/27 | none |
+| `shots/skills-1440.png` | `/skills` | 1440×900 | yes | Skills 18.75px | 0 | 0/251 | none |
+| `shots/system-1440.png` | `/system` | 1440×900 | yes | System 18.75px | 0 | 4/65 | none |
+| `shots/sessions-390.png` | `/sessions` | 390×844 | yes | Sessions 18.75px | 0 | 0/28 | none |
+| `shots/sessions-1440-rm.png` | `/sessions` | 1440×900 RM | yes | Sessions 18.75px | 0 | 0/27 | none |
 
-`/system` body remains **1046** text chars: honest failure notice plus Operations.
-It does **not** invent host or gateway numbers. Those remaining failures are
-not the loopback session-token 401.
+`/system` body is **2906** text chars with live host facts. It does **not**
+invent host or gateway numbers. The previous 1046-char first-paint notice is
+gone on this receipt.
 
 ---
 
-## 401 research (fixed, not parked)
+## `/system` diagnosis (fixed the client race, not invented stats)
 
-Headerless `GET /api/status` 200 is **by design** (`PUBLIC_API_PATHS`).
-Protected APIs (`/api/sessions`, `/api/skills`, `/api/system/stats`) return
-**200** with the documented `X-Hermes-Session-Token` from
-`window.__HERMES_SESSION_TOKEN__`, and **401** without it. `/api/auth/me`
-returns **401 even with a valid loopback token** because there is no OAuth
-`request.state.session`. AuthWidget was calling that probe on every route.
-
-Fix: skip `getAuthMe()` when `window.__HERMES_AUTH_REQUIRED__` is not true.
-That is the documented injected flag. No password typed. No cookie bypass.
-No unauthenticated write tool.
+Tokened sequential and parallel probes of the nine `/system` reads all returned
+**200** in under 2s / 4s. Paths are correct. The leftover notice was the SPA
+5s `settleWithTimeout` racing `GET /api/hermes/update/check`, whose server git
+`ls-remote`/`fetch` is allowed **10s**. That call is now off the first-paint
+failure set (15s, badge-only). Failed first-paint names are labeled
+`(timeout)` or `(NNN)` so a future miss stays honest.
 
 ---
 
 ## What this does and does not unlock
 
-**Unlocked.** `:9119` is attributable to `index-CAurVnFC.js`. Console 401s are
-gone. Skills switch floor and nav 44px+ are live.
+**Unlocked.** `:9119` is attributable to `index-BloUMaE8.js`. Theme, language,
+and Nous footer chrome meet the 24px floor on sessions/skills/390.
 
 **Not unlocked.** 15/21 is still the usable band. Do not quote 19–21/21. Do not
 quote Awwwards 8+.
@@ -96,8 +91,7 @@ quote Awwwards 8+.
 
 Tracked on [iMelki/hermes#45](https://github.com/iMelki/hermes/issues/45):
 
-1. Chrome under-24px leftovers: theme 23px, language 23px, Nous footer 15px.
-2. `/system` still shows the honest load-failure notice after the 401 fix
-   (non-401 failures / timeouts; do not invent stats).
-3. `/sessions` still runs `pulse` when motion is allowed (live badge).
-4. Visual hierarchy still 18.75px `h1` vs 15px body.
+1. `/system` in-page under-24 leftovers: Manage subscription / Plugins text
+   links at 15px, plus one unlabeled 15×15 button.
+2. `/sessions` still runs `pulse` when motion is allowed (live badge).
+3. Visual hierarchy still 18.75px `h1` vs 15px body.

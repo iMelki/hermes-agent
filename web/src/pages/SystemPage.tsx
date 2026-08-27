@@ -61,7 +61,8 @@ import type {
 import { SystemUnavailableNotice } from "@/components/SystemUnavailableNotice";
 import {
   SYSTEM_LOAD_TIMEOUT_MS,
-  settleWithTimeout,
+  UPDATE_CHECK_TIMEOUT_MS,
+  takeSettled,
 } from "@/lib/settleWithTimeout";
 import {
   type BackupImportTarget,
@@ -216,16 +217,22 @@ export default function SystemPage() {
     setLoadFailures([]);
     // fetchJSON can hang on loopback 401 (reload path). Apply each payload as
     // it settles so /system can show status/ops instead of a blank spinner.
+    // Update-check can take >5s (server git fetch/ls-remote is 10s). Keep it
+    // off the first-paint failure set so a slow git remote does not blank Host.
     const failed: string[] = [];
-    const take = async <T,>(
+    const take = <T,>(
       name: string,
       promise: Promise<T>,
       apply: (value: T) => void,
-    ) => {
-      const result = await settleWithTimeout(promise, SYSTEM_LOAD_TIMEOUT_MS);
-      if (result.status === "fulfilled") apply(result.value);
-      else failed.push(name);
-    };
+      ms: number = SYSTEM_LOAD_TIMEOUT_MS,
+    ) => takeSettled(name, promise, apply, failed, ms);
+    void takeSettled(
+      "update check",
+      api.checkHermesUpdate(false),
+      setUpdateInfo,
+      [],
+      UPDATE_CHECK_TIMEOUT_MS,
+    );
     Promise.all([
       take("status", api.getStatus(), setStatus),
       take("host stats", api.getSystemStats(), setStats),
@@ -235,7 +242,6 @@ export default function SystemPage() {
       take("hooks", api.getHooks(), setHooks),
       take("curator", api.getCurator(), setCurator),
       take("portal", api.getPortal(), setPortal),
-      take("update check", api.checkHermesUpdate(false), setUpdateInfo),
     ])
       .then(() => setLoadFailures(failed))
       .finally(() => setLoading(false));

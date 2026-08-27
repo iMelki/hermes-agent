@@ -24,16 +24,16 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SHOTDIR = path.join(HERE, 'shots');
 fs.mkdirSync(SHOTDIR, { recursive: true });
 
-const AUDITED_TIP = '3bea4c4819062f0a7c491a20f6cae13144778422';
+const AUDITED_TIP = 'PENDING_HEAD';
 const EXPECTED_JS = {
-  url: '/assets/index-CAurVnFC.js',
-  bytes: 1972319,
-  sha256: '99c71e0b32af84b36bd21bf93bd01987c828f3cb3d4a430ab7617137e16a1498',
+  url: '/assets/index-BloUMaE8.js',
+  bytes: 1972971,
+  sha256: '526c6ed2e33172b0b35ea86e52d4303e76deb816e134edb7e653670e35bad47e',
 };
 const EXPECTED_CSS = {
-  url: '/assets/index-BBNSWGzv.css',
-  bytes: 114638,
-  sha256: 'ca240640deef6e21cb0322a118f4006e49ad3782d0ee2dcc1aa3cdf75a998ddc',
+  url: '/assets/index-DS6owGOh.css',
+  bytes: 114669,
+  sha256: 'fc5e7b52d7fa53873003cf0786045e0757bfccc18bf10c22652618d85b82aa50',
 };
 
 async function waitForSurface(page, { minText = 40, maxMs = 45000 } = {}) {
@@ -190,7 +190,9 @@ const main = async () => {
   }
   console.log(
     'PROVENANCE OK entry=' + provenance.entryHtml.sha256Normalized.slice(0, 16) +
-      ' js=index-CAurVnFC.js css=index-BBNSWGzv.css auditedTip=' + AUDITED_TIP.slice(0, 12),
+      ' js=' + EXPECTED_JS.url.replace('/assets/', '') +
+      ' css=' + EXPECTED_CSS.url.replace('/assets/', '') +
+      ' auditedTip=' + AUDITED_TIP.slice(0, 12),
   );
 
   const browser = await chromium.launch({ headless: true });

@@ -1,11 +1,11 @@
 {
-  "capturedAt": "2026-08-27T18:15:33.466Z",
+  "capturedAt": "2026-08-27T18:33:34.126Z",
   "base": "http://127.0.0.1:9119",
-  "auditedTip": "3bea4c4819062f0a7c491a20f6cae13144778422",
+  "auditedTip": "PENDING_HEAD",
   "harness": "playwright-core 1.59.1 (chromium headless) via content-factory store; waitUntil=commit; never networkidle",
   "recipe": "isolated-loopback 1440+390 reduced-motion never-networkidle",
   "provenance": {
-    "fetchedAt": "2026-08-27T18:14:33.937Z",
+    "fetchedAt": "2026-08-27T18:33:16.002Z",
     "base": "http://127.0.0.1:9119",
     "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
     "sessionTokenStripped": true,
@@ -15,20 +15,20 @@
       "finalUrl": "http://127.0.0.1:9119/",
       "bytesRaw": 722,
       "bytesNormalized": 511,
-      "sha256Normalized": "1bb0c5e2f19937c0f2956a0d950e023070f5a620197736786a378e9ddaa8e6e0"
+      "sha256Normalized": "46266caf6595b4399f852c82f04063a9258c03fd1d7a5d875c86f2c2862362d6"
     },
     "assets": [
       {
-        "url": "/assets/index-BBNSWGzv.css",
+        "url": "/assets/index-BloUMaE8.js",
         "status": 200,
-        "bytes": 114638,
-        "sha256": "ca240640deef6e21cb0322a118f4006e49ad3782d0ee2dcc1aa3cdf75a998ddc"
+        "bytes": 1972971,
+        "sha256": "526c6ed2e33172b0b35ea86e52d4303e76deb816e134edb7e653670e35bad47e"
       },
       {
-        "url": "/assets/index-CAurVnFC.js",
+        "url": "/assets/index-DS6owGOh.css",
         "status": 200,
-        "bytes": 1972319,
-        "sha256": "99c71e0b32af84b36bd21bf93bd01987c828f3cb3d4a430ab7617137e16a1498"
+        "bytes": 114669,
+        "sha256": "fc5e7b52d7fa53873003cf0786045e0757bfccc18bf10c22652618d85b82aa50"
       }
     ],
     "error": null
@@ -38,7 +38,7 @@
     "reasons": []
   },
   "provenanceAfter": {
-    "fetchedAt": "2026-08-27T18:15:33.138Z",
+    "fetchedAt": "2026-08-27T18:33:33.978Z",
     "base": "http://127.0.0.1:9119",
     "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
     "sessionTokenStripped": true,
@@ -48,20 +48,20 @@
       "finalUrl": "http://127.0.0.1:9119/",
       "bytesRaw": 722,
       "bytesNormalized": 511,
-      "sha256Normalized": "1bb0c5e2f19937c0f2956a0d950e023070f5a620197736786a378e9ddaa8e6e0"
+      "sha256Normalized": "46266caf6595b4399f852c82f04063a9258c03fd1d7a5d875c86f2c2862362d6"
     },
     "assets": [
       {
-        "url": "/assets/index-BBNSWGzv.css",
+        "url": "/assets/index-BloUMaE8.js",
         "status": 200,
-        "bytes": 114638,
-        "sha256": "ca240640deef6e21cb0322a118f4006e49ad3782d0ee2dcc1aa3cdf75a998ddc"
+        "bytes": 1972971,
+        "sha256": "526c6ed2e33172b0b35ea86e52d4303e76deb816e134edb7e653670e35bad47e"
       },
       {
-        "url": "/assets/index-CAurVnFC.js",
+        "url": "/assets/index-DS6owGOh.css",
         "status": 200,
-        "bytes": 1972319,
-        "sha256": "99c71e0b32af84b36bd21bf93bd01987c828f3cb3d4a430ab7617137e16a1498"
+        "bytes": 114669,
+        "sha256": "fc5e7b52d7fa53873003cf0786045e0757bfccc18bf10c22652618d85b82aa50"
       }
     ],
     "error": null
@@ -122,9 +122,9 @@
         "name": "login redirect",
         "expectedVerdict": "ENTRY_REDIRECTED",
         "actualVerdict": "reject",
-        "matchedReason": "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:62372/login — served document is not the dashboard entry",
+        "matchedReason": "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:53507/login — served document is not the dashboard entry",
         "reasons": [
-          "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:62372/login — served document is not the dashboard entry",
+          "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:53507/login — served document is not the dashboard entry",
           "NO_BUILD_ASSETS: entry document references no /assets/ build output",
           "NO_SESSION_BOOTSTRAP: no injected window.__HERMES_* script found — this is not the Hermes dashboard entry"
         ],
@@ -184,7 +184,7 @@
           ]
         },
         "counts": {
-          "elements": 348,
+          "elements": 355,
           "links": 20,
           "buttons": 9,
           "headings": 2,
@@ -194,28 +194,9 @@
         "overflowPx": 0,
         "hitTargets": {
           "total": 27,
-          "under24": 3,
+          "under24": 0,
           "under44": 8,
-          "under24Samples": [
-            {
-              "tag": "BUTTON",
-              "w": 106,
-              "h": 23,
-              "label": "Switch theme"
-            },
-            {
-              "tag": "BUTTON",
-              "w": 30,
-              "h": 23,
-              "label": "Switch language"
-            },
-            {
-              "tag": "A",
-              "w": 91,
-              "h": 15,
-              "label": "Nous Research"
-            }
-          ],
+          "under24Samples": [],
           "navLinkSizes": [
             "239x45",
             "239x45",
@@ -280,7 +261,7 @@
           ]
         },
         "counts": {
-          "elements": 2847,
+          "elements": 2854,
           "links": 21,
           "buttons": 437,
           "headings": 2,
@@ -290,28 +271,9 @@
         "overflowPx": 0,
         "hitTargets": {
           "total": 251,
-          "under24": 3,
+          "under24": 0,
           "under44": 231,
-          "under24Samples": [
-            {
-              "tag": "BUTTON",
-              "w": 106,
-              "h": 23,
-              "label": "Switch theme"
-            },
-            {
-              "tag": "BUTTON",
-              "w": 30,
-              "h": 23,
-              "label": "Switch language"
-            },
-            {
-              "tag": "A",
-              "w": 91,
-              "h": 15,
-              "label": "Nous Research"
-            }
-          ],
+          "under24Samples": [],
           "navLinkSizes": [
             "239x45",
             "239x45",
@@ -374,36 +336,36 @@
           ]
         },
         "counts": {
-          "elements": 402,
-          "links": 18,
-          "buttons": 23,
-          "headings": 4,
-          "textChars": 1046,
+          "elements": 707,
+          "links": 23,
+          "buttons": 40,
+          "headings": 10,
+          "textChars": 2906,
           "canvases": 0
         },
         "overflowPx": 0,
         "hitTargets": {
-          "total": 43,
+          "total": 65,
           "under24": 4,
-          "under44": 26,
+          "under44": 46,
           "under24Samples": [
             {
-              "tag": "BUTTON",
-              "w": 106,
-              "h": 23,
-              "label": "Switch theme"
-            },
-            {
-              "tag": "BUTTON",
-              "w": 30,
-              "h": 23,
-              "label": "Switch language"
+              "tag": "A",
+              "w": 104,
+              "h": 15,
+              "label": "Manage subscription"
             },
             {
               "tag": "A",
-              "w": 91,
+              "w": 102,
               "h": 15,
-              "label": "Nous Research"
+              "label": "Change in Plugins →"
+            },
+            {
+              "tag": "A",
+              "w": 98,
+              "h": 15,
+              "label": "configure in Plugins"
             },
             {
               "tag": "BUTTON",
@@ -428,7 +390,7 @@
             "pulse"
           ]
         },
-        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION System Restart Gateway "
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KANBAN ACHIEVEM"
       },
       "pageErrors": [],
       "screenshot": "system-1440.png"
@@ -476,7 +438,7 @@
           ]
         },
         "counts": {
-          "elements": 348,
+          "elements": 355,
           "links": 20,
           "buttons": 9,
           "headings": 2,
@@ -486,28 +448,9 @@
         "overflowPx": 0,
         "hitTargets": {
           "total": 28,
-          "under24": 3,
+          "under24": 0,
           "under44": 9,
-          "under24Samples": [
-            {
-              "tag": "BUTTON",
-              "w": 28,
-              "h": 21,
-              "label": "Switch theme"
-            },
-            {
-              "tag": "BUTTON",
-              "w": 15,
-              "h": 8,
-              "label": "Switch language"
-            },
-            {
-              "tag": "A",
-              "w": 91,
-              "h": 15,
-              "label": "Nous Research"
-            }
-          ],
+          "under24Samples": [],
           "navLinkSizes": [
             "239x45",
             "239x45",
@@ -572,7 +515,7 @@
           ]
         },
         "counts": {
-          "elements": 348,
+          "elements": 355,
           "links": 20,
           "buttons": 9,
           "headings": 2,
@@ -582,28 +525,9 @@
         "overflowPx": 0,
         "hitTargets": {
           "total": 27,
-          "under24": 3,
+          "under24": 0,
           "under44": 8,
-          "under24Samples": [
-            {
-              "tag": "BUTTON",
-              "w": 106,
-              "h": 23,
-              "label": "Switch theme"
-            },
-            {
-              "tag": "BUTTON",
-              "w": 30,
-              "h": 23,
-              "label": "Switch language"
-            },
-            {
-              "tag": "A",
-              "w": 91,
-              "h": 15,
-              "label": "Nous Research"
-            }
-          ],
+          "under24Samples": [],
           "navLinkSizes": [
             "239x45",
             "239x45",
