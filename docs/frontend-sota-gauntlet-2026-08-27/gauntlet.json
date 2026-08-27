@@ -1,0 +1,661 @@
+{
+  "capturedAt": "2026-08-27T16:06:48.462Z",
+  "base": "http://127.0.0.1:9119",
+  "auditedTip": "cea8fa537d95257201a999d59f1846c933adb439",
+  "harness": "playwright-core 1.59.1 (chromium headless) via content-factory store; waitUntil=commit; never networkidle",
+  "recipe": "isolated-loopback 1440+390 reduced-motion never-networkidle",
+  "provenance": {
+    "fetchedAt": "2026-08-27T16:04:45.892Z",
+    "base": "http://127.0.0.1:9119",
+    "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
+    "sessionTokenStripped": true,
+    "entryHtml": {
+      "status": 200,
+      "redirected": false,
+      "finalUrl": "http://127.0.0.1:9119/",
+      "bytesRaw": 721,
+      "bytesNormalized": 510,
+      "sha256Normalized": "1f53315ebc3e7c83bbaa1938b53f3640c8cace34952c0bd91df829d7ce950452"
+    },
+    "assets": [
+      {
+        "url": "/assets/index-Cxobo1gB.css",
+        "status": 200,
+        "bytes": 114172,
+        "sha256": "399cc6b1da584563d0b38af27dedce786c78160597eeee60adc2b1b3b6a51a95"
+      },
+      {
+        "url": "/assets/index-DbV3C9Nb.js",
+        "status": 200,
+        "bytes": 1970353,
+        "sha256": "34e28728f1f8c24bf1672c0fbdc9202d957cf9b26fa4710eb10779e6949b87f8"
+      }
+    ],
+    "error": null
+  },
+  "provenanceVerdict": {
+    "ok": true,
+    "reasons": []
+  },
+  "provenanceAfter": {
+    "fetchedAt": "2026-08-27T16:06:48.173Z",
+    "base": "http://127.0.0.1:9119",
+    "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
+    "sessionTokenStripped": true,
+    "entryHtml": {
+      "status": 200,
+      "redirected": false,
+      "finalUrl": "http://127.0.0.1:9119/",
+      "bytesRaw": 721,
+      "bytesNormalized": 510,
+      "sha256Normalized": "1f53315ebc3e7c83bbaa1938b53f3640c8cace34952c0bd91df829d7ce950452"
+    },
+    "assets": [
+      {
+        "url": "/assets/index-Cxobo1gB.css",
+        "status": 200,
+        "bytes": 114172,
+        "sha256": "399cc6b1da584563d0b38af27dedce786c78160597eeee60adc2b1b3b6a51a95"
+      },
+      {
+        "url": "/assets/index-DbV3C9Nb.js",
+        "status": 200,
+        "bytes": 1970353,
+        "sha256": "34e28728f1f8c24bf1672c0fbdc9202d957cf9b26fa4710eb10779e6949b87f8"
+      }
+    ],
+    "error": null
+  },
+  "provenanceAfterVerdict": {
+    "ok": true,
+    "reasons": []
+  },
+  "provenanceControl": {
+    "proven": true,
+    "checks": {
+      "digestsDiffer": true,
+      "digestStable": true,
+      "stripperFires": true,
+      "tokenGone": true,
+      "stableAcrossRestarts": true,
+      "extractorFinds": true,
+      "extractorExcludesNonAssets": true
+    }
+  },
+  "provenanceNegativeControl": {
+    "proven": true,
+    "cases": [
+      {
+        "name": "healthy dashboard (accept case)",
+        "expectedVerdict": "accept",
+        "actualVerdict": "accept",
+        "matchedReason": null,
+        "reasons": [],
+        "passed": true
+      },
+      {
+        "name": "dead port",
+        "expectedVerdict": "FETCH_FAILED",
+        "actualVerdict": "reject",
+        "matchedReason": "FETCH_FAILED: TypeError: fetch failed",
+        "reasons": [
+          "FETCH_FAILED: TypeError: fetch failed",
+          "NO_ENTRY_HTML: the entry document was never retrieved",
+          "NO_BUILD_ASSETS: entry document references no /assets/ build output",
+          "NO_SESSION_BOOTSTRAP: no injected window.__HERMES_* script found — this is not the Hermes dashboard entry"
+        ],
+        "passed": true
+      },
+      {
+        "name": "http 500",
+        "expectedVerdict": "ENTRY_STATUS_NOT_200",
+        "actualVerdict": "reject",
+        "matchedReason": "ENTRY_STATUS_NOT_200: got 500",
+        "reasons": [
+          "ENTRY_STATUS_NOT_200: got 500",
+          "NO_BUILD_ASSETS: entry document references no /assets/ build output",
+          "NO_SESSION_BOOTSTRAP: no injected window.__HERMES_* script found — this is not the Hermes dashboard entry"
+        ],
+        "passed": true
+      },
+      {
+        "name": "login redirect",
+        "expectedVerdict": "ENTRY_REDIRECTED",
+        "actualVerdict": "reject",
+        "matchedReason": "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:61468/login — served document is not the dashboard entry",
+        "reasons": [
+          "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:61468/login — served document is not the dashboard entry",
+          "NO_BUILD_ASSETS: entry document references no /assets/ build output",
+          "NO_SESSION_BOOTSTRAP: no injected window.__HERMES_* script found — this is not the Hermes dashboard entry"
+        ],
+        "passed": true,
+        "observedEntryStatus": 200,
+        "observedRedirected": true
+      }
+    ]
+  },
+    "captureIntegrity": {
+      "resultCount": 5,
+      "navFailureCount": 0,
+      "entrySha256Stable": true,
+      "servedJsMatchedAudited": true
+    },
+    "scores": {
+      "visualDirection": 2,
+      "uxClarity": 2,
+      "motionInteractivity": 1,
+      "technicalQuality": 2,
+      "responsiveness": 2,
+      "verification": 2,
+      "complexityFit": 3
+    },
+    "total": 14,
+    "band": "usable",
+    "scoredBy": "visual review of shots plus gauntlet.json probes; not auto-awarded",
+  "surfaces": [
+    {
+      "name": "sessions-1440",
+      "route": "/sessions",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "nav": {
+        "status": 200
+      },
+      "settled": true,
+      "settleMeta": {
+        "settled": true,
+        "textLen": 222,
+        "h1": "Sessions",
+        "title": "Hermes Agent - Dashboard",
+        "skel": 1
+      },
+      "probe": {
+        "url": "/sessions",
+        "title": "Hermes Agent - Dashboard",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal"
+          },
+          "loadedFonts": [
+            "JetBrains Mono",
+            "Mondwest",
+            "Rules Compressed",
+            "Rules Expanded"
+          ]
+        },
+        "counts": {
+          "elements": 662,
+          "links": 21,
+          "buttons": 44,
+          "headings": 2,
+          "textChars": 1192,
+          "canvases": 2
+        },
+        "overflowPx": 0,
+        "hitTargets": {
+          "total": 28,
+          "under24": 3,
+          "under44": 27,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 106,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch language"
+            },
+            {
+              "tag": "A",
+              "w": 91,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "elementsWithAnimation": 0,
+          "animationNames": []
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KANBAN ACHIEVEM"
+      },
+      "pageErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "screenshot": "sessions-1440.png"
+    },
+    {
+      "name": "skills-1440",
+      "route": "/skills",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "nav": {
+        "status": 200
+      },
+      "settled": true,
+      "settleMeta": {
+        "settled": true,
+        "textLen": 201,
+        "h1": "Skills",
+        "title": "Hermes Agent - Dashboard",
+        "skel": 1
+      },
+      "probe": {
+        "url": "/skills",
+        "title": "Hermes Agent - Dashboard",
+        "h1": "Skills",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal"
+          },
+          "loadedFonts": [
+            "Mondwest",
+            "Rules Compressed",
+            "Rules Expanded"
+          ]
+        },
+        "counts": {
+          "elements": 2792,
+          "links": 21,
+          "buttons": 431,
+          "headings": 2,
+          "textChars": 47047,
+          "canvases": 0
+        },
+        "overflowPx": 0,
+        "hitTargets": {
+          "total": 250,
+          "under24": 221,
+          "under44": 249,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 106,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch language"
+            },
+            {
+              "tag": "A",
+              "w": 91,
+              "h": 15,
+              "label": "Nous Research"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 193,
+              "h": 23,
+              "label": "General\n130"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 193,
+              "h": 23,
+              "label": "Autonomous Ai Agents\n4"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 193,
+              "h": 23,
+              "label": "Creative\n6"
+            }
+          ],
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "elementsWithAnimation": 0,
+          "animationNames": []
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KANBAN ACHIEVEM"
+      },
+      "pageErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "screenshot": "skills-1440.png"
+    },
+    {
+      "name": "system-1440",
+      "route": "/system",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "nav": {
+        "status": 200
+      },
+      "settled": true,
+      "settleMeta": {
+        "settled": true,
+        "textLen": 199,
+        "h1": "System",
+        "title": "Hermes Agent - Dashboard",
+        "skel": 0
+      },
+      "probe": {
+        "url": "/system",
+        "title": "Hermes Agent - Dashboard",
+        "h1": "System",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal"
+          },
+          "loadedFonts": [
+            "Rules Expanded"
+          ]
+        },
+        "counts": {
+          "elements": 228,
+          "links": 18,
+          "buttons": 6,
+          "headings": 1,
+          "textChars": 199,
+          "canvases": 0
+        },
+        "overflowPx": 0,
+        "hitTargets": {
+          "total": 22,
+          "under24": 3,
+          "under44": 22,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 106,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch language"
+            },
+            {
+              "tag": "A",
+              "w": 91,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "elementsWithAnimation": 1,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION System Restart Gateway "
+      },
+      "pageErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "screenshot": "system-1440.png"
+    },
+    {
+      "name": "sessions-390",
+      "route": "/sessions",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "nav": {
+        "status": 200
+      },
+      "settled": true,
+      "settleMeta": {
+        "settled": true,
+        "textLen": 220,
+        "h1": "Sessions",
+        "title": "Hermes Agent - Dashboard",
+        "skel": 1
+      },
+      "probe": {
+        "url": "/sessions",
+        "title": "Hermes Agent - Dashboard",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal"
+          },
+          "loadedFonts": [
+            "Mondwest",
+            "Rules Compressed",
+            "Rules Expanded"
+          ]
+        },
+        "counts": {
+          "elements": 348,
+          "links": 20,
+          "buttons": 9,
+          "headings": 2,
+          "textChars": 1143,
+          "canvases": 0
+        },
+        "overflowPx": 0,
+        "hitTargets": {
+          "total": 28,
+          "under24": 3,
+          "under44": 28,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 28,
+              "h": 21,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 8,
+              "label": "Switch language"
+            },
+            {
+              "tag": "A",
+              "w": 91,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "elementsWithAnimation": 1,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KA"
+      },
+      "pageErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "screenshot": "sessions-390.png"
+    },
+    {
+      "name": "sessions-1440-rm",
+      "route": "/sessions",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "nav": {
+        "status": 200
+      },
+      "settled": true,
+      "settleMeta": {
+        "settled": true,
+        "textLen": 222,
+        "h1": "Sessions",
+        "title": "Hermes Agent - Dashboard",
+        "skel": 1
+      },
+      "probe": {
+        "url": "/sessions",
+        "title": "Hermes Agent - Dashboard",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "13.125px",
+            "fontWeight": "700",
+            "letterSpacing": "1.05px"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "letterSpacing": "normal"
+          },
+          "loadedFonts": [
+            "JetBrains Mono",
+            "Mondwest",
+            "Rules Compressed",
+            "Rules Expanded"
+          ]
+        },
+        "counts": {
+          "elements": 412,
+          "links": 21,
+          "buttons": 13,
+          "headings": 2,
+          "textChars": 1192,
+          "canvases": 2
+        },
+        "overflowPx": 0,
+        "hitTargets": {
+          "total": 28,
+          "under24": 3,
+          "under44": 27,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 106,
+              "h": 23,
+              "label": "Switch theme"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 30,
+              "h": 23,
+              "label": "Switch language"
+            },
+            {
+              "tag": "A",
+              "w": 91,
+              "h": 15,
+              "label": "Nous Research"
+            }
+          ],
+          "navLinkSizes": [
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38",
+            "239x38"
+          ]
+        },
+        "motion": {
+          "prefersReducedMotion": true,
+          "elementsWithAnimation": 1,
+          "animationNames": [
+            "spin"
+          ]
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KANBAN ACHIEVEM"
+      },
+      "pageErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "screenshot": "sessions-1440-rm.png"
+    }
+  ]
+}
