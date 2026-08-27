@@ -744,7 +744,7 @@ function SkillRow({
     <div className="group flex items-start gap-3 px-3 py-2.5 transition-colors hover:bg-muted/40">
       <div className="pt-0.5 shrink-0">
         <Switch
-          aria-label={skill.name} checked={skill.enabled} className="h-6 min-h-6 w-11"
+          aria-label={skill.name} checked={skill.enabled} className="!h-7 !min-h-7 !w-11"
           disabled={toggling} onCheckedChange={onToggle}
         />
       </div>
