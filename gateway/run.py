@@ -19602,6 +19602,21 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 if _timed_out_agent and hasattr(_timed_out_agent, "interrupt"):
                     _timed_out_agent.interrupt(_INTERRUPT_REASON_TIMEOUT)
 
+                # A timed-out agent retains its interrupt state. Keeping that
+                # specific object in the session cache makes the next Discord
+                # message inherit ``Execution timed out (inactivity)`` and
+                # fail before doing useful work. Evict only this timeout path:
+                # ordinary failed runs intentionally remain cached to avoid
+                # the MCP-reinitialization loop guarded below (#7130). The
+                # session history remains intact, so the next turn rebuilds a
+                # fresh agent from the same conversation.
+                self._evict_cached_agent(session_key)
+                logger.info(
+                    "Evicted cached agent after inactivity timeout for session %s; "
+                    "the next turn will rebuild from session history",
+                    session_key,
+                )
+
                 _timeout_mins = int(_agent_timeout // 60) or 1
 
                 # Construct a user-facing message with diagnostic context.
