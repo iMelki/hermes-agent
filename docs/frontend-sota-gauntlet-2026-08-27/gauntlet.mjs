@@ -24,11 +24,11 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SHOTDIR = path.join(HERE, 'shots');
 fs.mkdirSync(SHOTDIR, { recursive: true });
 
-const AUDITED_TIP = 'cea8fa537d95257201a999d59f1846c933adb439';
+const AUDITED_TIP = '3a0f08fbeb9195217b41afa12be204f1b623bfb1';
 const EXPECTED_JS = {
-  url: '/assets/index-DbV3C9Nb.js',
-  bytes: 1970353,
-  sha256: '34e28728f1f8c24bf1672c0fbdc9202d957cf9b26fa4710eb10779e6949b87f8',
+  url: '/assets/index-57itTrlN.js',
+  bytes: 1970350,
+  sha256: '5d1c4c78c0091ad470ceb8971752a34f54523aa34b0ae04a4f6d5a17221316f3',
 };
 const EXPECTED_CSS = {
   url: '/assets/index-Cxobo1gB.css',
@@ -183,14 +183,14 @@ const main = async () => {
     return;
   }
   if (!assetMatch(provenance, EXPECTED_JS) || !assetMatch(provenance, EXPECTED_CSS)) {
-    console.error('ABORT: served bundle does not match audited index-DbV3C9Nb.js / index-Cxobo1gB.css');
+    console.error('ABORT: served bundle does not match audited index-57itTrlN.js / index-Cxobo1gB.css');
     console.error(JSON.stringify(provenance.assets, null, 2));
     process.exitCode = 2;
     return;
   }
   console.log(
     'PROVENANCE OK entry=' + provenance.entryHtml.sha256Normalized.slice(0, 16) +
-      ' js=index-DbV3C9Nb.js css=index-Cxobo1gB.css auditedTip=' + AUDITED_TIP.slice(0, 12),
+      ' js=index-57itTrlN.js css=index-Cxobo1gB.css auditedTip=' + AUDITED_TIP.slice(0, 12),
   );
 
   const browser = await chromium.launch({ headless: true });

@@ -1,38 +1,33 @@
-## First frontend quality-bar capture (2026-08-27)
+## Restamp + gauntlet recapture (2026-08-27)
 
-hermes-web-gauntlet-2026-08-27
+hermes-web-restamp-3a0f08f
 
 ### Plain-English Summary
 
-The Hermes web dashboard at `http://127.0.0.1:9119` is up, it did **not** ask for a new login, and the files it served match the audited build. That is the first time this app could be scored honestly against the shared frontend quality bar (Frontend SOTA Gauntlet: seven areas, 0–3 each, 21 max). The score is **14 / 21** (usable). It is **not** 19–21/21.
-
-Why it matters: earlier fleet rounds carried a 6.0 because the checkout being read was not the build the operator sees. A later agent could otherwise quote 19–21/21 or “world-class” with no pixels. This capture closes that gap.
+The live dashboard at `http://127.0.0.1:9119` was rebuilt from current `dev` and restamped. The files it serves now match source commit `3a0f08fbeb9195217b41afa12be204f1b623bfb1` (`git log -1` on both the iMelki checkout and the local runtime). The recapture score is **14 / 21** (usable). It is **not** 19–21/21. Awwwards is still **not** 8+.
 
 ### Current State
 
-- Served SHA: runtime checkout `cea8fa537d95257201a999d59f1846c933adb439`. JS bundle `index-DbV3C9Nb.js` (1,970,353 bytes, sha256 `34e28728f1f8c24bf1672c0fbdc9202d957cf9b26fa4710eb10779e6949b87f8`). CSS `index-Cxobo1gB.css` matches the same disk files. HTTP 200. No login redirect.
-- Capture ran: five surfaces (`/sessions` 1440, `/skills` 1440, `/system` 1440, `/sessions` 390, `/sessions` reduced-motion). Recipe: isolated loopback, never `networkidle`.
-- Score **14/21**: Visual 2, UX 2, Motion 1, Technical 2, Responsiveness 2, Verification 2, Complexity fit 3.
-- `/system` now shows the System title (the old “this URL painted Sessions” bug is gone) but the page body is almost empty.
-- Every surface logged one `401 Unauthorized` resource.
-- Reduced-motion still ran a `spin` animation.
-- Skills has 221 of 250 controls under 24px.
+- Served SHA: `3a0f08fbeb9195217b41afa12be204f1b623bfb1`. JS bundle `index-57itTrlN.js` (1,970,350 bytes, sha256 `5d1c4c78c0091ad470ceb8971752a34f54523aa34b0ae04a4f6d5a17221316f3`). CSS `index-Cxobo1gB.css` unchanged. HTTP 200. No login redirect.
+- `/api/status` 200 (`version` 0.18.2; that endpoint has no git SHA field). `/health` is the SPA HTML and also references `index-57itTrlN.js`.
+- Heading scale is now live: `h1` **18.75px** vs body **15px** (was inverted 13.125px).
+- Score still **14/21**: Visual 2, UX 2, Motion 1, Technical 2, Responsiveness 2, Verification 2, Complexity fit 3.
+- Next defect: empty `/system` body. Also still: recurring 401, Skills 222/251 under 24px.
 
 ### Fix/Action Status
 
-Captured and scored only. No dashboard UI code was changed. Fork-safe quick-wins from this issue are still open.
-
-Not happening now: no gateway restart, no scheduled-task change, no spend, no NousResearch mutation, no claim that the UI is finished.
+Restamped and recaptured. No Framer/GSAP. NousResearch remotes were not pushed or mutated. Runtime `origin` remains NousResearch (fetch/push unused); checkout moved locally via the `imelki` remote.
 
 ### Not A Blocker
 
-The dashboard is usable now. This score does not block Hermes runtime work. It does block any “world-class / 19–21” claim until a later capture moves the number.
+The dashboard is usable. This score still blocks any “world-class / 19–21 / Awwwards 8+” claim.
 
 ### Related Docs / Evidence Links
 
-On the iMelki fork, `dev` at `6e5602e4a`:
+On `iMelki/hermes-agent` `dev`:
 
 - `docs/frontend-sota-gauntlet-2026-08-27/scorecard.md`
 - `docs/frontend-sota-gauntlet-2026-08-27/verification.md`
 - `docs/frontend-sota-gauntlet-2026-08-27/gauntlet.json`
-- `docs/frontend-sota-gauntlet-2026-08-27/shots/`
+
+Marker: `served SHA 3a0f08f / 14/21 / no Awwwards 8+`

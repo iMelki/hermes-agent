@@ -1,11 +1,11 @@
 {
-  "capturedAt": "2026-08-27T16:06:48.462Z",
+  "capturedAt": "2026-08-27T17:17:49.796Z",
   "base": "http://127.0.0.1:9119",
-  "auditedTip": "cea8fa537d95257201a999d59f1846c933adb439",
+  "auditedTip": "3a0f08fbeb9195217b41afa12be204f1b623bfb1",
   "harness": "playwright-core 1.59.1 (chromium headless) via content-factory store; waitUntil=commit; never networkidle",
   "recipe": "isolated-loopback 1440+390 reduced-motion never-networkidle",
   "provenance": {
-    "fetchedAt": "2026-08-27T16:04:45.892Z",
+    "fetchedAt": "2026-08-27T17:17:14.614Z",
     "base": "http://127.0.0.1:9119",
     "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
     "sessionTokenStripped": true,
@@ -13,22 +13,22 @@
       "status": 200,
       "redirected": false,
       "finalUrl": "http://127.0.0.1:9119/",
-      "bytesRaw": 721,
-      "bytesNormalized": 510,
-      "sha256Normalized": "1f53315ebc3e7c83bbaa1938b53f3640c8cace34952c0bd91df829d7ce950452"
+      "bytesRaw": 722,
+      "bytesNormalized": 511,
+      "sha256Normalized": "362bff60d63e1b3e1ee76ad3885462c7f15b639e81d57f5e9e7e8346667e7155"
     },
     "assets": [
+      {
+        "url": "/assets/index-57itTrlN.js",
+        "status": 200,
+        "bytes": 1970350,
+        "sha256": "5d1c4c78c0091ad470ceb8971752a34f54523aa34b0ae04a4f6d5a17221316f3"
+      },
       {
         "url": "/assets/index-Cxobo1gB.css",
         "status": 200,
         "bytes": 114172,
         "sha256": "399cc6b1da584563d0b38af27dedce786c78160597eeee60adc2b1b3b6a51a95"
-      },
-      {
-        "url": "/assets/index-DbV3C9Nb.js",
-        "status": 200,
-        "bytes": 1970353,
-        "sha256": "34e28728f1f8c24bf1672c0fbdc9202d957cf9b26fa4710eb10779e6949b87f8"
       }
     ],
     "error": null
@@ -38,7 +38,7 @@
     "reasons": []
   },
   "provenanceAfter": {
-    "fetchedAt": "2026-08-27T16:06:48.173Z",
+    "fetchedAt": "2026-08-27T17:17:49.654Z",
     "base": "http://127.0.0.1:9119",
     "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
     "sessionTokenStripped": true,
@@ -46,22 +46,22 @@
       "status": 200,
       "redirected": false,
       "finalUrl": "http://127.0.0.1:9119/",
-      "bytesRaw": 721,
-      "bytesNormalized": 510,
-      "sha256Normalized": "1f53315ebc3e7c83bbaa1938b53f3640c8cace34952c0bd91df829d7ce950452"
+      "bytesRaw": 722,
+      "bytesNormalized": 511,
+      "sha256Normalized": "362bff60d63e1b3e1ee76ad3885462c7f15b639e81d57f5e9e7e8346667e7155"
     },
     "assets": [
+      {
+        "url": "/assets/index-57itTrlN.js",
+        "status": 200,
+        "bytes": 1970350,
+        "sha256": "5d1c4c78c0091ad470ceb8971752a34f54523aa34b0ae04a4f6d5a17221316f3"
+      },
       {
         "url": "/assets/index-Cxobo1gB.css",
         "status": 200,
         "bytes": 114172,
         "sha256": "399cc6b1da584563d0b38af27dedce786c78160597eeee60adc2b1b3b6a51a95"
-      },
-      {
-        "url": "/assets/index-DbV3C9Nb.js",
-        "status": 200,
-        "bytes": 1970353,
-        "sha256": "34e28728f1f8c24bf1672c0fbdc9202d957cf9b26fa4710eb10779e6949b87f8"
       }
     ],
     "error": null
@@ -122,9 +122,9 @@
         "name": "login redirect",
         "expectedVerdict": "ENTRY_REDIRECTED",
         "actualVerdict": "reject",
-        "matchedReason": "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:61468/login — served document is not the dashboard entry",
+        "matchedReason": "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:54206/login — served document is not the dashboard entry",
         "reasons": [
-          "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:61468/login — served document is not the dashboard entry",
+          "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:54206/login — served document is not the dashboard entry",
           "NO_BUILD_ASSETS: entry document references no /assets/ build output",
           "NO_SESSION_BOOTSTRAP: no injected window.__HERMES_* script found — this is not the Hermes dashboard entry"
         ],
@@ -134,24 +134,24 @@
       }
     ]
   },
-    "captureIntegrity": {
-      "resultCount": 5,
-      "navFailureCount": 0,
-      "entrySha256Stable": true,
-      "servedJsMatchedAudited": true
-    },
-    "scores": {
-      "visualDirection": 2,
-      "uxClarity": 2,
-      "motionInteractivity": 1,
-      "technicalQuality": 2,
-      "responsiveness": 2,
-      "verification": 2,
-      "complexityFit": 3
-    },
-    "total": 14,
-    "band": "usable",
-    "scoredBy": "visual review of shots plus gauntlet.json probes; not auto-awarded",
+  "captureIntegrity": {
+    "resultCount": 5,
+    "navFailureCount": 0,
+    "entrySha256Stable": true,
+    "servedJsMatchedAudited": true
+  },
+  "scores": {
+    "visualDirection": 2,
+    "uxClarity": 2,
+    "motionInteractivity": 1,
+    "technicalQuality": 2,
+    "responsiveness": 2,
+    "verification": 2,
+    "complexityFit": 3
+  },
+  "total": 14,
+  "band": "usable",
+  "scoredBy": "visual review of shots plus gauntlet.json probes; not auto-awarded",
   "surfaces": [
     {
       "name": "sessions-1440",
@@ -179,9 +179,9 @@
         "typography": {
           "h1": {
             "fontFamily": "\"Rules Expanded\", sans-serif",
-            "fontSize": "13.125px",
+            "fontSize": "18.75px",
             "fontWeight": "700",
-            "letterSpacing": "1.05px"
+            "letterSpacing": "-0.46875px"
           },
           "body": {
             "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
@@ -190,23 +190,22 @@
             "letterSpacing": "normal"
           },
           "loadedFonts": [
-            "JetBrains Mono",
             "Mondwest",
             "Rules Compressed",
             "Rules Expanded"
           ]
         },
         "counts": {
-          "elements": 662,
-          "links": 21,
-          "buttons": 44,
+          "elements": 348,
+          "links": 20,
+          "buttons": 9,
           "headings": 2,
-          "textChars": 1192,
-          "canvases": 2
+          "textChars": 1145,
+          "canvases": 0
         },
         "overflowPx": 0,
         "hitTargets": {
-          "total": 28,
+          "total": 27,
           "under24": 3,
           "under44": 27,
           "under24Samples": [
@@ -240,8 +239,10 @@
         },
         "motion": {
           "prefersReducedMotion": false,
-          "elementsWithAnimation": 0,
-          "animationNames": []
+          "elementsWithAnimation": 1,
+          "animationNames": [
+            "pulse"
+          ]
         },
         "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KANBAN ACHIEVEM"
       },
@@ -276,9 +277,9 @@
         "typography": {
           "h1": {
             "fontFamily": "\"Rules Expanded\", sans-serif",
-            "fontSize": "13.125px",
+            "fontSize": "18.75px",
             "fontWeight": "700",
-            "letterSpacing": "1.05px"
+            "letterSpacing": "-0.46875px"
           },
           "body": {
             "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
@@ -293,18 +294,18 @@
           ]
         },
         "counts": {
-          "elements": 2792,
+          "elements": 2804,
           "links": 21,
-          "buttons": 431,
+          "buttons": 433,
           "headings": 2,
-          "textChars": 47047,
+          "textChars": 47236,
           "canvases": 0
         },
         "overflowPx": 0,
         "hitTargets": {
-          "total": 250,
-          "under24": 221,
-          "under44": 249,
+          "total": 251,
+          "under24": 222,
+          "under44": 250,
           "under24Samples": [
             {
               "tag": "BUTTON",
@@ -328,7 +329,7 @@
               "tag": "BUTTON",
               "w": 193,
               "h": 23,
-              "label": "General\n130"
+              "label": "General\n131"
             },
             {
               "tag": "BUTTON",
@@ -378,10 +379,10 @@
       "settled": true,
       "settleMeta": {
         "settled": true,
-        "textLen": 199,
+        "textLen": 201,
         "h1": "System",
         "title": "Hermes Agent - Dashboard",
-        "skel": 0
+        "skel": 1
       },
       "probe": {
         "url": "/system",
@@ -390,9 +391,9 @@
         "typography": {
           "h1": {
             "fontFamily": "\"Rules Expanded\", sans-serif",
-            "fontSize": "13.125px",
+            "fontSize": "18.75px",
             "fontWeight": "700",
-            "letterSpacing": "1.05px"
+            "letterSpacing": "-0.46875px"
           },
           "body": {
             "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
@@ -474,10 +475,10 @@
       "settled": true,
       "settleMeta": {
         "settled": true,
-        "textLen": 220,
+        "textLen": 218,
         "h1": "Sessions",
         "title": "Hermes Agent - Dashboard",
-        "skel": 1
+        "skel": 0
       },
       "probe": {
         "url": "/sessions",
@@ -486,9 +487,9 @@
         "typography": {
           "h1": {
             "fontFamily": "\"Rules Expanded\", sans-serif",
-            "fontSize": "13.125px",
+            "fontSize": "18.75px",
             "fontWeight": "700",
-            "letterSpacing": "1.05px"
+            "letterSpacing": "-0.46875px"
           },
           "body": {
             "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
@@ -584,9 +585,9 @@
         "typography": {
           "h1": {
             "fontFamily": "\"Rules Expanded\", sans-serif",
-            "fontSize": "13.125px",
+            "fontSize": "18.75px",
             "fontWeight": "700",
-            "letterSpacing": "1.05px"
+            "letterSpacing": "-0.46875px"
           },
           "body": {
             "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
@@ -595,25 +596,24 @@
             "letterSpacing": "normal"
           },
           "loadedFonts": [
-            "JetBrains Mono",
             "Mondwest",
             "Rules Compressed",
             "Rules Expanded"
           ]
         },
         "counts": {
-          "elements": 412,
+          "elements": 362,
           "links": 21,
-          "buttons": 13,
+          "buttons": 10,
           "headings": 2,
-          "textChars": 1192,
-          "canvases": 2
+          "textChars": 1211,
+          "canvases": 0
         },
         "overflowPx": 0,
         "hitTargets": {
-          "total": 28,
+          "total": 29,
           "under24": 3,
-          "under44": 27,
+          "under44": 28,
           "under24Samples": [
             {
               "tag": "BUTTON",
@@ -645,10 +645,8 @@
         },
         "motion": {
           "prefersReducedMotion": true,
-          "elementsWithAnimation": 1,
-          "animationNames": [
-            "spin"
-          ]
+          "elementsWithAnimation": 0,
+          "animationNames": []
         },
         "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KANBAN ACHIEVEM"
       },

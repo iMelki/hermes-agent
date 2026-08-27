@@ -1,7 +1,7 @@
-PROVENANCE OK entry=1f53315ebc3e7c83 js=index-DbV3C9Nb.js css=index-Cxobo1gB.css auditedTip=cea8fa537d95
-sessions-1440 st=200 settled=true h1="Sessions" over=0 u24=3/28 anim=0 rm=false err=1
-skills-1440 st=200 settled=true h1="Skills" over=0 u24=221/250 anim=0 rm=false err=1
+PROVENANCE OK entry=362bff60d63e1b3e js=index-57itTrlN.js css=index-Cxobo1gB.css auditedTip=3a0f08fbeb91
+sessions-1440 st=200 settled=true h1="Sessions" over=0 u24=3/27 anim=1 rm=false err=1
+skills-1440 st=200 settled=true h1="Skills" over=0 u24=222/251 anim=0 rm=false err=1
 system-1440 st=200 settled=true h1="System" over=0 u24=3/22 anim=1 rm=false err=1
 sessions-390 st=200 settled=true h1="Sessions" over=0 u24=3/28 anim=1 rm=false err=1
-sessions-1440-rm st=200 settled=true h1="Sessions" over=0 u24=3/28 anim=1 rm=true err=1
+sessions-1440-rm st=200 settled=true h1="Sessions" over=0 u24=3/29 anim=0 rm=true err=1
 WROTE S:\source\CCAI\Assistants\tools\hermes-agent-imelki\docs\frontend-sota-gauntlet-2026-08-27\gauntlet.json
