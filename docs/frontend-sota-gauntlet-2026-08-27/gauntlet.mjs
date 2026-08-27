@@ -24,16 +24,16 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SHOTDIR = path.join(HERE, 'shots');
 fs.mkdirSync(SHOTDIR, { recursive: true });
 
-const AUDITED_TIP = '3a0f08fbeb9195217b41afa12be204f1b623bfb1';
+const AUDITED_TIP = '9faae85d9732a241c8ac67d5e11908bcfd3bd29a';
 const EXPECTED_JS = {
-  url: '/assets/index-57itTrlN.js',
-  bytes: 1970350,
-  sha256: '5d1c4c78c0091ad470ceb8971752a34f54523aa34b0ae04a4f6d5a17221316f3',
+  url: '/assets/index-3A4qXw6p.js',
+  bytes: 1972061,
+  sha256: '29daf7e3ef4a5c7041f49935a965a2e5e84bc87b5b2d0a8ee23313be3ea9c375',
 };
 const EXPECTED_CSS = {
-  url: '/assets/index-Cxobo1gB.css',
-  bytes: 114172,
-  sha256: '399cc6b1da584563d0b38af27dedce786c78160597eeee60adc2b1b3b6a51a95',
+  url: '/assets/index-Dh5-37we.css',
+  bytes: 114327,
+  sha256: '454eb30f4d908032948acad884bf5d23ac4678e4007c7653d229144f9a165aa3',
 };
 
 async function waitForSurface(page, { minText = 40, maxMs = 45000 } = {}) {
@@ -183,14 +183,14 @@ const main = async () => {
     return;
   }
   if (!assetMatch(provenance, EXPECTED_JS) || !assetMatch(provenance, EXPECTED_CSS)) {
-    console.error('ABORT: served bundle does not match audited index-57itTrlN.js / index-Cxobo1gB.css');
+    console.error('ABORT: served bundle does not match audited index-3A4qXw6p.js / index-Dh5-37we.css');
     console.error(JSON.stringify(provenance.assets, null, 2));
     process.exitCode = 2;
     return;
   }
   console.log(
     'PROVENANCE OK entry=' + provenance.entryHtml.sha256Normalized.slice(0, 16) +
-      ' js=index-57itTrlN.js css=index-Cxobo1gB.css auditedTip=' + AUDITED_TIP.slice(0, 12),
+      ' js=index-3A4qXw6p.js css=index-Dh5-37we.css auditedTip=' + AUDITED_TIP.slice(0, 12),
   );
 
   const browser = await chromium.launch({ headless: true });
