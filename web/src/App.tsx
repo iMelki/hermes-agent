@@ -843,7 +843,7 @@ function SidebarNavLink({
         className={({ isActive }) =>
           cn(
             "group/nav relative flex items-center gap-3",
-            "px-5 py-2.5",
+            "min-h-11 px-5 py-2.5",
             "font-sans text-display uppercase text-sm tracking-[0.12em]",
             "whitespace-nowrap transition-colors cursor-pointer",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midground",
@@ -1121,7 +1121,7 @@ function SystemActionButton({
           <Icon
             className={cn(
               "h-3.5 w-3.5 shrink-0",
-              isActionRunning && !spin && "animate-pulse",
+              isActionRunning && !spin && "animate-pulse motion-reduce:animate-none",
             )}
           />
         )}
