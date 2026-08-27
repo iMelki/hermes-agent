@@ -67,6 +67,7 @@ import {
 import {
   type BackupImportTarget,
   HOOK_EVENTS_FALLBACK,
+  SYSTEM_IN_PAGE_LINK,
   MEMORY_STATUS_LABEL,
   MEMORY_STATUS_TONE,
   backupFileName,
@@ -956,7 +957,7 @@ export default function SystemPage() {
                 href={portal?.subscription_url || "https://portal.nousresearch.com/manage-subscription"}
                 target="_blank"
                 rel="noreferrer"
-                className="ml-auto text-xs text-primary underline"
+                className={cn("ml-auto text-xs text-primary", SYSTEM_IN_PAGE_LINK)}
               >
                 Manage subscription
               </a>
@@ -1090,12 +1091,12 @@ export default function SystemPage() {
                   {MEMORY_STATUS_LABEL[activeMemoryProvider.status]}
                 </Badge>
               )}
-              <Link to="/plugins" className="underline">
+              <Link to="/plugins" className={SYSTEM_IN_PAGE_LINK}>
                 Change in Plugins →
               </Link>
-              <span className="ml-auto">
+              <span className="ml-auto inline-flex min-h-[24px] items-center gap-1">
                 Provider setup:{" "}
-                <Link to="/plugins" className="underline">
+                <Link to="/plugins" className={SYSTEM_IN_PAGE_LINK}>
                   configure in Plugins
                 </Link>
               </span>
@@ -1365,7 +1366,9 @@ export default function SystemPage() {
 
             <div className="flex items-center gap-2.5">
               <Checkbox
+                aria-label="Redact credential-shaped tokens before upload"
                 checked={shareRedact}
+                className="min-h-[24px] min-w-[24px]"
                 disabled={sharing}
                 id="share-redact"
                 onCheckedChange={(checked) => setShareRedact(checked === true)}

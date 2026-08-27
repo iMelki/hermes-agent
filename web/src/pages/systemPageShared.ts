@@ -30,6 +30,10 @@ export function backupFileName(path: string | null): string {
   return path.split(/[\\/]/).filter(Boolean).pop() ?? path;
 }
 
+/** In-page text links keep visible type but meet the 24px hit-target floor. */
+export const SYSTEM_IN_PAGE_LINK =
+  "inline-flex min-h-[24px] items-center px-1 underline";
+
 export const HOOK_EVENTS_FALLBACK = [
   "pre_tool_call",
   "post_tool_call",
