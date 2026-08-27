@@ -231,6 +231,12 @@ code { font-size: 0.875rem; }
   font-family: var(--theme-font-mono);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin {
+    animation: none !important;
+  }
+}
+
 /* Subtle grain overlay for badges. */
 .grain {
   position: relative;

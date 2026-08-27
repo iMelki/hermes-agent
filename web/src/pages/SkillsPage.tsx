@@ -442,7 +442,7 @@ export default function SkillsPage() {
                             onClick={() =>
                               setActiveCategory(isActive ? null : key)
                             }
-                            className="rounded-none px-2 py-1 text-xs"
+                            className="rounded-none px-2 py-1 text-xs min-h-[24px]"
                           >
                             <span className="flex-1 truncate">{name}</span>
                             <span
@@ -783,7 +783,7 @@ function PanelItem({ active, icon: Icon, label, onClick }: PanelItemProps) {
       active={active}
       onClick={onClick}
       className={cn(
-        "rounded-none whitespace-nowrap px-2.5 py-1.5",
+        "rounded-none whitespace-nowrap px-2.5 py-1.5 min-h-[24px]",
         "font-mondwest text-[0.7rem] tracking-[0.08em] uppercase",
         active && "bg-foreground/90 text-background hover:text-background",
       )}
@@ -1432,7 +1432,7 @@ function SkillDetailDialog({
             disabled={scanning}
             prefix={
               scanning ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" />
               ) : (
                 <Shield className="h-3.5 w-3.5" />
               )
@@ -1526,7 +1526,7 @@ function ScanPanel({
   if (scanning && !scan) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <Loader2 className="h-6 w-6 animate-spin motion-reduce:animate-none text-primary" />
         <span className="text-xs text-muted-foreground">
           Fetching, quarantining, and scanning…
         </span>

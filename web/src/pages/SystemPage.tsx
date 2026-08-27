@@ -48,7 +48,6 @@ import { api } from "@/lib/api";
 import type {
   StatusResponse,
   MemoryStatus,
-  MemoryProviderInfo,
   CredentialPoolProvider,
   CheckpointsResponse,
   HooksResponse,
@@ -59,36 +58,21 @@ import type {
   PortalStatus,
   DebugShareResponse,
 } from "@/lib/api";
-
-function formatBytes(n: number): string {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-  return `${(n / (1024 * 1024 * 1024)).toFixed(1)} GB`;
-}
-
-function formatDuration(seconds: number): string {
-  const d = Math.floor(seconds / 86400);
-  const h = Math.floor((seconds % 86400) / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  if (d > 0) return `${d}d ${h}h ${m}m`;
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
-}
-
-type BackupImportTarget =
-  | { kind: "upload"; file: File }
-  | { kind: "path"; path: string };
-
-function backupImportLabel(target: BackupImportTarget | null): string {
-  if (!target) return "the archive";
-  return target.kind === "upload" ? target.file.name : target.path;
-}
-
-function backupFileName(path: string | null): string {
-  if (!path) return "No backup created yet";
-  return path.split(/[\\/]/).filter(Boolean).pop() ?? path;
-}
+import { SystemUnavailableNotice } from "@/components/SystemUnavailableNotice";
+import {
+  SYSTEM_LOAD_TIMEOUT_MS,
+  settleWithTimeout,
+} from "@/lib/settleWithTimeout";
+import {
+  type BackupImportTarget,
+  HOOK_EVENTS_FALLBACK,
+  MEMORY_STATUS_LABEL,
+  MEMORY_STATUS_TONE,
+  backupFileName,
+  backupImportLabel,
+  formatBytes,
+  formatDuration,
+} from "./systemPageShared";
 
 /**
  * Live action-log viewer for the spawn-based admin actions (doctor, audit,
@@ -163,39 +147,14 @@ function ActionLogViewer({
   );
 }
 
-const HOOK_EVENTS_FALLBACK = [
-  "pre_tool_call",
-  "post_tool_call",
-  "pre_llm_call",
-  "post_llm_call",
-  "on_session_start",
-  "on_session_end",
-];
-
-const MEMORY_STATUS_LABEL: Record<MemoryProviderInfo["status"], string> = {
-  ready: "ready",
-  needs_config: "needs setup",
-  unavailable: "unavailable",
-  missing: "missing",
-};
-
-const MEMORY_STATUS_TONE: Record<
-  MemoryProviderInfo["status"],
-  "success" | "warning" | "destructive" | "secondary"
-> = {
-  ready: "success",
-  needs_config: "warning",
-  unavailable: "destructive",
-  missing: "destructive",
-};
-
 export default function SystemPage() {
   const { toast, showToast } = useToast();
 
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [memory, setMemory] = useState<MemoryStatus | null>(null);
-  const [pool, setPool] = useState<CredentialPoolProvider[]>([]);
+  const [pool, setPool] = useState<CredentialPoolProvider[] | null>(null);
+  const [loadFailures, setLoadFailures] = useState<string[]>([]);
   const [checkpoints, setCheckpoints] = useState<CheckpointsResponse | null>(
     null,
   );
@@ -253,30 +212,32 @@ export default function SystemPage() {
   const [updateConfirmOpen, setUpdateConfirmOpen] = useState(false);
 
   const loadAll = useCallback(() => {
-    Promise.allSettled([
-      api.getStatus(),
-      api.getSystemStats(),
-      api.getMemory(),
-      api.getCredentialPool(),
-      api.getCheckpoints(),
-      api.getHooks(),
-      api.getCurator(),
-      api.getPortal(),
-      // Cached (non-forced) check so the version row shows update status on
-      // load without a separate effect / a forced network round-trip.
-      api.checkHermesUpdate(false),
+    setLoading(true);
+    setLoadFailures([]);
+    // fetchJSON can hang on loopback 401 (reload path). Apply each payload as
+    // it settles so /system can show status/ops instead of a blank spinner.
+    const failed: string[] = [];
+    const take = async <T,>(
+      name: string,
+      promise: Promise<T>,
+      apply: (value: T) => void,
+    ) => {
+      const result = await settleWithTimeout(promise, SYSTEM_LOAD_TIMEOUT_MS);
+      if (result.status === "fulfilled") apply(result.value);
+      else failed.push(name);
+    };
+    Promise.all([
+      take("status", api.getStatus(), setStatus),
+      take("host stats", api.getSystemStats(), setStats),
+      take("memory", api.getMemory(), setMemory),
+      take("credentials", api.getCredentialPool(), (v) => setPool(v.providers)),
+      take("checkpoints", api.getCheckpoints(), setCheckpoints),
+      take("hooks", api.getHooks(), setHooks),
+      take("curator", api.getCurator(), setCurator),
+      take("portal", api.getPortal(), setPortal),
+      take("update check", api.checkHermesUpdate(false), setUpdateInfo),
     ])
-      .then(([s, st, m, p, c, h, cur, prt, upd]) => {
-        if (s.status === "fulfilled") setStatus(s.value);
-        if (st.status === "fulfilled") setStats(st.value);
-        if (m.status === "fulfilled") setMemory(m.value);
-        if (p.status === "fulfilled") setPool(p.value.providers);
-        if (c.status === "fulfilled") setCheckpoints(c.value);
-        if (h.status === "fulfilled") setHooks(h.value);
-        if (cur.status === "fulfilled") setCurator(cur.value);
-        if (prt.status === "fulfilled") setPortal(prt.value);
-        if (upd.status === "fulfilled") setUpdateInfo(upd.value);
-      })
+      .then(() => setLoadFailures(failed))
       .finally(() => setLoading(false));
   }, []);
 
@@ -628,14 +589,6 @@ export default function SystemPage() {
     ),
   });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Spinner className="text-2xl text-primary" />
-      </div>
-    );
-  }
-
   const gatewayRunning = status?.gateway_running;
   const canUpdateHermes = status?.can_update_hermes !== false;
   const activeMemoryProvider = memory?.active
@@ -821,7 +774,27 @@ export default function SystemPage() {
         />
       )}
 
+      {loading && (
+        <Card>
+          <CardContent className="py-4">
+            <p className="text-sm font-medium">Loading system details…</p>
+            <p className="text-sm text-muted-foreground">
+              Host and gateway numbers appear only after a successful API
+              read. This page will not invent them.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+      {!loading && (
+        <SystemUnavailableNotice
+          failures={loadFailures}
+          hasAnyPayload={Boolean(status || stats || memory || portal || curator)}
+          onRetry={loadAll}
+        />
+      )}
+
       {/* ── Host / system stats ───────────────────────────────────── */}
+      {stats && (
       <section className="flex flex-col gap-3">
         <H2 variant="sm" className="flex items-center gap-2 text-muted-foreground">
           <Server className="h-4 w-4" /> Host
@@ -831,24 +804,24 @@ export default function SystemPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-6 text-sm">
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground">OS</div>
-                <div>{stats?.os} {stats?.os_release}</div>
+                <div>{stats.os ?? "—"}{stats.os_release ? ` ${stats.os_release}` : ""}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground">Arch</div>
-                <div>{stats?.arch}</div>
+                <div>{stats.arch ?? "—"}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground">Host</div>
-                <div className="truncate">{stats?.hostname}</div>
+                <div className="truncate">{stats.hostname ?? "—"}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground">Python</div>
-                <div>{stats?.python_impl} {stats?.python_version}</div>
+                <div>{stats.python_impl ?? "—"}{stats.python_version ? ` ${stats.python_version}` : ""}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground">Hermes</div>
                 <div className="flex items-center gap-2">
-                  <span>v{stats?.hermes_version}</span>
+                  <span>{stats.hermes_version ? `v${stats.hermes_version}` : "—"}</span>
                   {canUpdateHermes &&
                     updateInfo &&
                     (updateInfo.update_available ? (
@@ -867,13 +840,13 @@ export default function SystemPage() {
                   <Cpu className="h-3 w-3" /> CPU
                 </div>
                 <div>
-                  {stats?.cpu_count ?? "—"} cores
-                  {typeof stats?.cpu_percent === "number"
+                  {stats.cpu_count ?? "—"} cores
+                  {typeof stats.cpu_percent === "number"
                     ? ` · ${stats.cpu_percent.toFixed(0)}%`
                     : ""}
                 </div>
               </div>
-              {stats?.memory && (
+              {stats.memory && (
                 <div>
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">Memory</div>
                   <div>
@@ -881,7 +854,7 @@ export default function SystemPage() {
                   </div>
                 </div>
               )}
-              {stats?.disk && (
+              {stats.disk && (
                 <div>
                   <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                     <HardDrive className="h-3 w-3" /> Disk
@@ -891,13 +864,13 @@ export default function SystemPage() {
                   </div>
                 </div>
               )}
-              {typeof stats?.uptime_seconds === "number" && (
+              {typeof stats.uptime_seconds === "number" && (
                 <div>
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">Uptime</div>
                   <div>{formatDuration(stats.uptime_seconds)}</div>
                 </div>
               )}
-              {stats?.load_avg && stats.load_avg.length >= 3 && (
+              {stats.load_avg && stats.load_avg.length >= 3 && (
                 <div>
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">Load avg</div>
                   <div>{stats.load_avg.map((n) => n.toFixed(2)).join(" / ")}</div>
@@ -954,8 +927,10 @@ export default function SystemPage() {
           </CardContent>
         </Card>
       </section>
+      )}
 
       {/* ── Portal ────────────────────────────────────────────────── */}
+      {portal && (
       <section className="flex flex-col gap-3">
         <H2 variant="sm" className="flex items-center gap-2 text-muted-foreground">
           <Globe className="h-4 w-4" /> Nous Portal
@@ -1001,8 +976,10 @@ export default function SystemPage() {
           </CardContent>
         </Card>
       </section>
+      )}
 
       {/* ── Curator ───────────────────────────────────────────────── */}
+      {curator && (
       <section className="flex flex-col gap-3">
         <H2 variant="sm" className="flex items-center gap-2 text-muted-foreground">
           <Sparkles className="h-4 w-4" /> Skill curator
@@ -1034,8 +1011,10 @@ export default function SystemPage() {
           </CardContent>
         </Card>
       </section>
+      )}
 
       {/* ── Gateway ───────────────────────────────────────────────── */}
+      {status && (
       <section className="flex flex-col gap-3">
         <H2 variant="sm" className="flex items-center gap-2 text-muted-foreground">
           <Power className="h-4 w-4" /> Gateway
@@ -1083,8 +1062,10 @@ export default function SystemPage() {
           </CardContent>
         </Card>
       </section>
+      )}
 
       {/* ── Memory ────────────────────────────────────────────────── */}
+      {memory && (
       <section className="flex flex-col gap-3">
         <H2 variant="sm" className="flex items-center gap-2 text-muted-foreground">
           <Brain className="h-4 w-4" /> Memory
@@ -1123,8 +1104,8 @@ export default function SystemPage() {
             <div className="flex flex-wrap items-center gap-3 border-t border-border pt-3">
               <span className="text-xs text-muted-foreground">
                 Built-in files — MEMORY.md:{" "}
-                {formatBytes(memory?.builtin_files.memory ?? 0)} · USER.md:{" "}
-                {formatBytes(memory?.builtin_files.user ?? 0)}
+                {formatBytes(memory.builtin_files.memory ?? 0)} · USER.md:{" "}
+                {formatBytes(memory.builtin_files.user ?? 0)}
               </span>
               <div className="flex items-center gap-2 ml-auto">
                 <Button size="sm" ghost className="text-destructive" onClick={() => memoryReset.requestDelete("memory")}>
@@ -1141,6 +1122,7 @@ export default function SystemPage() {
           </CardContent>
         </Card>
       </section>
+      )}
 
       {/* ── Credential pool ───────────────────────────────────────── */}
       <section className="flex flex-col gap-3">
@@ -1168,12 +1150,12 @@ export default function SystemPage() {
                 Add key
               </Button>
             </div>
-            {pool.length === 0 && (
+            {pool && pool.length === 0 && (
               <p className="text-sm text-muted-foreground">
                 No pooled credentials. Add one above to enable key rotation.
               </p>
             )}
-            {pool.map((prov) => (
+            {(pool ?? []).map((prov) => (
               <div key={prov.provider} className="flex flex-col gap-2">
                 <span className="text-xs uppercase tracking-wider text-muted-foreground">
                   {prov.provider}
@@ -1472,6 +1454,7 @@ export default function SystemPage() {
       </section>
 
       {/* ── Checkpoints ───────────────────────────────────────────── */}
+      {checkpoints && (
       <section className="flex flex-col gap-3">
         <H2 variant="sm" className="flex items-center gap-2 text-muted-foreground">
           <Database className="h-4 w-4" /> Checkpoints
@@ -1479,15 +1462,16 @@ export default function SystemPage() {
         <Card>
           <CardContent className="flex items-center justify-between py-4">
             <span className="text-sm text-muted-foreground">
-              {checkpoints?.sessions.length ?? 0} session(s) ·{" "}
-              {formatBytes(checkpoints?.total_bytes ?? 0)}
+              {checkpoints.sessions.length} session(s) ·{" "}
+              {formatBytes(checkpoints.total_bytes)}
             </span>
-            <Button size="sm" ghost className="text-destructive" disabled={!checkpoints?.sessions.length} prefix={<Trash2 className="h-3.5 w-3.5" />} onClick={() => checkpointsPrune.requestDelete("all")}>
+            <Button size="sm" ghost className="text-destructive" disabled={!checkpoints.sessions.length} prefix={<Trash2 className="h-3.5 w-3.5" />} onClick={() => checkpointsPrune.requestDelete("all")}>
               Prune
             </Button>
           </CardContent>
         </Card>
       </section>
+      )}
 
       {/* ── Shell hooks ───────────────────────────────────────────── */}
       <section className="flex flex-col gap-3">
@@ -1499,7 +1483,7 @@ export default function SystemPage() {
             New hook
           </Button>
         </div>
-        {(!hooks || hooks.hooks.length === 0) && (
+        {hooks && hooks.hooks.length === 0 && (
           <Card>
             <CardContent className="py-6 text-center text-sm text-muted-foreground">
               No shell hooks configured.
