@@ -24,16 +24,16 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SHOTDIR = path.join(HERE, 'shots');
 fs.mkdirSync(SHOTDIR, { recursive: true });
 
-const AUDITED_TIP = '9faae85d9732a241c8ac67d5e11908bcfd3bd29a';
+const AUDITED_TIP = '3bea4c4819062f0a7c491a20f6cae13144778422';
 const EXPECTED_JS = {
-  url: '/assets/index-3A4qXw6p.js',
-  bytes: 1972061,
-  sha256: '29daf7e3ef4a5c7041f49935a965a2e5e84bc87b5b2d0a8ee23313be3ea9c375',
+  url: '/assets/index-CAurVnFC.js',
+  bytes: 1972319,
+  sha256: '99c71e0b32af84b36bd21bf93bd01987c828f3cb3d4a430ab7617137e16a1498',
 };
 const EXPECTED_CSS = {
-  url: '/assets/index-Dh5-37we.css',
-  bytes: 114327,
-  sha256: '454eb30f4d908032948acad884bf5d23ac4678e4007c7653d229144f9a165aa3',
+  url: '/assets/index-BBNSWGzv.css',
+  bytes: 114638,
+  sha256: 'ca240640deef6e21cb0322a118f4006e49ad3782d0ee2dcc1aa3cdf75a998ddc',
 };
 
 async function waitForSurface(page, { minText = 40, maxMs = 45000 } = {}) {
@@ -183,14 +183,14 @@ const main = async () => {
     return;
   }
   if (!assetMatch(provenance, EXPECTED_JS) || !assetMatch(provenance, EXPECTED_CSS)) {
-    console.error('ABORT: served bundle does not match audited index-3A4qXw6p.js / index-Dh5-37we.css');
+    console.error('ABORT: served bundle does not match audited index-CAurVnFC.js / index-BBNSWGzv.css');
     console.error(JSON.stringify(provenance.assets, null, 2));
     process.exitCode = 2;
     return;
   }
   console.log(
     'PROVENANCE OK entry=' + provenance.entryHtml.sha256Normalized.slice(0, 16) +
-      ' js=index-3A4qXw6p.js css=index-Dh5-37we.css auditedTip=' + AUDITED_TIP.slice(0, 12),
+      ' js=index-CAurVnFC.js css=index-BBNSWGzv.css auditedTip=' + AUDITED_TIP.slice(0, 12),
   );
 
   const browser = await chromium.launch({ headless: true });
@@ -207,6 +207,15 @@ const main = async () => {
     page.on('pageerror', (e) => errors.push(String(e.message || e).slice(0, 200)));
     page.on('console', (msg) => {
       if (msg.type() === 'error') errors.push(msg.text().slice(0, 200));
+    });
+    page.on('response', (res) => {
+      if (res.status() === 401) {
+        try {
+          errors.push(('401 ' + new URL(res.url()).pathname).slice(0, 200));
+        } catch {
+          errors.push('401');
+        }
+      }
     });
     const rec = { name: surface.name, route: surface.route, viewport: surface.viewport, reducedMotion: surface.reducedMotion };
     try {

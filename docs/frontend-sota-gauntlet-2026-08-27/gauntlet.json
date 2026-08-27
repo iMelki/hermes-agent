@@ -1,11 +1,11 @@
 {
-  "capturedAt": "2026-08-27T17:41:48.072Z",
+  "capturedAt": "2026-08-27T18:15:33.466Z",
   "base": "http://127.0.0.1:9119",
-  "auditedTip": "9faae85d9732a241c8ac67d5e11908bcfd3bd29a",
+  "auditedTip": "3bea4c4819062f0a7c491a20f6cae13144778422",
   "harness": "playwright-core 1.59.1 (chromium headless) via content-factory store; waitUntil=commit; never networkidle",
   "recipe": "isolated-loopback 1440+390 reduced-motion never-networkidle",
   "provenance": {
-    "fetchedAt": "2026-08-27T17:40:40.514Z",
+    "fetchedAt": "2026-08-27T18:14:33.937Z",
     "base": "http://127.0.0.1:9119",
     "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
     "sessionTokenStripped": true,
@@ -15,20 +15,20 @@
       "finalUrl": "http://127.0.0.1:9119/",
       "bytesRaw": 722,
       "bytesNormalized": 511,
-      "sha256Normalized": "0279fd0791583562735ec9136e2e0ced3fc20b06c0705956c6a7918205ea0b60"
+      "sha256Normalized": "1bb0c5e2f19937c0f2956a0d950e023070f5a620197736786a378e9ddaa8e6e0"
     },
     "assets": [
       {
-        "url": "/assets/index-3A4qXw6p.js",
+        "url": "/assets/index-BBNSWGzv.css",
         "status": 200,
-        "bytes": 1972061,
-        "sha256": "29daf7e3ef4a5c7041f49935a965a2e5e84bc87b5b2d0a8ee23313be3ea9c375"
+        "bytes": 114638,
+        "sha256": "ca240640deef6e21cb0322a118f4006e49ad3782d0ee2dcc1aa3cdf75a998ddc"
       },
       {
-        "url": "/assets/index-Dh5-37we.css",
+        "url": "/assets/index-CAurVnFC.js",
         "status": 200,
-        "bytes": 114327,
-        "sha256": "454eb30f4d908032948acad884bf5d23ac4678e4007c7653d229144f9a165aa3"
+        "bytes": 1972319,
+        "sha256": "99c71e0b32af84b36bd21bf93bd01987c828f3cb3d4a430ab7617137e16a1498"
       }
     ],
     "error": null
@@ -38,7 +38,7 @@
     "reasons": []
   },
   "provenanceAfter": {
-    "fetchedAt": "2026-08-27T17:41:47.943Z",
+    "fetchedAt": "2026-08-27T18:15:33.138Z",
     "base": "http://127.0.0.1:9119",
     "note": "web_dist is gitignored and built out-of-band; these digests are the only build identity available to a browser capture.",
     "sessionTokenStripped": true,
@@ -48,20 +48,20 @@
       "finalUrl": "http://127.0.0.1:9119/",
       "bytesRaw": 722,
       "bytesNormalized": 511,
-      "sha256Normalized": "0279fd0791583562735ec9136e2e0ced3fc20b06c0705956c6a7918205ea0b60"
+      "sha256Normalized": "1bb0c5e2f19937c0f2956a0d950e023070f5a620197736786a378e9ddaa8e6e0"
     },
     "assets": [
       {
-        "url": "/assets/index-3A4qXw6p.js",
+        "url": "/assets/index-BBNSWGzv.css",
         "status": 200,
-        "bytes": 1972061,
-        "sha256": "29daf7e3ef4a5c7041f49935a965a2e5e84bc87b5b2d0a8ee23313be3ea9c375"
+        "bytes": 114638,
+        "sha256": "ca240640deef6e21cb0322a118f4006e49ad3782d0ee2dcc1aa3cdf75a998ddc"
       },
       {
-        "url": "/assets/index-Dh5-37we.css",
+        "url": "/assets/index-CAurVnFC.js",
         "status": 200,
-        "bytes": 114327,
-        "sha256": "454eb30f4d908032948acad884bf5d23ac4678e4007c7653d229144f9a165aa3"
+        "bytes": 1972319,
+        "sha256": "99c71e0b32af84b36bd21bf93bd01987c828f3cb3d4a430ab7617137e16a1498"
       }
     ],
     "error": null
@@ -122,9 +122,9 @@
         "name": "login redirect",
         "expectedVerdict": "ENTRY_REDIRECTED",
         "actualVerdict": "reject",
-        "matchedReason": "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:56123/login — served document is not the dashboard entry",
+        "matchedReason": "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:62372/login — served document is not the dashboard entry",
         "reasons": [
-          "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:56123/login — served document is not the dashboard entry",
+          "ENTRY_REDIRECTED: request was redirected to http://127.0.0.1:62372/login — served document is not the dashboard entry",
           "NO_BUILD_ASSETS: entry document references no /assets/ build output",
           "NO_SESSION_BOOTSTRAP: no injected window.__HERMES_* script found — this is not the Hermes dashboard entry"
         ],
@@ -155,10 +155,10 @@
       "settled": true,
       "settleMeta": {
         "settled": true,
-        "textLen": 222,
+        "textLen": 220,
         "h1": "Sessions",
         "title": "Hermes Agent - Dashboard",
-        "skel": 1
+        "skel": 0
       },
       "probe": {
         "url": "/sessions",
@@ -195,7 +195,7 @@
         "hitTargets": {
           "total": 27,
           "under24": 3,
-          "under44": 27,
+          "under44": 8,
           "under24Samples": [
             {
               "tag": "BUTTON",
@@ -217,12 +217,12 @@
             }
           ],
           "navLinkSizes": [
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38"
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45"
           ]
         },
         "motion": {
@@ -234,9 +234,7 @@
         },
         "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KANBAN ACHIEVEM"
       },
-      "pageErrors": [
-        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
-      ],
+      "pageErrors": [],
       "screenshot": "sessions-1440.png"
     },
     {
@@ -253,10 +251,10 @@
       "settled": true,
       "settleMeta": {
         "settled": true,
-        "textLen": 201,
+        "textLen": 199,
         "h1": "Skills",
         "title": "Hermes Agent - Dashboard",
-        "skel": 1
+        "skel": 0
       },
       "probe": {
         "url": "/skills",
@@ -276,25 +274,24 @@
             "letterSpacing": "normal"
           },
           "loadedFonts": [
-            "JetBrains Mono",
             "Mondwest",
             "Rules Compressed",
             "Rules Expanded"
           ]
         },
         "counts": {
-          "elements": 2857,
+          "elements": 2847,
           "links": 21,
           "buttons": 437,
           "headings": 2,
           "textChars": 47236,
-          "canvases": 2
+          "canvases": 0
         },
         "overflowPx": 0,
         "hitTargets": {
-          "total": 250,
-          "under24": 205,
-          "under44": 249,
+          "total": 251,
+          "under24": 3,
+          "under44": 231,
           "under24Samples": [
             {
               "tag": "BUTTON",
@@ -313,47 +310,25 @@
               "w": 91,
               "h": 15,
               "label": "Nous Research"
-            },
-            {
-              "tag": "BUTTON",
-              "w": 34,
-              "h": 19,
-              "label": ""
-            },
-            {
-              "tag": "BUTTON",
-              "w": 34,
-              "h": 19,
-              "label": ""
-            },
-            {
-              "tag": "BUTTON",
-              "w": 34,
-              "h": 19,
-              "label": ""
             }
           ],
           "navLinkSizes": [
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38"
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45"
           ]
         },
         "motion": {
           "prefersReducedMotion": false,
-          "elementsWithAnimation": 1,
-          "animationNames": [
-            "spin"
-          ]
+          "elementsWithAnimation": 0,
+          "animationNames": []
         },
         "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KANBAN ACHIEVEM"
       },
-      "pageErrors": [
-        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
-      ],
+      "pageErrors": [],
       "screenshot": "skills-1440.png"
     },
     {
@@ -370,10 +345,10 @@
       "settled": true,
       "settleMeta": {
         "settled": true,
-        "textLen": 916,
+        "textLen": 914,
         "h1": "System",
         "title": "Hermes Agent - Dashboard",
-        "skel": 1
+        "skel": 0
       },
       "probe": {
         "url": "/system",
@@ -410,7 +385,7 @@
         "hitTargets": {
           "total": 43,
           "under24": 4,
-          "under44": 43,
+          "under44": 26,
           "under24Samples": [
             {
               "tag": "BUTTON",
@@ -438,12 +413,12 @@
             }
           ],
           "navLinkSizes": [
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38"
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45"
           ]
         },
         "motion": {
@@ -455,9 +430,7 @@
         },
         "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION System Restart Gateway "
       },
-      "pageErrors": [
-        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
-      ],
+      "pageErrors": [],
       "screenshot": "system-1440.png"
     },
     {
@@ -514,7 +487,7 @@
         "hitTargets": {
           "total": 28,
           "under24": 3,
-          "under44": 28,
+          "under44": 9,
           "under24Samples": [
             {
               "tag": "BUTTON",
@@ -536,12 +509,12 @@
             }
           ],
           "navLinkSizes": [
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38"
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45"
           ]
         },
         "motion": {
@@ -553,9 +526,7 @@
         },
         "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KA"
       },
-      "pageErrors": [
-        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
-      ],
+      "pageErrors": [],
       "screenshot": "sessions-390.png"
     },
     {
@@ -572,10 +543,10 @@
       "settled": true,
       "settleMeta": {
         "settled": true,
-        "textLen": 222,
+        "textLen": 220,
         "h1": "Sessions",
         "title": "Hermes Agent - Dashboard",
-        "skel": 1
+        "skel": 0
       },
       "probe": {
         "url": "/sessions",
@@ -612,7 +583,7 @@
         "hitTargets": {
           "total": 27,
           "under24": 3,
-          "under44": 27,
+          "under44": 8,
           "under24Samples": [
             {
               "tag": "BUTTON",
@@ -634,26 +605,22 @@
             }
           ],
           "navLinkSizes": [
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38",
-            "239x38"
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45",
+            "239x45"
           ]
         },
         "motion": {
           "prefersReducedMotion": true,
-          "elementsWithAnimation": 1,
-          "animationNames": [
-            "pulse"
-          ]
+          "elementsWithAnimation": 0,
+          "animationNames": []
         },
         "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plugins KANBAN ACHIEVEM"
       },
-      "pageErrors": [
-        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
-      ],
+      "pageErrors": [],
       "screenshot": "sessions-1440-rm.png"
     }
   ]

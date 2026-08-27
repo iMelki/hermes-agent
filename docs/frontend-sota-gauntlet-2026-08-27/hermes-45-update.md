@@ -1,14 +1,14 @@
-## System body + gauntlet recapture (2026-08-27)
+## Loopback 401 research + gauntlet recapture (2026-08-27)
 
-hermes-web-system-body-15-21
+hermes-web-401-followup-15-21
 
-The live dashboard at `http://127.0.0.1:9119` was rebuilt from current `dev` and restamped. Served JS is `index-3A4qXw6p.js` (1,972,061 bytes, sha256 `29daf7e3ef4a5c7041f49935a965a2e5e84bc87b5b2d0a8ee23313be3ea9c375`). The recapture score is **15 / 21** (usable). It is **not** 19–21/21. Awwwards is still **not** 8+.
+The live dashboard at `http://127.0.0.1:9119` was rebuilt from current `dev` and restamped. Served JS is `index-CAurVnFC.js` (1,972,319 bytes, sha256 `99c71e0b32af84b36bd21bf93bd01987c828f3cb3d4a430ab7617137e16a1498`). The recapture score is **15 / 21** (usable). It is **not** 19–21/21. Awwwards is still **not** 8+.
 
-- Source SHA: `9faae85d9732a241c8ac67d5e11908bcfd3bd29a`.
-- `/system` now has a body: honest “System details did not load” notice (401/timeout, no invented stats), Retry, credential form, Operations. Text chars **199 → 1046**.
-- Skills under-24px **222/251 → 205/250**. Category rows meet 24px. Remaining worst cluster is 34×19 switches.
-- Reduced-motion: `spin` did not run; `pulse` still did.
-- Recurring 401 on every captured surface is **not** fixed. Headerless `GET /api/status` is 200; the SPA session fetch is not. No password typed. No unauthenticated write tool added.
+- Source SHA: `3bea4c4819062f0a7c491a20f6cae13144778422`.
+- 401 **fixed**, not parked. Headerless `GET /api/status` 200 is the public liveness path. Protected APIs already succeed with the documented `X-Hermes-Session-Token`. The recurring console 401 was AuthWidget calling `/api/auth/me`, which 401s on loopback even with a valid session token (no OAuth session). The SPA now skips that probe when `__HERMES_AUTH_REQUIRED__` is false. No password typed. No unauthenticated write tool added.
+- Skills under-24px **205/250 → 3/251**. Switches meet the 24px floor. Nav links **239×38 → 239×45**.
+- Reduced-motion `/sessions`: **0** animations (`pulse` gated). Motion-allowed `/sessions` can still `pulse` on a live badge.
+- `/system` body stays the honest failure notice (1046 chars). Those remaining failures are not the session-token 401.
 - Score **15/21**: Visual 2, UX 3, Motion 1, Technical 2, Responsiveness 2, Verification 2, Complexity fit 3.
 
 Receipts:
@@ -17,6 +17,6 @@ Receipts:
 - `docs/frontend-sota-gauntlet-2026-08-27/verification.md`
 - `docs/frontend-sota-gauntlet-2026-08-27/gauntlet.json`
 
-Marker: `served SHA 9faae85d9732a241c8ac67d5e11908bcfd3bd29a / 15/21 / no Awwwards 8+`
+Marker: `served SHA 3bea4c4819062f0a7c491a20f6cae13144778422 / 15/21 / no Awwwards 8+`
 
-Next defect: recurring 401 on every surface (SPA session vs loopback). Then Skills 34×19 switches, RM `pulse`, nav height 38px.
+Next defect: leftover chrome under 24px (theme 23px, language 23px, Nous footer 15px), then `/system` non-401 load failures.
