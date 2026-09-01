@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0.0",
+  "recordType": "hermes-native-dashboard-start",
+  "timestamp": "2026-08-27T17:33:48Z",
+  "action": "started",
+  "serving": true,
+  "httpStatus": 200,
+  "pid": 95360,
+  "port": 9119,
+  "bindHost": "127.0.0.1",
+  "receiptPath": "C:\\Users\\Milky\\AppData\\Local\\Hermes\\ops\\dashboard-launcher-receipt.json",
+  "receiptStatus": "starting",
+  "blockers": []
+}
