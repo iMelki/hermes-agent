@@ -28,6 +28,21 @@ To promote this to real enforcement later, wire
 `node scripts/verify-component-sourcing-preflight.mjs` into whichever hook or CI mechanism
 the fork adopts first — the script is the stable part and needs no changes.
 
+## Gate self-test
+
+The parser carries its own tests in a colocated `.test.mjs` (the convention this repo
+already uses in `scripts/whatsapp-bridge/` and `apps/desktop/scripts/`):
+
+```bash
+npm run test:gate:component-sourcing
+```
+
+Nothing runs these automatically either — the same honest partial as the gate itself. They
+pin the `Covers:` matcher in BOTH directions, because a one-sided test would pass for a
+parser that covers everything: a backtick-wrapped path (markdown `` `path` ``) must still
+cover its component, and a backticked path naming a DIFFERENT file must still fail. The
+backtick strip is this fork's port of the fleet fix tracked in iMelki/memsys#601.
+
 ## Scope
 
 Only `web/src/components/**/*.{tsx,jsx}` is gated. Other TSX-bearing trees in this repo
@@ -65,6 +80,10 @@ component file(s). Validate the record body with the shared PowerShell checker:
 pwsh -File $env:AGENT_SETTINGS_ROOT\shared\tools\Test-FrontendComponentSourcingPreflight.ps1 `
   -BodyFile docs\preflight\records\<date>-<slug>.md -RequireKnownPoolMention -Json
 ```
+
+`records/2026-09-01-system-unavailable-notice.md` is the first record in this fork and
+doubles as the worked example, including the 8th field a custom/bespoke lane owes (the
+missing capability that made reuse unsuitable).
 
 Reviewed exceptions go into `component-baseline.json` as `{file, reason}` — a reviewed
 decision, not a convenience escape hatch.
