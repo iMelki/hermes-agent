@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "_doc": "Negative-proof ledger. A control is trusted only after an attributed failure on deliberate broken input and a verified restored pass.",
+  "exclude": [],
+  "gates": [
+    {
+      "id": "email-reply-adoption-conformance-20260917",
+      "path": "scripts/check_reply_to_primitive_conformance.py",
+      "negativeFixture": "tests/skills/test_reply_to_primitive_conformance.py",
+      "description": "agent-settings#1124: the pinned provider-free resolver and the single Hermes gmail_reply entrypoint must stay fully adopted across both send branches.",
+      "observedFailure": {
+        "date": "2026-09-17",
+        "command": "python -B scripts/check_reply_to_primitive_conformance.py --copy skills/productivity/google-workspace/scripts/google_api.py --provenance skills/productivity/google-workspace/scripts/reply_to_preview.provenance.json --consumer skills/productivity/google-workspace/scripts/google_api.py --json",
+        "breakApplied": "The guard was deliberately given the consumer bytes in place of the SHA-256-pinned canonical copy while the provenance and consumer remained unchanged.",
+        "exitCode": 1,
+        "reason": "status=fail, reason=reply-primitive-drift, finding=canonical-copy-drift, with the mismatching subject digest reported.",
+        "restoredPass": "The same command with _email_reply_preview.py restored as --copy returned status=pass, findings=[], copySha256=e104c2feb1a08c065c5cfdbe806185677299dd010dc3e4b31d36952c28cd9b05, exit 0. The canonical test runner then passed 32 focused tests across two files, including both provider branches and ten poison-send denial cases.",
+        "proofScope": "Pinned-copy integrity and complete static adoption in gmail_reply. The focused synthetic example.test suite separately covers Reply-To precedence, From-only fallback, MIME parse-back, existing References, control characters, groups, multiple recipients, and zero send invocations on denial. No live mailbox, provider message, credential, or send was accessed."
+      }
+    }
+  ]
+}

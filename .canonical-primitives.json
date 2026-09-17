@@ -1,0 +1,20 @@
+{
+  "$comment": "Canonical-primitive adoption declarations. Do not remove an entry to silence its guard.",
+  "version": 1,
+  "primitives": [
+    {
+      "id": "email-reply-preview",
+      "owners": [
+        "skills/productivity/google-workspace/scripts/_email_reply_preview.py",
+        "skills/productivity/google-workspace/scripts/reply_to_preview.provenance.json"
+      ],
+      "guard": "scripts/check_reply_to_primitive_conformance.py",
+      "consumers": [
+        "skills/productivity/google-workspace/scripts/google_api.py",
+        "tests/skills/test_google_workspace_api.py",
+        "tests/skills/test_reply_to_primitive_conformance.py"
+      ],
+      "reason": "agent-settings#1124 pins the provider-free Reply-To-first resolver from iMelki/agent-settings commit 391b5339. Hermes retains an independent release cadence while its local guard rejects copied-source drift, missing metadata, hand-written To assignment, or a resolver that does not precede both send branches."
+    }
+  ]
+}
