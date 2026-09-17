@@ -68,7 +68,7 @@ def _write_fixture(tmp_path: Path):
                 "version": 1,
                 "canonicalRepository": "iMelki/agent-settings",
                 "canonicalPath": "shared/tools/email_reply_preview.py",
-                "canonicalCommit": "9f09275e110c5245d49786bb9619720c36c98a6a",
+                "canonicalCommit": "7053635109df0d6e7599917639ee0c73c439eac9",
                 "canonicalSha256": hashlib.sha256(copy_path.read_bytes()).hexdigest(),
                 "copyPath": "skills/productivity/google-workspace/scripts/_email_reply_preview.py",
             }
@@ -164,4 +164,55 @@ def gmail_reply(args):
 
     assert result["status"] == "fail"
     assert "resolver-flow-not-approved" in result["findings"]
+    assert "reply-body-not-approved" in result["findings"]
+
+
+def test_guard_rejects_trailing_unpack_override(tmp_path):
+    copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
+    consumer_path.write_text(
+        _fixture_consumer().replace(
+            '        "threadId": original["threadId"],',
+            '        "threadId": original["threadId"],\n'
+            "        **args.payload,",
+        ),
+        encoding="utf-8",
+    )
+
+    result = _guard_module().verify(copy_path, provenance_path, consumer_path)
+
+    assert result["status"] == "fail"
+    assert "reply-body-not-approved" in result["findings"]
+
+
+def test_guard_rejects_computed_key_override(tmp_path):
+    copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
+    consumer_path.write_text(
+        _fixture_consumer().replace(
+            '        "threadId": original["threadId"],',
+            '        "threadId": original["threadId"],\n'
+            "        args.key: args.unchecked_raw,",
+        ),
+        encoding="utf-8",
+    )
+
+    result = _guard_module().verify(copy_path, provenance_path, consumer_path)
+
+    assert result["status"] == "fail"
+    assert "reply-body-not-approved" in result["findings"]
+
+
+def test_guard_rejects_duplicate_literal_key(tmp_path):
+    copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
+    consumer_path.write_text(
+        _fixture_consumer().replace(
+            '        "raw": base64.urlsafe_b64encode(preview.raw_mime).decode(),',
+            '        "raw": args.unchecked_raw,\n'
+            '        "raw": base64.urlsafe_b64encode(preview.raw_mime).decode(),',
+        ),
+        encoding="utf-8",
+    )
+
+    result = _guard_module().verify(copy_path, provenance_path, consumer_path)
+
+    assert result["status"] == "fail"
     assert "reply-body-not-approved" in result["findings"]

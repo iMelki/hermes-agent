@@ -204,7 +204,9 @@ is absent. The reply preview validates one exact `To`, no `Cc`/`Bcc`, and the
 thread headers by parsing the generated MIME back before either provider branch
 can send it. Mailbox local-part spelling is preserved while domain comparison
 is case-insensitive. RFC 2047 encoded subjects are decoded and control-checked
-before the generated reply is compared with the parsed MIME subject.
+before the generated reply is compared with the parsed MIME subject. The send
+body is limited to unique literal `raw` and `threadId` keys; dict unpack,
+computed keys, and duplicates are rejected by the adoption guard.
 
 ### Calendar
 

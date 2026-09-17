@@ -233,6 +233,17 @@ def _is_original_thread_id(node: ast.AST) -> bool:
     )
 
 
+def _strict_body_entries(node: ast.Dict) -> dict[str, ast.AST] | None:
+    entries: dict[str, ast.AST] = {}
+    for key, value in zip(node.keys, node.values):
+        if not isinstance(key, ast.Constant) or not isinstance(key.value, str):
+            return None
+        if key.value in entries:
+            return None
+        entries[key.value] = value
+    return entries
+
+
 def _body_statement(
     reply_function: ast.FunctionDef,
     resolver: ast.Assign | None,
@@ -250,13 +261,11 @@ def _body_statement(
     if not isinstance(assignment.value, ast.Dict) or assignment.lineno <= resolver.lineno:
         findings.append("reply-body-not-approved")
         return None, None
-    entries = {
-        key.value: value
-        for key, value in zip(assignment.value.keys, assignment.value.values)
-        if isinstance(key, ast.Constant) and isinstance(key.value, str)
-    }
-    raw = _preview_raw_node(entries.get("raw")) if set(entries) == {"raw", "threadId"} else None
-    if raw is None or not _is_original_thread_id(entries.get("threadId")):
+    entries = _strict_body_entries(assignment.value)
+    exact_fields = entries is not None and set(entries) == {"raw", "threadId"}
+    raw = _preview_raw_node(entries.get("raw")) if exact_fields else None
+    thread_id = entries.get("threadId") if exact_fields else None
+    if raw is None or not _is_original_thread_id(thread_id):
         findings.append("reply-body-not-approved")
         return None, None
     return assignment, raw
