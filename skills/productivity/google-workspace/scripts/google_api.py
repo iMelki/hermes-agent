@@ -37,6 +37,7 @@ if _SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, _SCRIPTS_DIR)
 
 from _hermes_home import get_hermes_home
+from _email_reply_preview import ReplyPreviewError, build_reply_preview
 
 HERMES_HOME = get_hermes_home()
 TOKEN_PATH = HERMES_HOME / "google_token.json"
@@ -359,64 +360,54 @@ def gmail_send(args):
 
 
 def gmail_reply(args):
-    if _gws_binary():
+    metadata_headers = ["From", "Reply-To", "Subject", "Message-ID", "References"]
+    use_gws = bool(_gws_binary())
+    service = None
+
+    if use_gws:
         original = _run_gws(
             ["gmail", "users", "messages", "get"],
             params={
                 "userId": "me",
                 "id": args.message_id,
                 "format": "metadata",
-                "metadataHeaders": ["From", "Subject", "Message-ID"],
+                "metadataHeaders": metadata_headers,
             },
         )
-        headers = _headers_dict(original)
+    else:
+        service = build_service("gmail", "v1")
+        original = service.users().messages().get(
+            userId="me",
+            id=args.message_id,
+            format="metadata",
+            metadataHeaders=metadata_headers,
+        ).execute()
 
-        subject = headers.get("subject", "")
-        if not subject.startswith("Re:"):
-            subject = f"Re: {subject}"
+    try:
+        preview = build_reply_preview(
+            original.get("payload", {}).get("headers", []),
+            body=args.body,
+            from_header=args.from_header or None,
+        )
+    except ReplyPreviewError as exc:
+        print(
+            json.dumps({"status": "denied", "reason": exc.reason}, indent=2),
+            file=sys.stderr,
+        )
+        raise SystemExit(2) from exc
 
-        message = MIMEText(args.body)
-        message["To"] = headers.get("from", "")
-        message["Subject"] = subject
-        if args.from_header:
-            message["From"] = args.from_header
-        if headers.get("message-id"):
-            message["In-Reply-To"] = headers["message-id"]
-            message["References"] = headers["message-id"]
-
-        raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+    body = {
+        "raw": base64.urlsafe_b64encode(preview.raw_mime).decode(),
+        "threadId": original["threadId"],
+    }
+    if use_gws:
         result = _run_gws(
             ["gmail", "users", "messages", "send"],
             params={"userId": "me"},
-            body={"raw": raw, "threadId": original["threadId"]},
+            body=body,
         )
-        print(json.dumps({"status": "sent", "id": result["id"], "threadId": result.get("threadId", "")}, indent=2))
-        return
-
-    service = build_service("gmail", "v1")
-    original = service.users().messages().get(
-        userId="me", id=args.message_id, format="metadata",
-        metadataHeaders=["From", "Subject", "Message-ID"],
-    ).execute()
-    headers = _headers_dict(original)
-
-    subject = headers.get("subject", "")
-    if not subject.startswith("Re:"):
-        subject = f"Re: {subject}"
-
-    message = MIMEText(args.body)
-    message["To"] = headers.get("from", "")
-    message["Subject"] = subject
-    if args.from_header:
-        message["From"] = args.from_header
-    if headers.get("message-id"):
-        message["In-Reply-To"] = headers["message-id"]
-        message["References"] = headers["message-id"]
-
-    raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
-    body = {"raw": raw, "threadId": original["threadId"]}
-
-    result = service.users().messages().send(userId="me", body=body).execute()
+    else:
+        result = service.users().messages().send(userId="me", body=body).execute()
     print(json.dumps({"status": "sent", "id": result["id"], "threadId": result.get("threadId", "")}, indent=2))
 
 
