@@ -14,6 +14,7 @@ import json
 import re
 import sys
 from dataclasses import dataclass, field
+from email.header import decode_header, make_header
 from email.message import EmailMessage
 from email.parser import BytesParser, Parser
 from email.policy import SMTP, default
@@ -150,7 +151,10 @@ def _parse_mailbox(value: Any, reason_prefix: str) -> str:
     if address.display_name and _CONTROL_RE.search(address.display_name):
         raise ReplyPreviewError(f"{reason_prefix}-invalid")
 
-    normalized = address.addr_spec.casefold()
+    local_part, separator, domain = address.addr_spec.rpartition("@")
+    if not separator or not local_part or not domain:
+        raise ReplyPreviewError(f"{reason_prefix}-invalid")
+    normalized = f"{local_part}@{domain.casefold()}"
     if not normalized.isascii() or not _ADDR_SPEC_RE.fullmatch(normalized):
         raise ReplyPreviewError(f"{reason_prefix}-invalid")
     return normalized
@@ -192,7 +196,12 @@ def _resolve_recipient(
 
 
 def _reply_subject(value: Any) -> str:
-    subject = _require_safe_text(value, "subject-invalid")
+    encoded_subject = _require_safe_text(value, "subject-invalid")
+    try:
+        subject = str(make_header(decode_header(encoded_subject)))
+    except Exception as exc:  # Header codecs must fail closed without echoing input.
+        raise ReplyPreviewError("subject-invalid") from exc
+    subject = _require_safe_text(subject, "subject-invalid")
     return subject if re.match(r"(?i)^re\s*:", subject) else f"Re: {subject}"
 
 
@@ -235,7 +244,8 @@ def _round_trip_assertions(raw_mime: bytes, expected: Mapping[str, str]) -> dict
     assertions = {
         "toCount": len(to_addresses),
         "exactTo": len(to_addresses) == 1
-        and to_addresses[0].addr_spec.casefold() == expected["recipient"],
+        and _parse_mailbox(to_addresses[0].addr_spec, "mime-to")
+        == expected["recipient"],
         "ccCount": 0 if cc_header is None else len(cc_header.addresses),
         "bccCount": 0 if bcc_header is None else len(bcc_header.addresses),
         "inReplyToMatches": str(parsed["In-Reply-To"] or "") == expected["message_id"],

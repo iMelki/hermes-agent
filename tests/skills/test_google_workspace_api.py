@@ -407,7 +407,7 @@ def test_api_gmail_reply_gws_prefers_reply_to_and_round_trips_thread_headers(
                 "payload": {
                     "headers": [
                         {"name": from_name, "value": "sender@example.test"},
-                        {"name": reply_to_name, "value": "operator@example.test"},
+                        {"name": reply_to_name, "value": "CaseSensitive@EXAMPLE.TEST"},
                         {"name": subject_name, "value": "case bug"},
                         {"name": message_id_name, "value": "<msg-1@example.test>"},
                         {"name": references_name, "value": "<root-1@example.test>"},
@@ -434,7 +434,9 @@ def test_api_gmail_reply_gws_prefers_reply_to_and_round_trips_thread_headers(
     assert body["threadId"] == "thread-1"
     raw = api_module.base64.urlsafe_b64decode(body["raw"])
     parsed = BytesParser(policy=default).parsebytes(raw)
-    assert [item.addr_spec for item in parsed["To"].addresses] == ["operator@example.test"]
+    assert [item.addr_spec for item in parsed["To"].addresses] == [
+        "CaseSensitive@example.test"
+    ]
     assert parsed["Cc"] is None
     assert parsed["Bcc"] is None
     assert str(parsed["Subject"]) == "Re: case bug"
@@ -451,7 +453,7 @@ def test_api_gmail_reply_python_api_prefers_reply_to_and_preserves_thread(api_mo
             "headers": [
                 {"name": "From", "value": "sender@example.test"},
                 {"name": "Reply-To", "value": "operator@example.test"},
-                {"name": "Subject", "value": "case bug"},
+                {"name": "Subject", "value": "=?UTF-8?B?16nXnNeV150=?="},
                 {"name": "Message-ID", "value": "<msg-1@example.test>"},
                 {"name": "References", "value": "<root-1@example.test>"},
             ]
@@ -490,6 +492,7 @@ def test_api_gmail_reply_python_api_prefers_reply_to_and_preserves_thread(api_mo
     assert [item.addr_spec for item in parsed["To"].addresses] == ["operator@example.test"]
     assert parsed["Cc"] is None
     assert parsed["Bcc"] is None
+    assert str(parsed["Subject"]) == "Re: שלום"
     assert str(parsed["In-Reply-To"]) == "<msg-1@example.test>"
     assert str(parsed["References"]) == "<root-1@example.test> <msg-1@example.test>"
 

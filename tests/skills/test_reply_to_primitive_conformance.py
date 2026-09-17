@@ -26,15 +26,33 @@ def _guard_module():
 
 def _fixture_consumer() -> str:
     return '''
+import base64
 from _email_reply_preview import ReplyPreviewError, build_reply_preview
 
 def gmail_reply(args):
     metadata_headers = ["From", "Reply-To", "Subject", "Message-ID", "References"]
-    preview = build_reply_preview([], body=args.body)
-    if args.use_gws:
-        _run_gws(["gmail", "users", "messages", "send"], body={"raw": preview.raw_mime})
+    use_gws = args.use_gws
+    if use_gws:
+        original = _run_gws(
+            ["gmail", "users", "messages", "get"],
+            params={"metadataHeaders": metadata_headers},
+        )
     else:
-        service.users().messages().send(body={"raw": preview.raw_mime}).execute()
+        original = service.users().messages().get(
+            metadataHeaders=metadata_headers,
+        ).execute()
+    try:
+        preview = build_reply_preview([], body=args.body)
+    except ReplyPreviewError as exc:
+        raise SystemExit(2) from exc
+    body = {
+        "raw": base64.urlsafe_b64encode(preview.raw_mime).decode(),
+        "threadId": original["threadId"],
+    }
+    if use_gws:
+        _run_gws(["gmail", "users", "messages", "send"], body=body)
+    else:
+        service.users().messages().send(body=body).execute()
 '''
 
 
@@ -50,7 +68,7 @@ def _write_fixture(tmp_path: Path):
                 "version": 1,
                 "canonicalRepository": "iMelki/agent-settings",
                 "canonicalPath": "shared/tools/email_reply_preview.py",
-                "canonicalCommit": "391b5339294d280d83ad84547b420f53dff0f529",
+                "canonicalCommit": "9f09275e110c5245d49786bb9619720c36c98a6a",
                 "canonicalSha256": hashlib.sha256(copy_path.read_bytes()).hexdigest(),
                 "copyPath": "skills/productivity/google-workspace/scripts/_email_reply_preview.py",
             }
@@ -80,9 +98,9 @@ def test_guard_attributes_a_half_migrated_recipient_path(tmp_path):
     copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
     consumer_path.write_text(
         _fixture_consumer().replace(
-            "preview = build_reply_preview([], body=args.body)",
-            'message["To"] = headers.get("from", "")\n    '
-            "preview = build_reply_preview([], body=args.body)",
+            "        preview = build_reply_preview([], body=args.body)",
+            '        message["To"] = headers.get("from", "")\n'
+            "        preview = build_reply_preview([], body=args.body)",
         ),
         encoding="utf-8",
     )
@@ -104,3 +122,46 @@ def test_guard_attributes_missing_reply_to_metadata(tmp_path):
 
     assert result["status"] == "fail"
     assert "metadata-header-coverage" in result["findings"]
+
+
+def test_guard_rejects_declared_but_unbound_metadata(tmp_path):
+    copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
+    consumer_path.write_text(
+        _fixture_consumer().replace(
+            'params={"metadataHeaders": metadata_headers}',
+            "params={}",
+        ),
+        encoding="utf-8",
+    )
+
+    result = _guard_module().verify(copy_path, provenance_path, consumer_path)
+
+    assert result["status"] == "fail"
+    assert "metadata-header-binding" in result["findings"]
+
+
+def test_guard_rejects_unreachable_resolver_and_unchecked_poison_send(tmp_path):
+    copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
+    consumer_path.write_text(
+        '''
+from _email_reply_preview import ReplyPreviewError, build_reply_preview
+
+def gmail_reply(args):
+    metadata_headers = ["From", "Reply-To", "Subject", "Message-ID", "References"]
+    original = args.original
+    if False:
+        preview = build_reply_preview([], body=args.body)
+    body = {"raw": args.unchecked_raw, "threadId": original["threadId"]}
+    if use_gws:
+        _run_gws(["gmail", "users", "messages", "send"], body=body)
+    else:
+        service.users().messages().send(body=body).execute()
+''',
+        encoding="utf-8",
+    )
+
+    result = _guard_module().verify(copy_path, provenance_path, consumer_path)
+
+    assert result["status"] == "fail"
+    assert "resolver-flow-not-approved" in result["findings"]
+    assert "reply-body-not-approved" in result["findings"]

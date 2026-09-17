@@ -202,7 +202,9 @@ Replies fail closed before the send call when a present `Reply-To` is invalid,
 ambiguous, or contains a control character. `From` is used only when `Reply-To`
 is absent. The reply preview validates one exact `To`, no `Cc`/`Bcc`, and the
 thread headers by parsing the generated MIME back before either provider branch
-can send it.
+can send it. Mailbox local-part spelling is preserved while domain comparison
+is case-insensitive. RFC 2047 encoded subjects are decoded and control-checked
+before the generated reply is compared with the parsed MIME subject.
 
 ### Calendar
 
