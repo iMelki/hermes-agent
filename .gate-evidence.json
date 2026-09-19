@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "_doc": "Negative-proof ledger. A control is trusted only after an attributed failure on deliberate broken input and a verified restored pass. agent-settings#1130: local executable gates proved on 2026-09-19; CI workflow candidates classified but not fabricated into this ledger until each has its own fail-for-right-reason + restored-pass proof.",
+  "exclude": [],
+  "gates": [
+    {
+      "id": "assert-dist-built-20260919",
+      "path": "apps/desktop/scripts/assert-dist-built.mjs",
+      "negativeFixture": "tests/gate-evidence/assert-dist-built-proof.mjs",
+      "description": "Desktop postbuild guard: refuse to package when apps/desktop/dist lacks index.html plus a JS assets bundle (blank-page packaging failure).",
+      "observedFailure": {
+        "date": "2026-09-19",
+        "command": "node apps/desktop/scripts/assert-dist-built.mjs ; node tests/gate-evidence/assert-dist-built-proof.mjs",
+        "breakApplied": "Clean checkout with apps/desktop/dist absent. The proof harness also calls checkDistBuilt() against a missing temp dist directory.",
+        "exitCode": 1,
+        "reason": "CLI printed 'assert-dist-built: no dist directory at .../apps/desktop/dist' and exited 1. Harness matched /no dist directory/ on the function result.",
+        "restoredPass": "Created a minimal apps/desktop/dist with non-empty index.html and assets/*.js; CLI printed 'assert-dist-built: dist/index.html + assets present' and exited 0. Harness restored-pass path also exited 0. Proof dist and temp dirs were deleted afterward.",
+        "proofScope": "Local packaging guard only. Does not prove electron-builder, vite, or hosted desktop CI."
+      }
+    },
+    {
+      "id": "assert-root-install-20260919",
+      "path": "apps/desktop/scripts/assert-root-install.mjs",
+      "negativeFixture": "tests/gate-evidence/assert-root-install-proof.mjs",
+      "description": "Desktop dev/build guard: require repo-root node_modules/vite before renderer tooling runs.",
+      "observedFailure": {
+        "date": "2026-09-19",
+        "command": "node apps/desktop/scripts/assert-root-install.mjs ; node tests/gate-evidence/assert-root-install-proof.mjs",
+        "breakApplied": "Clean checkout without node_modules/vite/package.json (natural broken input).",
+        "exitCode": 1,
+        "reason": "CLI printed 'Run from repo root: ... && npm ci' and exited 1.",
+        "restoredPass": "Wrote a temporary node_modules/vite/package.json stub; CLI exited 0 with no error. Stub and node_modules were removed afterward. Proof harness exits 0 only when both sides of the ritual succeed.",
+        "proofScope": "Presence check for root vite install only. Does not prove npm ci, lockfile integrity, or a full desktop build."
+      }
+    },
+    {
+      "id": "verify-component-sourcing-preflight-20260919",
+      "path": "scripts/verify-component-sourcing-preflight.mjs",
+      "negativeFixture": "tests/gate-evidence/component-sourcing-preflight-proof.mjs",
+      "description": "Fork-local component sourcing preflight: every web/src/components/*.(tsx|jsx) file must be baselined or covered by a sourcing record.",
+      "observedFailure": {
+        "date": "2026-09-19",
+        "command": "node tests/gate-evidence/component-sourcing-preflight-proof.mjs",
+        "breakApplied": "Planted web/src/components/_gate_evidence_uncovered.tsx with no baseline entry and no docs/preflight record.",
+        "exitCode": 1,
+        "reason": "Printed COMPONENT_SOURCING_PREFLIGHT=fail and named the planted file as a new component with no sourcing-preflight record; exit 1.",
+        "restoredPass": "Deleted the planted file; same command printed COMPONENT_SOURCING_PREFLIGHT=pass (26 components: 26 baselined, 0 record-covered; 0 records) and exited 0.",
+        "proofScope": "Fork-local preflight over web/src/components only. Does not prove React runtime behavior or hosted UI CI."
+      }
+    },
+    {
+      "id": "check-windows-footguns-20260919",
+      "path": "scripts/check-windows-footguns.py",
+      "negativeFixture": "tests/gate-evidence/windows-footgun-proof.mjs",
+      "description": "Grep-based Windows footgun checker used by lint workflow --all and by explicit path scans before PRs.",
+      "observedFailure": {
+        "date": "2026-09-19",
+        "command": "python3 scripts/check-windows-footguns.py tests/gate-evidence/windows-footgun/deliberate_os_kill.py ; node tests/gate-evidence/windows-footgun-proof.mjs",
+        "breakApplied": "Committed deliberate fixture tests/gate-evidence/windows-footgun/deliberate_os_kill.py containing a bare os.kill(pid, 0) without a suppression marker. tests/ is outside the checker's --all roots, so the fixture does not poison the lint workflow full scan.",
+        "exitCode": 1,
+        "reason": "Reported '[os.kill(pid, 0)]' on the fixture line with the CTRL_C_EVENT Windows attribution and exited 1 with '1 Windows footgun(s) found'.",
+        "restoredPass": "Scanning tests/gate-evidence/windows-footgun/restored_os_kill.py (same call with '# windows-footgun: ok') printed 'No Windows footguns found' and exited 0. Proof harness requires both sides.",
+        "proofScope": "One rule (os.kill pid 0) via explicit path scan. Does not re-prove every FOOTGUNS pattern or the lint.yml workflow_call wiring."
+      }
+    }
+  ]
+}
