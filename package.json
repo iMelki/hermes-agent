@@ -21,7 +21,8 @@
     "audit:fix:root": "npm audit fix --workspaces=false",
     "audit:fix:web": "npm audit fix --workspace web",
     "audit:fix:tui": "npm audit fix --workspace ui-tui",
-    "gate:component-sourcing": "node scripts/verify-component-sourcing-preflight.mjs"
+    "gate:component-sourcing": "node scripts/verify-component-sourcing-preflight.mjs",
+    "test:gate:component-sourcing": "node --test scripts/verify-component-sourcing-preflight.test.mjs"
   },
   "repository": {
     "type": "git",

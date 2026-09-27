@@ -27,6 +27,7 @@ import { useEffect, useState } from "react";
 import { api, type AuthMeResponse } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { LogOut } from "lucide-react";
+import { shouldFetchAuthMe } from "./authWidgetGate";
 
 interface AuthWidgetProps {
   className?: string;
@@ -42,10 +43,16 @@ function truncateUserId(id: string): string {
 
 export function AuthWidget({ className }: AuthWidgetProps) {
   const [me, setMe] = useState<AuthMeResponse | null>(null);
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(
+    () => !shouldFetchAuthMe(window.__HERMES_AUTH_REQUIRED__),
+  );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!shouldFetchAuthMe(window.__HERMES_AUTH_REQUIRED__)) {
+      setHidden(true);
+      return;
+    }
     let cancelled = false;
     api
       .getAuthMe()

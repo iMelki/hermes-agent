@@ -1,0 +1,1270 @@
+{
+  "capturedAt": "2026-08-31T01:03:50.287Z",
+  "sideServe": {
+    "base": "http://127.0.0.1:9219",
+    "label": "keyless side-serve, STAMPED commit 24bd9b30c507b2294f72d4cda64140ad1adf48d2 dirty:false"
+  },
+  "live": {
+    "base": "http://127.0.0.1:9119",
+    "label": "running Hermes dashboard, UNSTAMPED pre-fix bundle, JS sha256 89bc089d… byte-identical to stamped build"
+  },
+  "harness": "playwright-core 1.59.1 chromium headless; waitUntil=commit; never networkidle; dark scheme",
+  "surfaces": [
+    {
+      "target": "side",
+      "name": "sessions-1440",
+      "route": "/sessions",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": {
+            "baseline": 0,
+            "withInjected2600": 0,
+            "restored": 0,
+            "proven": false
+          }
+        },
+        "hitTargets": {
+          "total": 23,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 6,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 1,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 26,
+          "resolved": 26,
+          "coveragePct": 100,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "No sessions yet"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 255,
+          "headings": 1,
+          "buttons": 12,
+          "links": 18
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Sys"
+      },
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:9219/api/events?channel=chat-c00c9dd8-9867-41ae-9273-fe69a2b725c5&token=' failed: Error during WebSocket handshake: Unex"
+      ],
+      "consoleErrorCount": 1,
+      "screenshot": "side-sessions-1440.png"
+    },
+    {
+      "target": "side",
+      "name": "skills-1440",
+      "route": "/skills",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/skills",
+        "h1": "Skills",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 27,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 10,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 2,
+          "infiniteCount": 1,
+          "runningAnimations": 4,
+          "animationNames": [
+            "pulse",
+            "toast-in"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 35,
+          "resolved": 29,
+          "coveragePct": 82.9,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "No skills found. Skills are lo"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 357,
+          "headings": 2,
+          "buttons": 17,
+          "links": 18
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Sys"
+      },
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:9219/api/events?channel=chat-dc4d68aa-721e-419f-a780-87b82e5d116b&token=' failed: Error during WebSocket handshake: Unex"
+      ],
+      "consoleErrorCount": 1,
+      "screenshot": "side-skills-1440.png"
+    },
+    {
+      "target": "side",
+      "name": "system-1440",
+      "route": "/system",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/system",
+        "h1": "System",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 43,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 26,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 4,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 64,
+          "resolved": 61,
+          "coveragePct": 95.3,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "Shell hooks"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 1033,
+          "headings": 4,
+          "buttons": 29,
+          "links": 18
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Sys"
+      },
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:9219/api/events?channel=chat-60d2f939-98cf-4eb9-a897-b30faeaf7036&token=' failed: Error during WebSocket handshake: Unex"
+      ],
+      "consoleErrorCount": 1,
+      "screenshot": "side-system-1440.png"
+    },
+    {
+      "target": "side",
+      "name": "chat-1440",
+      "route": "/chat",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/chat",
+        "h1": "Chat",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 28,
+          "under24_AA_258": 1,
+          "under44_AAA_255": 11,
+          "inlineExcluded": 0,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 25,
+              "h": 19,
+              "inline": false,
+              "nativeUnstyled": false,
+              "label": "—"
+            }
+          ],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 4,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 34,
+          "resolved": 31,
+          "coveragePct": 91.2,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 4.64,
+            "req": 4.5,
+            "text": "events feed disconnected — too"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 465,
+          "headings": 1,
+          "buttons": 12,
+          "links": 18
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Sys"
+      },
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:9219/api/events?channel=chat-ceb9de8c-8431-415e-a2ff-9bcdb898f6b6&token=' failed: Error during WebSocket handshake: Unex"
+      ],
+      "consoleErrorCount": 1,
+      "screenshot": "side-chat-1440.png"
+    },
+    {
+      "target": "side",
+      "name": "analytics-1440",
+      "route": "/analytics",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/analytics",
+        "h1": "Analytics",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 23,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 5,
+          "inlineExcluded": 1,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 1,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 31,
+          "resolved": 31,
+          "coveragePct": 100,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "Config"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 1019,
+          "headings": 2,
+          "buttons": 12,
+          "links": 19
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Sys"
+      },
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:9219/api/events?channel=chat-2eedef93-aabe-4592-9554-a2129a884908&token=' failed: Error during WebSocket handshake: Unex"
+      ],
+      "consoleErrorCount": 1,
+      "screenshot": "side-analytics-1440.png"
+    },
+    {
+      "target": "side",
+      "name": "sessions-768",
+      "route": "/sessions",
+      "vp": {
+        "width": 768,
+        "height": 1024
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 24,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 7,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 1,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 27,
+          "resolved": 27,
+          "coveragePct": 100,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "No sessions yet"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 268,
+          "headings": 1,
+          "buttons": 7,
+          "links": 18
+        },
+        "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCU"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "side-sessions-768.png"
+    },
+    {
+      "target": "side",
+      "name": "sessions-390",
+      "route": "/sessions",
+      "vp": {
+        "width": 390,
+        "height": 844
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": {
+            "baseline": 0,
+            "withInjected2600": 0,
+            "restored": 0,
+            "proven": false
+          }
+        },
+        "hitTargets": {
+          "total": 24,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 7,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 1,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 25,
+          "resolved": 25,
+          "coveragePct": 100,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "No sessions yet"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 253,
+          "headings": 1,
+          "buttons": 7,
+          "links": 18
+        },
+        "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCU"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "side-sessions-390.png"
+    },
+    {
+      "target": "side",
+      "name": "system-390",
+      "route": "/system",
+      "vp": {
+        "width": 390,
+        "height": 844
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/system",
+        "h1": "System",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 44,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 27,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 4,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 63,
+          "resolved": 60,
+          "coveragePct": 95.2,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "Shell hooks"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 1031,
+          "headings": 4,
+          "buttons": 24,
+          "links": 18
+        },
+        "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCU"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "side-system-390.png"
+    },
+    {
+      "target": "side",
+      "name": "sessions-1440-rm",
+      "route": "/sessions",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": true,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 23,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 6,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": true,
+          "animatedEls": 0,
+          "infiniteCount": 0,
+          "runningAnimations": 0,
+          "animationNames": []
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 26,
+          "resolved": 26,
+          "coveragePct": 100,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "No sessions yet"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 255,
+          "headings": 1,
+          "buttons": 12,
+          "links": 18
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Sys"
+      },
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:9219/api/events?channel=chat-34c185fa-9d77-44b9-a3cd-f9ccd2832c71&token=' failed: Error during WebSocket handshake: Unex"
+      ],
+      "consoleErrorCount": 1,
+      "screenshot": "side-sessions-1440-rm.png"
+    },
+    {
+      "target": "side",
+      "name": "system-1440-rm",
+      "route": "/system",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": true,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/system",
+        "h1": "System",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 43,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 26,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": true,
+          "animatedEls": 0,
+          "infiniteCount": 0,
+          "runningAnimations": 3,
+          "animationNames": []
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 64,
+          "resolved": 61,
+          "coveragePct": 95.3,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "Shell hooks"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 1033,
+          "headings": 4,
+          "buttons": 29,
+          "links": 18
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Sys"
+      },
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:9219/api/events?channel=chat-73c44bf2-9f32-4ec7-8051-420c0254ec09&token=' failed: Error during WebSocket handshake: Unex"
+      ],
+      "consoleErrorCount": 1,
+      "screenshot": "side-system-1440-rm.png"
+    },
+    {
+      "target": "live",
+      "name": "sessions-1440",
+      "route": "/sessions",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 27,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 8,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 2,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 69,
+          "resolved": 55,
+          "coveragePct": 79.7,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "cron"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 1142,
+          "headings": 2,
+          "buttons": 9,
+          "links": 20
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plu"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-sessions-1440.png"
+    },
+    {
+      "target": "live",
+      "name": "skills-1440",
+      "route": "/skills",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/skills",
+        "h1": "Skills",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 253,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 233,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 0,
+          "infiniteCount": 0,
+          "runningAnimations": 2,
+          "animationNames": []
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 400,
+          "resolved": 374,
+          "coveragePct": 93.5,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "State-of-the-art text-to-image"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 48253,
+          "headings": 2,
+          "buttons": 441,
+          "links": 21
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plu"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-skills-1440.png"
+    },
+    {
+      "target": "live",
+      "name": "system-1440",
+      "route": "/system",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/system",
+        "h1": "System",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 64,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 45,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 6,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 152,
+          "resolved": 128,
+          "coveragePct": 84.2,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 4.64,
+            "req": 4.5,
+            "text": "Reset MEMORY.md"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 2884,
+          "headings": 10,
+          "buttons": 39,
+          "links": 23
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plu"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-system-1440.png"
+    },
+    {
+      "target": "live",
+      "name": "sessions-390",
+      "route": "/sessions",
+      "vp": {
+        "width": 390,
+        "height": 844
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 28,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 9,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 2,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 68,
+          "resolved": 54,
+          "coveragePct": 79.4,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "cron"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 1140,
+          "headings": 2,
+          "buttons": 9,
+          "links": 20
+        },
+        "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCU"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-sessions-390.png"
+    },
+    {
+      "target": "live",
+      "name": "sessions-1440-rm",
+      "route": "/sessions",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": true,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 28,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 8,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": true,
+          "animatedEls": 0,
+          "infiniteCount": 0,
+          "runningAnimations": 0,
+          "animationNames": []
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 73,
+          "resolved": 59,
+          "coveragePct": 80.8,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "cron"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "counts": {
+          "textChars": 1189,
+          "headings": 2,
+          "buttons": 44,
+          "links": 21
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plu"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-sessions-1440-rm.png"
+    }
+  ]
+}

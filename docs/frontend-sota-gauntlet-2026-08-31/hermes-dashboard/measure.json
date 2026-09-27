@@ -1,0 +1,1009 @@
+{
+  "capturedAt": "2026-08-31T17:00:25.883Z",
+  "live": {
+    "base": "http://127.0.0.1:9119",
+    "label": "running Hermes dashboard, read-only GETs, NOT restarted"
+  },
+  "harness": "playwright-core 1.59.1 chromium headless; waitUntil=commit; never networkidle; dark scheme",
+  "provenance": {
+    "fetchedAt": "2026-08-31T17:00:03.345Z",
+    "base": "http://127.0.0.1:9119",
+    "sessionTokenStripped": true,
+    "entryHtml": {
+      "status": 200,
+      "bytesRaw": 722,
+      "bytesNormalized": 551,
+      "sha256Normalized": "00c011a24f77c47e4824fb81c0d53bc2af5cc483d1776382a0caaad632d4e5ca"
+    },
+    "assets": [
+      {
+        "url": "/assets/index-DFSF3_kR.js",
+        "status": 200,
+        "bytes": 1973248,
+        "sha256": "89bc089d96d2d58edadbbc6c0d4332eb9ea92cbba3b1b77d222ce1471e97cbdb"
+      },
+      {
+        "url": "/assets/index-DS6owGOh.css",
+        "status": 200,
+        "bytes": 114669,
+        "sha256": "fc5e7b52d7fa53873003cf0786045e0757bfccc18bf10c22652618d85b82aa50"
+      }
+    ],
+    "buildInfo": {
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "isSpaFallthrough": true,
+      "head": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset="
+    },
+    "hasBuildMeta": false
+  },
+  "surfaces": [
+    {
+      "name": "sessions-1440",
+      "route": "/sessions",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": {
+            "baseline": 0,
+            "withInjected2600": 1160,
+            "restored": 0,
+            "proven": true
+          }
+        },
+        "hitTargets": {
+          "total": 27,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 8,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 2,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 69,
+          "resolved": 55,
+          "coveragePct": 79.7,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "cron"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "perf": {
+          "ttfbMs": 11,
+          "domContentLoadedMs": 206,
+          "loadEventMs": 206,
+          "transferSize": 1022,
+          "firstPaintMs": 120,
+          "firstContentfulPaintMs": 284,
+          "longTasks": null
+        },
+        "counts": {
+          "textChars": 1136,
+          "headings": 2,
+          "buttons": 9,
+          "links": 20
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plu"
+      },
+      "tabPass": {
+        "presses": 15,
+        "landedOnBody": 0,
+        "withVisibleIndicator": 15,
+        "path": [
+          {
+            "tag": "A",
+            "label": "PAIRING",
+            "indicator": true
+          },
+          {
+            "tag": "A",
+            "label": "PROFILES",
+            "indicator": true
+          },
+          {
+            "tag": "A",
+            "label": "CONFIG",
+            "indicator": true
+          },
+          {
+            "tag": "A",
+            "label": "KEYS",
+            "indicator": true
+          },
+          {
+            "tag": "A",
+            "label": "SYSTEM",
+            "indicator": true
+          },
+          {
+            "tag": "A",
+            "label": "DOCUMENTATION",
+            "indicator": true
+          },
+          {
+            "tag": "A",
+            "label": "KANBAN",
+            "indicator": true
+          },
+          {
+            "tag": "A",
+            "label": "ACHIEVEMENTS",
+            "indicator": true
+          },
+          {
+            "tag": "BUTTON",
+            "label": "Restart Gateway",
+            "indicator": true
+          },
+          {
+            "tag": "BUTTON",
+            "label": "Switch theme",
+            "indicator": true
+          },
+          {
+            "tag": "BUTTON",
+            "label": "Switch language",
+            "indicator": true
+          },
+          {
+            "tag": "A",
+            "label": "Nous Research",
+            "indicator": true
+          },
+          {
+            "tag": "BUTTON",
+            "label": "Prune old sessions",
+            "indicator": true
+          },
+          {
+            "tag": "BUTTON",
+            "label": "Overview",
+            "indicator": true
+          },
+          {
+            "tag": "BUTTON",
+            "label": "History",
+            "indicator": true
+          }
+        ]
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-sessions-1440.png"
+    },
+    {
+      "name": "skills-1440",
+      "route": "/skills",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/skills",
+        "h1": "Skills",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 253,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 233,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 0,
+          "infiniteCount": 0,
+          "runningAnimations": 2,
+          "animationNames": []
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 400,
+          "resolved": 374,
+          "coveragePct": 93.5,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "State-of-the-art text-to-image"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "perf": {
+          "ttfbMs": 39,
+          "domContentLoadedMs": 243,
+          "loadEventMs": 243,
+          "transferSize": 1022,
+          "firstPaintMs": 104,
+          "firstContentfulPaintMs": 304,
+          "longTasks": null
+        },
+        "counts": {
+          "textChars": 48253,
+          "headings": 2,
+          "buttons": 437,
+          "links": 21
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plu"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-skills-1440.png"
+    },
+    {
+      "name": "system-1440",
+      "route": "/system",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/system",
+        "h1": "System",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 64,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 45,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 6,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 152,
+          "resolved": 128,
+          "coveragePct": 84.2,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 4.64,
+            "req": 4.5,
+            "text": "Reset MEMORY.md"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "perf": {
+          "ttfbMs": 8,
+          "domContentLoadedMs": 215,
+          "loadEventMs": 216,
+          "transferSize": 1022,
+          "firstPaintMs": 56,
+          "firstContentfulPaintMs": 320,
+          "longTasks": null
+        },
+        "counts": {
+          "textChars": 2883,
+          "headings": 10,
+          "buttons": 39,
+          "links": 23
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plu"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-system-1440.png"
+    },
+    {
+      "name": "chat-1440",
+      "route": "/chat",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/chat",
+        "h1": "Chat",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 31,
+          "under24_AA_258": 1,
+          "under44_AAA_255": 11,
+          "inlineExcluded": 0,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 25,
+              "h": 19,
+              "inline": false,
+              "label": "—"
+            }
+          ],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 3,
+          "animationNames": [
+            "spin"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 40,
+          "resolved": 38,
+          "coveragePct": 95,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 4.64,
+            "req": 4.5,
+            "text": "agent init failed: No module n"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "perf": {
+          "ttfbMs": 60,
+          "domContentLoadedMs": 252,
+          "loadEventMs": 253,
+          "transferSize": 1022,
+          "firstPaintMs": 104,
+          "firstContentfulPaintMs": 316,
+          "longTasks": null
+        },
+        "counts": {
+          "textChars": 433,
+          "headings": 1,
+          "buttons": 12,
+          "links": 21
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plu"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-chat-1440.png"
+    },
+    {
+      "name": "analytics-1440",
+      "route": "/analytics",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/analytics",
+        "h1": "Analytics",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 27,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 6,
+          "inlineExcluded": 1,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 0,
+          "infiniteCount": 0,
+          "runningAnimations": 0,
+          "animationNames": []
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 39,
+          "resolved": 39,
+          "coveragePct": 100,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "Config"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "perf": {
+          "ttfbMs": 8,
+          "domContentLoadedMs": 209,
+          "loadEventMs": 209,
+          "transferSize": 1022,
+          "firstPaintMs": 48,
+          "firstContentfulPaintMs": 276,
+          "longTasks": null
+        },
+        "counts": {
+          "textChars": 1113,
+          "headings": 2,
+          "buttons": 7,
+          "links": 22
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plu"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-analytics-1440.png"
+    },
+    {
+      "name": "sessions-375",
+      "route": "/sessions",
+      "vp": {
+        "width": 375,
+        "height": 812
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": {
+            "baseline": 0,
+            "withInjected2600": 2225,
+            "restored": 0,
+            "proven": true
+          }
+        },
+        "hitTargets": {
+          "total": 132,
+          "under24_AA_258": 20,
+          "under44_AAA_255": 113,
+          "inlineExcluded": 0,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 15,
+              "inline": false,
+              "label": "Select session"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 15,
+              "inline": false,
+              "label": "Select session"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 15,
+              "inline": false,
+              "label": "Select session"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 15,
+              "inline": false,
+              "label": "Select session"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 15,
+              "inline": false,
+              "label": "Select session"
+            }
+          ],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 7,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 144,
+          "resolved": 131,
+          "coveragePct": 91,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 4.64,
+            "req": 4.5,
+            "text": "Delete empty (17)"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "perf": {
+          "ttfbMs": 12,
+          "domContentLoadedMs": 308,
+          "loadEventMs": 309,
+          "transferSize": 1022,
+          "firstPaintMs": 72,
+          "firstContentfulPaintMs": 400,
+          "longTasks": null
+        },
+        "counts": {
+          "textChars": 2068,
+          "headings": 1,
+          "buttons": 192,
+          "links": 20
+        },
+        "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCU"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-sessions-375.png"
+    },
+    {
+      "name": "system-375",
+      "route": "/system",
+      "vp": {
+        "width": 375,
+        "height": 812
+      },
+      "rm": false,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/system",
+        "h1": "System",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 65,
+          "under24_AA_258": 4,
+          "under44_AAA_255": 42,
+          "inlineExcluded": 0,
+          "under24Samples": [
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 28,
+              "inline": false,
+              "label": "Remove credential"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 28,
+              "inline": false,
+              "label": "Remove credential"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 15,
+              "h": 28,
+              "inline": false,
+              "label": "Remove hook"
+            },
+            {
+              "tag": "BUTTON",
+              "w": 19,
+              "h": 28,
+              "inline": false,
+              "label": "Remove hook"
+            }
+          ],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": false,
+          "animatedEls": 1,
+          "infiniteCount": 1,
+          "runningAnimations": 6,
+          "animationNames": [
+            "pulse"
+          ]
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 147,
+          "resolved": 123,
+          "coveragePct": 83.7,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 4.64,
+            "req": 4.5,
+            "text": "Reset MEMORY.md"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "perf": {
+          "ttfbMs": 41,
+          "domContentLoadedMs": 199,
+          "loadEventMs": 199,
+          "transferSize": 1022,
+          "firstPaintMs": 72,
+          "firstContentfulPaintMs": 284,
+          "longTasks": null
+        },
+        "counts": {
+          "textChars": 2881,
+          "headings": 10,
+          "buttons": 39,
+          "links": 23
+        },
+        "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCU"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-system-375.png"
+    },
+    {
+      "name": "sessions-1440-rm",
+      "route": "/sessions",
+      "vp": {
+        "width": 1440,
+        "height": 900
+      },
+      "rm": true,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 27,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 8,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": true,
+          "animatedEls": 0,
+          "infiniteCount": 0,
+          "runningAnimations": 1,
+          "animationNames": []
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 69,
+          "resolved": 55,
+          "coveragePct": 79.7,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "cron"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "perf": {
+          "ttfbMs": 232,
+          "domContentLoadedMs": 504,
+          "loadEventMs": 505,
+          "transferSize": 1022,
+          "firstPaintMs": 320,
+          "firstContentfulPaintMs": 576,
+          "longTasks": null
+        },
+        "counts": {
+          "textChars": 1136,
+          "headings": 2,
+          "buttons": 9,
+          "links": 20
+        },
+        "bodyTextHead": "HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCUMENTATION Plu"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-sessions-1440-rm.png"
+    },
+    {
+      "name": "sessions-375-rm",
+      "route": "/sessions",
+      "vp": {
+        "width": 375,
+        "height": 812
+      },
+      "rm": true,
+      "navStatus": 200,
+      "settled": true,
+      "probe": {
+        "url": "/sessions",
+        "h1": "Sessions",
+        "typography": {
+          "h1": {
+            "fontFamily": "\"Rules Expanded\", sans-serif",
+            "fontSize": "18.75px",
+            "fontWeight": "700"
+          },
+          "body": {
+            "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neu",
+            "fontSize": "15px",
+            "fontWeight": "400"
+          }
+        },
+        "overflow": {
+          "body": 0,
+          "documentElement": 0,
+          "control": null
+        },
+        "hitTargets": {
+          "total": 29,
+          "under24_AA_258": 0,
+          "under44_AAA_255": 9,
+          "inlineExcluded": 0,
+          "under24Samples": [],
+          "unlabeledIconButtons": 0
+        },
+        "motion": {
+          "prefersReducedMotion": true,
+          "animatedEls": 0,
+          "infiniteCount": 0,
+          "runningAnimations": 0,
+          "animationNames": []
+        },
+        "contrast": {
+          "sentinels": {
+            "hi": 21,
+            "lo": 1,
+            "invalidResolved": false,
+            "proven": true
+          },
+          "enumerated": 72,
+          "resolved": 58,
+          "coveragePct": 80.6,
+          "failures": [],
+          "failureCount": 0,
+          "worst": {
+            "ratio": 14.67,
+            "req": 4.5,
+            "text": "cron"
+          }
+        },
+        "focus": {
+          "sampled": 12,
+          "visibleOnFocus": 12
+        },
+        "perf": {
+          "ttfbMs": 6,
+          "domContentLoadedMs": 156,
+          "loadEventMs": 157,
+          "transferSize": 1022,
+          "firstPaintMs": 40,
+          "firstContentfulPaintMs": 216,
+          "longTasks": null
+        },
+        "counts": {
+          "textChars": 1181,
+          "headings": 2,
+          "buttons": 10,
+          "links": 21
+        },
+        "bodyTextHead": "Hermes Agent HERMES AGENT CHAT SESSIONS FILES MODELS LOGS CRON SKILLS PLUGINS MCP CHANNELS WEBHOOKS PAIRING PROFILES CONFIG KEYS SYSTEM DOCU"
+      },
+      "consoleErrors": [],
+      "consoleErrorCount": 0,
+      "screenshot": "live-sessions-375-rm.png"
+    }
+  ]
+}

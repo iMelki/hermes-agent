@@ -10,7 +10,7 @@ export function SidebarStatusStrip({ status }: SidebarStatusStripProps) {
   if (status === null) {
     return (
       <div className="px-5 py-1.5" aria-hidden>
-        <div className="h-2 w-[80%] max-w-full animate-pulse rounded-sm bg-midground/10" />
+        <div className="h-2 w-[80%] max-w-full animate-pulse rounded-sm bg-midground/10 motion-reduce:animate-none" />
       </div>
     );
   }
