@@ -8,3 +8,6 @@ web/package-lock.json linguist-generated=true
 Dockerfile  text eol=lf
 *.dockerfile text eol=lf
 docker/entrypoint.sh text eol=lf
+
+# Keep the SHA-256-pinned canonical reply resolver byte-identical on Windows.
+skills/productivity/google-workspace/scripts/_email_reply_preview.py text eol=lf
