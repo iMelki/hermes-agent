@@ -8,3 +8,6 @@ web/package-lock.json linguist-generated=true
 Dockerfile  text eol=lf
 *.dockerfile text eol=lf
 docker/entrypoint.sh text eol=lf
+
+# Byte-pinned canonical scratch primitive used only by isolated gate proofs.
+tests/gate-evidence/ephemeral-scratch.mjs text eol=lf

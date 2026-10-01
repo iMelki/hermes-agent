@@ -24,13 +24,13 @@
       "negativeFixture": "tests/gate-evidence/assert-root-install-proof.mjs",
       "description": "Desktop dev/build guard: require repo-root node_modules/vite before renderer tooling runs.",
       "observedFailure": {
-        "date": "2026-09-19",
-        "command": "node apps/desktop/scripts/assert-root-install.mjs ; node tests/gate-evidence/assert-root-install-proof.mjs",
-        "breakApplied": "Clean checkout without node_modules/vite/package.json (natural broken input).",
+        "date": "2026-10-01",
+        "command": "node tests/gate-evidence/assert-root-install-proof.mjs; node tests/gate-evidence/gate-proof-preservation.test.mjs --prove-previous; node tests/gate-evidence/gate-proof-preservation.test.mjs",
+        "breakApplied": "Fresh exclusively owned retained fixture has an exact gate copy at apps/desktop/scripts/assert-root-install.mjs and no node_modules/vite/package.json. Owner source paths remain read-only. The exact previous PR5 proof is separately evaluated with virtual partial-cache state, never executed against live files.",
         "exitCode": 1,
         "reason": "CLI printed 'Run from repo root: ... && npm ci' and exited 1.",
-        "restoredPass": "Wrote a temporary node_modules/vite/package.json stub; CLI exited 0 with no error. Stub and node_modules were removed afterward. Proof harness exits 0 only when both sides of the ritual succeed.",
-        "proofScope": "Presence check for root vite install only. Does not prove npm ci, lockfile integrity, or a full desktop build."
+        "restoredPass": "Exclusive synthetic package stub in the retained fixture makes the exact gate CLI exit 0 with no error. Nothing is deleted. Published-head preservation obligations fail two attributable assertions at exit 1; repaired preservation suite passes 14 tests at exit 0, including success/fail/throw/synthetic-interruption owner-path and byte comparisons.",
+        "proofScope": "Exact copied CLI presence check and isolated preservation only. Does not prove npm ci, lockfile integrity, real build, real process interruption, runner containment, hosted CI, or landing acceptance. Fixture root and gate SHA256 are emitted in CLI JSON."
       }
     },
     {
@@ -39,13 +39,13 @@
       "negativeFixture": "tests/gate-evidence/component-sourcing-preflight-proof.mjs",
       "description": "Fork-local component sourcing preflight: every web/src/components/*.(tsx|jsx) file must be baselined or covered by a sourcing record.",
       "observedFailure": {
-        "date": "2026-09-19",
+        "date": "2026-10-01",
         "command": "node tests/gate-evidence/component-sourcing-preflight-proof.mjs",
-        "breakApplied": "Planted web/src/components/_gate_evidence_uncovered.tsx with no baseline entry and no docs/preflight record.",
+        "breakApplied": "Exclusively created uncovered TSX inside a fresh retained fixture, with an exact copied gate at scripts/verify-component-sourcing-preflight.mjs. Never plants or overwrites any source-checkout component.",
         "exitCode": 1,
         "reason": "Printed COMPONENT_SOURCING_PREFLIGHT=fail and named the planted file as a new component with no sourcing-preflight record; exit 1.",
-        "restoredPass": "Deleted the planted file; same command printed COMPONENT_SOURCING_PREFLIGHT=pass (26 components: 26 baselined, 0 record-covered; 0 records) and exited 0.",
-        "proofScope": "Fork-local preflight over web/src/components only. Does not prove React runtime behavior or hosted UI CI."
+        "restoredPass": "Added an exclusively created seven-field sourcing record covering the fixture plant; exact copied CLI printed COMPONENT_SOURCING_PREFLIGHT=pass and exited 0. The TSX remains retained. The 14-test preservation suite verifies occupied owner TSX and partial-cache bytes survive every synthetic outcome.",
+        "proofScope": "Exact copied fork-local CLI and isolated preservation only. Does not prove the live component population, React runtime, real interruption, hosted UI CI, or merge acceptance. Other gate ledgers retain their dated historical scope."
       }
     },
     {
