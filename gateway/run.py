@@ -141,6 +141,11 @@ _GATEWAY_AUTH_ERROR_RE = re.compile(
     re.IGNORECASE,
 )
 
+_GATEWAY_USAGE_LIMIT_RE = re.compile(
+    r"(usage\s+limit|quota\s+exhausted|insufficient[_\s]quota)",
+    re.IGNORECASE,
+)
+
 _GATEWAY_RATE_LIMIT_RE = re.compile(
     r"(rate\s+limit|rate-limited|\b429\b|quota|usage\s+limit)",
     re.IGNORECASE,
@@ -364,6 +369,11 @@ def _gateway_provider_error_reply(text: str) -> str:
         return (
             "⚠️ The model provider rejected the request. I kept the raw provider "
             "error out of chat; check gateway logs for details or try rephrasing."
+        )
+    if _GATEWAY_USAGE_LIMIT_RE.search(text):
+        return (
+            "⚠️ The model provider's usage limit is exhausted. Waiting will not "
+            "clear it; this plan stays blocked until the limit resets."
         )
     if _GATEWAY_RATE_LIMIT_RE.search(text):
         return "⏱️ The model provider is rate-limiting requests. Please wait a moment and try again."
