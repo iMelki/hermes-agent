@@ -1,0 +1,41 @@
+{
+  "schema": "fleet-release-plan-provenance/v1",
+  "repository": "iMelki/hermes-agent",
+  "planningDate": "2026-10-23",
+  "timezone": "Asia/Jerusalem",
+  "observedAt": "2026-10-22T22:03:46.559Z",
+  "localBranch": "dev",
+  "localHead": "e3cc61660b8ffefc529ee2979b8c76a8bd500322",
+  "baselineKind": "working-tree source bytes; not clean or remote parity proof",
+  "sources": [
+    {
+      "path": "README.md",
+      "bytes": 17880,
+      "sha256": "65d12e7a7fc945719be3c559936d64f2b2ad33d789abcd5185765f06d9fa3874"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 72939,
+      "sha256": "79e34ce95cd9cac9380ccb86b4504db7d1b15ab11639114515e1cc1144f49ccc"
+    },
+    {
+      "path": "package.json",
+      "bytes": 1696,
+      "sha256": "2be560973af3d178e73b229e9ece77873887cdb8a1df54a79298f7cee73fb78c"
+    },
+    {
+      "path": "pyproject.toml",
+      "bytes": 21613,
+      "sha256": "eccda3850ee68293768d83dbeef00292929158248a4629842601e3f089c2a5e6"
+    }
+  ],
+  "issueObservations": [],
+  "coverage": {
+    "historicalAtlasMembershipDate": "2026-10-17",
+    "originRechecked": true,
+    "fullAuditComplete": false,
+    "productTestsRun": false,
+    "runtimeChecked": false,
+    "publicWritesPerformed": false
+  }
+}
