@@ -13,9 +13,9 @@ Design notes
   :func:`hermes_cli.plugins.invoke_hook` and its aggregators.  Python
   plugins are registered first (via ``discover_and_load()``) so their
   block decisions win ties over shell-hook blocks.
-* Subprocess execution uses ``shlex.split(os.path.expanduser(command))``
-  with ``shell=False`` — no shell injection footguns.  Users that need
-  pipes/redirection wrap their logic in a script.
+* Subprocess execution splits commands without a shell (using Windows-aware
+  parsing on Windows) and passes argv with ``shell=False`` — no shell injection
+  footguns. Users that need pipes/redirection wrap their logic in a script.
 * First-use consent is gated by the allowlist under
   ``~/.hermes/shell-hooks-allowlist.json``.  Non-TTY callers must pass
   ``accept_hooks=True`` (resolved from ``--accept-hooks``,
@@ -429,6 +429,20 @@ def _parse_single_entry(
 _TOP_LEVEL_PAYLOAD_KEYS = {"tool_name", "args", "session_id", "parent_session_id"}
 
 
+def _split_command(command: str) -> List[str]:
+    """Split hook argv without treating Windows path separators as escapes."""
+    parts = shlex.split(command, posix=not IS_WINDOWS)
+    if IS_WINDOWS:
+        # Non-POSIX shlex retains wrapping quotes; subprocess expects argv
+        # elements without them. Only double quotes group Windows arguments.
+        parts = [
+            part[1:-1] if len(part) >= 2 and part.startswith('"') and part.endswith('"')
+            else part
+            for part in parts
+        ]
+    return parts
+
+
 def _spawn(spec: ShellHookSpec, stdin_json: str) -> Dict[str, Any]:
     """Run ``spec.command`` as a subprocess with ``stdin_json`` on stdin.
 
@@ -448,7 +462,7 @@ def _spawn(spec: ShellHookSpec, stdin_json: str) -> Dict[str, Any]:
         "error": None,
     }
     try:
-        argv = shlex.split(os.path.expanduser(spec.command))
+        argv = _split_command(os.path.expanduser(spec.command))
     except ValueError as exc:
         result["error"] = f"command {spec.command!r} cannot be parsed: {exc}"
         return result
@@ -798,6 +812,7 @@ def revoke(command: str) -> int:
 
 _SCRIPT_EXTENSIONS: Tuple[str, ...] = (
     ".sh", ".bash", ".zsh", ".fish",
+    ".cmd", ".bat",
     ".py", ".pyw",
     ".rb", ".pl", ".lua",
     ".js", ".mjs", ".cjs", ".ts",
@@ -813,7 +828,7 @@ def _command_script_path(command: str) -> str:
     common bare-path form.
     """
     try:
-        parts = shlex.split(command)
+        parts = _split_command(command)
     except ValueError:
         return command
     if not parts:
@@ -822,7 +837,7 @@ def _command_script_path(command: str) -> str:
         if part.lower().endswith(_SCRIPT_EXTENSIONS):
             return part
     for part in parts:
-        if "/" in part or part.startswith("~"):
+        if "/" in part or "\\" in part or part.startswith("~"):
             return part
     return parts[0]
 
@@ -900,7 +915,7 @@ def script_is_executable(command: str) -> bool:
     if not os.path.isfile(expanded):
         return False
     try:
-        argv = shlex.split(command)
+        argv = _split_command(command)
     except ValueError:
         return False
     is_bare_invocation = bool(argv) and argv[0] == path

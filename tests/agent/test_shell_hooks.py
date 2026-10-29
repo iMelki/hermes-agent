@@ -9,7 +9,9 @@ covered in ``test_shell_hooks_consent.py``.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+import subprocess
 
 import pytest
 
@@ -258,6 +260,47 @@ class TestMatcher:
 
 
 class TestCallbackSubprocess:
+    def test_windows_hook_argv_preserves_backslashes_and_quoted_spaces(self, monkeypatch):
+        """The native .cmd hook must reach CreateProcess with its real path."""
+        monkeypatch.setattr(shell_hooks, "IS_WINDOWS", True)
+        seen = []
+
+        def fake_run(argv, **kwargs):
+            seen.append((argv, kwargs))
+            return subprocess.CompletedProcess(argv, 0, "{}\n", "")
+
+        monkeypatch.setattr(shell_hooks.subprocess, "run", fake_run)
+        commands = (
+            (r"C:\Users\Test\AppData\Local\Hermes\hooks\start.cmd", []),
+            (r'"C:\Program Files\Hermes\hooks\start.cmd" "two words"', ["two words"]),
+        )
+        for command, args in commands:
+            spec = shell_hooks.ShellHookSpec(event="on_session_start", command=command)
+            assert shell_hooks._spawn(spec, "{}")['returncode'] == 0
+            assert seen[-1][0] == [shell_hooks._command_script_path(command), *args]
+            assert seen[-1][1]["shell"] is False
+
+    @pytest.mark.skipif(os.name != "nt", reason="Windows batch execution")
+    @pytest.mark.parametrize("quoted_path", [False, True])
+    def test_windows_cmd_hook_runs_and_doctor_matches(self, tmp_path, quoted_path):
+        """Real batch launch, stdin delivery, and doctor path agree on Windows."""
+        hook_dir = tmp_path / ("Hermes hooks" if quoted_path else "hooks")
+        hook_dir.mkdir()
+        script = hook_dir / "session-start.cmd"
+        script.write_text('@echo off\nmore > "%~dp0payload.json"\necho {}\n')
+        command = f'"{script}"' if quoted_path else str(script)
+        spec = shell_hooks.ShellHookSpec(event="on_session_start", command=command)
+
+        result = shell_hooks.run_once(spec, {"session_id": "windows-test"})
+
+        assert result["error"] is None
+        assert result["returncode"] == 0
+        assert shell_hooks._command_script_path(command) == str(script)
+        assert shell_hooks.script_is_executable(command)
+        assert shell_hooks.script_mtime_iso(command) is not None
+        payload = json.loads((hook_dir / "payload.json").read_text())
+        assert payload["session_id"] == "windows-test"
+
     def test_timeout_returns_none(self, tmp_path):
         # Script that sleeps forever; we set a 1s timeout.
         script = _write_script(
