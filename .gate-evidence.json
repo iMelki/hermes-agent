@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "_doc": "Negative-proof ledger. A control is trusted only after an attributed failure on deliberate broken input and a verified restored pass.",
+  "exclude": [],
+  "gates": [
+    {
+      "id": "email-reply-adoption-conformance-20260917",
+      "path": "scripts/check_reply_to_primitive_conformance.py",
+      "negativeFixture": "tests/skills/fixtures/email_reply_body_unpack_override.py",
+      "description": "agent-settings#1124: the pinned provider-free resolver and the single Hermes gmail_reply entrypoint must stay within the reviewed fail-closed metadata, preview, exact two-key literal body, and two-provider send flow.",
+      "observedFailure": {
+        "date": "2026-09-17",
+        "command": "python -B scripts/check_reply_to_primitive_conformance.py --copy skills/productivity/google-workspace/scripts/_email_reply_preview.py --provenance skills/productivity/google-workspace/scripts/reply_to_preview.provenance.json --consumer tests/skills/fixtures/email_reply_body_unpack_override.py --json",
+        "breakApplied": "The hostile consumer keeps the approved literal raw/threadId entries but adds trailing **args.payload, which can override either value at runtime. Focused in-memory mutations also add a computed key and duplicate raw key.",
+        "exitCode": 1,
+        "reason": "status=fail, reason=reply-primitive-drift, finding=reply-body-not-approved, exit 1.",
+        "restoredPass": "The same command with skills/productivity/google-workspace/scripts/google_api.py restored as --consumer returned status=pass, findings=[], copySha256=7f80fb768cd3082bf1546e6694c0cdc924ad346742389988659dc3c510160de3, exit 0. The canonical test runner then passed 37 focused tests across two files, including both provider branches, ten poison-send denial cases, and unpack/computed/duplicate body-key refusals.",
+        "proofScope": "Pinned-copy integrity and deliberately narrow static adoption in gmail_reply: exact metadata binding, directly reachable fail-closed resolver assignment, exactly two unique string-literal body keys, canonical MIME body derivation, and exactly one approved send call per provider branch. The focused synthetic example.test suite separately covers Reply-To precedence, case-sensitive mailbox local parts, domain normalization, RFC 2047 subjects, From-only fallback, MIME parse-back, References, control characters, groups, multiple recipients, and zero send invocations on denial. This is syntactic conformance plus offline tests, not whole-program provider proof. No live mailbox, provider message, credential, or send was accessed."
+      }
+    }
+  ]
+}
