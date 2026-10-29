@@ -67,9 +67,10 @@ export function ThemeSwitcher({ collapsed = false, dropUp = false }: ThemeSwitch
         size={collapsed ? "icon" : undefined}
         onClick={() => setOpen((o) => !o)}
         className={cn(
+          "min-h-[24px] min-w-[24px]",
           collapsed
             ? "text-text-secondary hover:text-foreground hover:bg-transparent"
-            : "px-2 py-1 normal-case tracking-normal font-normal text-xs text-text-secondary hover:text-foreground",
+            : "px-2 py-1.5 normal-case tracking-normal font-normal text-xs text-text-secondary hover:text-foreground",
         )}
         title={`${t.theme?.switchTheme ?? "Switch theme"}: ${label}`}
         aria-label={t.theme?.switchTheme ?? "Switch theme"}
@@ -77,7 +78,7 @@ export function ThemeSwitcher({ collapsed = false, dropUp = false }: ThemeSwitch
         aria-haspopup="listbox"
       >
         <span className="inline-flex items-center gap-1.5">
-          <Palette className="h-3.5 w-3.5" />
+          <Palette className="h-4 w-4" />
 
           {!collapsed && (
             <Typography

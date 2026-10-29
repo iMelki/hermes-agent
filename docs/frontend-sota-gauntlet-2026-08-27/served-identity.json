@@ -1,0 +1,14 @@
+{
+  "servedJs": "/assets/index-DFSF3_kR.js",
+  "servedCss": "/assets/index-DS6owGOh.css",
+  "servedJsBytes": 1973248,
+  "servedHash": "89bc089d96d2d58edadbbc6c0d4332eb9ea92cbba3b1b77d222ce1471e97cbdb",
+  "diskSrcHash": "89bc089d96d2d58edadbbc6c0d4332eb9ea92cbba3b1b77d222ce1471e97cbdb",
+  "diskRtHash": "89bc089d96d2d58edadbbc6c0d4332eb9ea92cbba3b1b77d222ce1471e97cbdb",
+  "hashesMatch": true,
+  "srcHead": "6f2424219a2ccf955ba2b7132e6dce6ced615ba7",
+  "rtHead": "6f2424219a2ccf955ba2b7132e6dce6ced615ba7",
+  "shaMatchHead": true,
+  "statusCode": 200,
+  "htmlHasTokenAssign": true
+}
