@@ -1,0 +1,69 @@
+{
+  "app": "hermes-dashboard (hermes-web)",
+  "lane": "fleet UI/UX score run 2026-08-31, score-only",
+  "capturedAt": "2026-08-31T17:00:03Z",
+  "base": "http://127.0.0.1:9119",
+  "rules": "no source edits, no restarts, read-only GETs; live instance NOT restarted",
+  "harness": "playwright-core 1.59.1 chromium headless via content-factory store; waitUntil=commit; never networkidle; dark scheme; 1440x900 + 375x812 + reduced-motion contexts",
+
+  "serveIdentity": {
+    "label": "live :9119 still serves the PRE-STAMP bundle; JS byte-identical to stamped 24bd9b30c5",
+    "buildInfoJson": { "status": 200, "isSpaFallthrough": true, "hasBuildMetaInEntryHtml": false, "verdict": "pre-stamp bundle confirmed (measured today)" },
+    "entryHtml": { "status": 200, "bytesRaw": 722, "sha256NormalizedTokenStripped": "00c011a24f77c47e4824fb81c0d53bc2af5cc483d1776382a0caaad632d4e5ca", "sessionTokenStripped": true },
+    "js": { "url": "/assets/index-DFSF3_kR.js", "bytes": 1973248, "sha256": "89bc089d96d2d58edadbbc6c0d4332eb9ea92cbba3b1b77d222ce1471e97cbdb", "comparison": "MEASURED today; byte-identical to the artifact scored 15/21 on 2026-08-27 AND to the stamped 24bd9b30c507b2294f72d4cda64140ad1adf48d2 side-serve JS that round-24's 6.47 composite is pinned to" },
+    "css": { "url": "/assets/index-DS6owGOh.css", "bytes": 114669, "sha256": "fc5e7b52d7fa53873003cf0786045e0757bfccc18bf10c22652618d85b82aa50", "comparison": "MEASURED today; identical to the 2026-08-27 pre-stamp CSS; NOT byte-identical to the stamped build's CSS (1b53bd38..., 114,710 B) - same sources, non-reproducible CSS emission, carried from round-24 receipts" }
+  },
+
+  "gauntlet": {
+    "rubric": "agent-settings/shared/prompts/frontend-sota-gauntlet.md 7-area 0-3 scorecard",
+    "total": 15,
+    "outOf": 21,
+    "band": "usable (14-18); NOT a strong internal benchmark (19-21)",
+    "prior": { "total": 15, "date": "2026-08-27", "artifact": "same JS sha256 89bc089d..." },
+    "areas": {
+      "visualDirection": { "score": 2, "why": "Hermes Teal + parchment identity coherent and distinctive (MEASURED shots); h1 18.75px 'Rules Expanded' vs body 15px system-ui reconfirmed by computed styles - hierarchy weak at the pixel; 17-item flat nav; serif-family display faces on a dashboard (upstream brand, house anti-slop conflict)." },
+      "uxClarity": { "score": 3, "why": "Real data everywhere (667 sessions / 55,694 messages / 'Delete empty (17)' / 'Page 1 of 9'), counted lists, search, 0 console errors on all 9 surfaces; raw cron-prompt internals still leak into session previews (content debit, not clarity-breaking)." },
+      "motionInteractivity": { "score": 1, "why": "Motion inventory: status 'pulse' (infinite), chat 'spin', hover 'gradient-stroke' on opacity-0 arc borders. No signature beat - nothing to multiply. Under reduce: 0 visible animations (the 1 running getAnimations() entry targets an opacity:0 span - invisible, named honestly). WCAG 2.2.2 Level A evidence, not 2.3.3." },
+      "technicalQuality": { "score": 2, "why": "Serve identity hash-verified; 0 console errors on 9/9; FCP 216-576ms, TTFB 6-232ms, DCL 156-504ms (Performance API, MEASURED); but live still serves the pre-stamp bundle (build-info.json SPA fallthrough - ops gap agent-settings#689) and the 375 card list mounts progressively." },
+      "responsiveness": { "score": 2, "why": "Overflow 0px at 1440/390/375 with in-run IN-FLOW positive control proven (0->1160/2210->0, restored). Mobile genuinely adapts (drawer nav, card list). 2.5.8 AA met on all 1440 surfaces (chat: one 25x19 icon button); mobile dips: sessions-375 20/132 under-24 (15x15 'Select session' checkboxes, screenshot-corroborated), system-375 4/65 (15x28 remove buttons) - 2.5.8 spacing exception NOT evaluated. 2.5.5 AAA NOT met broadly (skills 233/253 under-44). Two-viewport scoped receipt: capped at 2 per proof pitfalls." },
+      "verification": { "score": 2, "why": "9 settled captures with screenshots, console, computed styles, two-sentinel sRGB canvas contrast (hi=21.0, lo=1.0, invalid colour resolved to null - control proven in EVERY capture), in-flow overflow control, real keyboard Tab pass, Performance API, serve-identity hashing. No 15x4 matrix, no AT/manual - stays 2 per proof pitfalls." },
+      "complexityFit": { "score": 3, "why": "Operator cockpit; no gratuitous 3D/GSAP/scroll theatre; restraint fits audience and offer." }
+    }
+  },
+
+  "awwwardsComposite": {
+    "rubric": "uiux-awwwards-audit-rubric-2026-08-09.md v1.3; weights Design 40 / Usability 30 / Creativity 20 / Content 10",
+    "dimensions": { "design": 6.5, "usability": 6.8, "creativity": 5.7, "content": 6.9 },
+    "arithmetic": "0.4*6.5 + 0.3*6.8 + 0.2*5.7 + 0.1*6.9 = 6.47",
+    "composite": 6.47,
+    "prints": 6.5,
+    "label": "CARRIED-RECONFIRMED from round 24 (same day, 2026-08-31): the composite is pinned to the stamped 24bd9b30c5 side-serve whose JS is byte-identical (sha256-verified today) to what live :9119 serves; this lane's fresh live evidence (contrast 0 AA fails, overflow 0 proven, focus 12/12, tab 15/15, console 0, FCP<600ms) corroborates every fundamentals claim behind those dimension scores",
+    "awardBar": "6.47 unrounded is 0.03 BELOW the published Honorable Mention 6.5 bar; the print rounds up; NO HM claim, no award claim",
+    "newRisksNotRepriced": "mobile-375 under-24 dips (sessions 20/132 transient-state, system 4/65) are new surfaces round 24 did not capture; 2.5.8 spacing exception unevaluated and the sessions state is data-dependent (two settled re-captures showed 0/29), so Usability 6.8 is not repriced on this evidence"
+  },
+
+  "measuredNumbers": {
+    "surfaces": 9,
+    "allSettled": true,
+    "consoleErrors": { "total": 0, "perSurface": 0 },
+    "overflowPx": { "all9Surfaces": 0, "inFlowControl": { "at1440": "0->1160->0 proven", "at375": "0->2210->0 proven" } },
+    "contrast": { "aaFailures": 0, "worst": { "ratio": 4.64, "required": 4.5, "examples": ["Reset MEMORY.md", "Delete empty (17)", "agent init failed..."] }, "coveragePctRange": [79.7, 100], "sentinelsProvenEveryCapture": true },
+    "hitTargets258AA": { "sessions1440": "0/27", "skills1440": "0/253", "system1440": "0/64", "chat1440": "1/31 (25x19 icon)", "analytics1440": "0/27", "sessions375": "20/132 (15x15 select checkboxes; two later settled re-captures 0/29 - data/mount-state dependent)", "system375": "4/65 (15x28 remove credential/hook)" },
+    "hitTargets255AAA": { "note": "NOT met broadly", "worst": "skills 233/253 under-44" },
+    "reducedMotion222": { "visibleRunningAnimationsUnderReduce": 0, "invisibleRunning": "1 gradient-stroke CSSAnimation on span.arc-border with computed opacity 0 (rm-anim-probe.mjs receipt)", "motionAllowedInventory": ["pulse (status, infinite)", "spin (chat)", "gradient-stroke (hover arcs, opacity-0 at rest)"], "informationParity": "live innerText RM 1136 vs no-pref 1183 chars - NOT byte-comparable on live (volatile session data; motion-allowed loads also differ); round-24 byte-equal proof on the byte-identical JS side-serve stands" },
+    "focus": { "sampledPerSurface": 12, "visibleOnFocus": 12, "surfaces": "12/12 on all 9" },
+    "keyboardTabPass": { "surface": "sessions-1440", "presses": 15, "visibleIndicator": 15, "landedOnBody": 0, "path": "skip-nav anchors (PAIRING...ACHIEVEMENTS) then Restart Gateway / theme / language / Nous Research / Prune old sessions / Overview / History - all labeled" },
+    "performanceApi": { "fcpMsRange": [216, 576], "ttfbMsRange": [6, 232], "domContentLoadedMsRange": [156, 504] },
+    "typography": { "h1": "18.75px / 700 / 'Rules Expanded'", "body": "15px / 400 / system-ui" }
+  },
+
+  "honestLimits": [
+    "Composite 6.47 is carried-reconfirmed, not independently re-derived: dimension scores are round 24's (same day), corroborated but not re-priced by this lane.",
+    "sessions-375 under-24 finding is state-dependent: main capture (screenshot-backed) shows 20/132 with 15x15 checkboxes; two later settled re-captures show 0/29 with the card list not fully mounted; 2.5.8 spacing exception was not evaluated for any under-24 control.",
+    "RM information parity is not byte-comparable on live (real data changes between context loads); parity relies on the round-24 side-serve byte-equal proof for the byte-identical JS.",
+    "No 15-route x 4-engine matrix, no axe pass, no AT/manual testing - Responsiveness and Verification stay 2 per fleet proof-pitfall rules.",
+    "A first follow-up probe with a flat 3s wait returned unsettled zeros (0 controls) and was discarded; only settle-gated captures are published (probe file removed, lesson recorded here).",
+    "Live CSS differs from the stamped build CSS by 41 bytes (non-reproducible emission, carried from round-24 receipts); live pixel evidence is corroboration for the stamped composite, identity only for the JS.",
+    "The launcher session token embedded in the entry HTML was stripped before hashing and never written into receipts."
+  ]
+}
