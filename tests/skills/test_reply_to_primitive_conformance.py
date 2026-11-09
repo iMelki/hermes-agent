@@ -70,7 +70,7 @@ def _write_fixture(tmp_path: Path):
                 "version": 1,
                 "canonicalRepository": "iMelki/agent-settings",
                 "canonicalPath": "shared/tools/email_reply_preview.py",
-                "canonicalCommit": "7053635109df0d6e7599917639ee0c73c439eac9",
+                "canonicalCommit": "47181d4cde46e8ec4c324ac62923773fd021ea68",
                 "canonicalSha256": hashlib.sha256(copy_path.read_bytes()).hexdigest(),
                 "copyPath": "skills/productivity/google-workspace/scripts/_email_reply_preview.py",
             }

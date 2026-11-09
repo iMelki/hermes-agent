@@ -2,7 +2,7 @@
   "version": 1,
   "canonicalRepository": "iMelki/agent-settings",
   "canonicalPath": "shared/tools/email_reply_preview.py",
-  "canonicalCommit": "7053635109df0d6e7599917639ee0c73c439eac9",
-  "canonicalSha256": "7f80fb768cd3082bf1546e6694c0cdc924ad346742389988659dc3c510160de3",
+  "canonicalCommit": "47181d4cde46e8ec4c324ac62923773fd021ea68",
+  "canonicalSha256": "7f542cef429fc3bae4b979c2ea413eab3e0a44f34a18c6e264a0b119524cb71f",
   "copyPath": "skills/productivity/google-workspace/scripts/_email_reply_preview.py"
 }

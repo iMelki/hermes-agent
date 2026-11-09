@@ -15,20 +15,28 @@ import re
 import sys
 from dataclasses import dataclass, field
 from email.header import decode_header, make_header
+from email.headerregistry import Address
 from email.message import EmailMessage
 from email.parser import BytesParser, Parser
-from email.policy import SMTP, default
+from email.policy import SMTP, compat32, default
 from typing import Any, Iterable, Mapping, Sequence
 
 
 _CONTROL_RE = re.compile(r"[\x00-\x1f\x7f]")
+# Lone UTF-16 surrogates (e.g. from undecodable argv bytes or JSON "\\ud800")
+# cannot be encoded into MIME; they must be denied, never crash the encoder.
+_SURROGATE_RE = re.compile(r"[\ud800-\udfff]")
 _HEADER_NAME_RE = re.compile(r"^[!-9;-~]+$")
 _ADDR_SPEC_RE = re.compile(
     r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@"
     r"[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$"
 )
-_MESSAGE_ID_RE = re.compile(r"^<[^<>\s\x00-\x1f\x7f]+@[^<>\s\x00-\x1f\x7f]+>$")
-_REFERENCES_RE = re.compile(r"<[^<>\s\x00-\x1f\x7f]+@[^<>\s\x00-\x1f\x7f]+>")
+_ATEXT = r"A-Za-z0-9!#$%&'*+\-/=?^_`{|}~"
+_DOT_ATOM_TEXT = rf"[{_ATEXT}]+(?:\.[{_ATEXT}]+)*"
+_NO_FOLD_LITERAL = r"\[[\x21-\x5a\x5e-\x7e]*\]"
+_MESSAGE_ID_RE = re.compile(
+    rf"^<{_DOT_ATOM_TEXT}@(?:{_DOT_ATOM_TEXT}|{_NO_FOLD_LITERAL})>$"
+)
 _REPLY_HEADERS = ("reply-to", "from", "subject", "message-id", "references")
 
 
@@ -92,7 +100,11 @@ class ReplyPreview:
 def _require_safe_text(value: Any, reason: str, *, allow_empty: bool = False) -> str:
     if not isinstance(value, str):
         raise ReplyPreviewError(reason)
-    if (not allow_empty and not value.strip()) or _CONTROL_RE.search(value):
+    if (
+        (not allow_empty and not value.strip())
+        or _CONTROL_RE.search(value)
+        or _SURROGATE_RE.search(value)
+    ):
         raise ReplyPreviewError(reason)
     return value.strip()
 
@@ -135,7 +147,9 @@ def _one_header(
     return values[0]
 
 
-def _parse_mailbox(value: Any, reason_prefix: str) -> str:
+def _parse_named_mailbox(value: Any, reason_prefix: str) -> tuple[str, str]:
+    """Return ``(display_name, addr_spec)`` for exactly one safe mailbox."""
+
     safe_value = _require_safe_text(value, f"{reason_prefix}-invalid")
     try:
         header = Parser(policy=default).parsestr(f"To: {safe_value}\n\n")["To"]
@@ -148,7 +162,10 @@ def _parse_mailbox(value: Any, reason_prefix: str) -> str:
     if group.display_name is not None or len(group.addresses) != 1:
         raise ReplyPreviewError(f"{reason_prefix}-ambiguous")
     address = group.addresses[0]
-    if address.display_name and _CONTROL_RE.search(address.display_name):
+    # The parser decodes RFC 2047 encoded-words, so the decoded display name
+    # is re-checked for controls (CR/LF injection) and lone surrogates.
+    display_name = address.display_name or ""
+    if _CONTROL_RE.search(display_name) or _SURROGATE_RE.search(display_name):
         raise ReplyPreviewError(f"{reason_prefix}-invalid")
 
     local_part, separator, domain = address.addr_spec.rpartition("@")
@@ -157,7 +174,11 @@ def _parse_mailbox(value: Any, reason_prefix: str) -> str:
     normalized = f"{local_part}@{domain.casefold()}"
     if not normalized.isascii() or not _ADDR_SPEC_RE.fullmatch(normalized):
         raise ReplyPreviewError(f"{reason_prefix}-invalid")
-    return normalized
+    return display_name.strip(), normalized
+
+
+def _parse_mailbox(value: Any, reason_prefix: str) -> str:
+    return _parse_named_mailbox(value, reason_prefix)[1]
 
 
 def _normalize_policy_entries(entries: Any, label: str) -> frozenset[str]:
@@ -217,14 +238,9 @@ def _references(value: Any, source_message_id: str) -> str:
         ids: list[str] = []
     else:
         safe_value = _require_safe_text(value, "references-invalid", allow_empty=True)
-        if not safe_value:
-            ids = []
-        else:
-            ids = _REFERENCES_RE.findall(safe_value)
-            if " ".join(ids) != " ".join(safe_value.split()):
-                raise ReplyPreviewError("references-invalid")
-            if any(not _MESSAGE_ID_RE.fullmatch(item) for item in ids):
-                raise ReplyPreviewError("references-invalid")
+        ids = safe_value.split()
+        if any(not _MESSAGE_ID_RE.fullmatch(item) for item in ids):
+            raise ReplyPreviewError("references-invalid")
 
     deduplicated: list[str] = []
     for item in [*ids, source_message_id]:
@@ -233,13 +249,13 @@ def _references(value: Any, source_message_id: str) -> str:
     return " ".join(deduplicated)
 
 
-def _round_trip_assertions(raw_mime: bytes, expected: Mapping[str, str]) -> dict[str, Any]:
+def _round_trip_assertions(raw_mime: bytes, expected: Mapping[str, Any]) -> dict[str, Any]:
     parsed = BytesParser(policy=default).parsebytes(raw_mime)
     to_header = parsed["To"]
     to_addresses = [] if to_header is None else list(to_header.addresses)
     cc_header = parsed["Cc"]
     bcc_header = parsed["Bcc"]
-    references = str(parsed["References"] or "")
+    references = " ".join(str(parsed["References"] or "").split())
 
     assertions = {
         "toCount": len(to_addresses),
@@ -249,10 +265,10 @@ def _round_trip_assertions(raw_mime: bytes, expected: Mapping[str, str]) -> dict
         "ccCount": 0 if cc_header is None else len(cc_header.addresses),
         "bccCount": 0 if bcc_header is None else len(bcc_header.addresses),
         "inReplyToMatches": str(parsed["In-Reply-To"] or "") == expected["message_id"],
-        "referencesSourceCount": _REFERENCES_RE.findall(references).count(
-            expected["message_id"]
-        ),
+        "referencesMatch": references == expected["references"],
+        "referencesSourceCount": references.split().count(expected["message_id"]),
         "subjectMatches": str(parsed["Subject"] or "") == expected["subject"],
+        "fromMatches": _from_round_trip(parsed["From"], raw_mime, expected["from"]),
     }
     if assertions != {
         "toCount": 1,
@@ -260,11 +276,55 @@ def _round_trip_assertions(raw_mime: bytes, expected: Mapping[str, str]) -> dict
         "ccCount": 0,
         "bccCount": 0,
         "inReplyToMatches": True,
+        "referencesMatch": True,
         "referencesSourceCount": 1,
         "subjectMatches": True,
+        "fromMatches": True,
     }:
         raise ReplyPreviewError("mime-round-trip-failed")
     return assertions
+
+
+def _from_round_trip(
+    header: Any,
+    raw_mime: bytes,
+    expected: tuple[str, str] | None,
+) -> bool:
+    if header is None or expected is None:
+        return header is None and expected is None
+    addresses = list(header.addresses)
+    if header.defects or len(addresses) != 1:
+        return False
+    address = addresses[0]
+    expected_name, expected_addr = expected
+    if _parse_mailbox(address.addr_spec, "mime-from") != expected_addr:
+        return False
+    return expected_name in {address.display_name or "", _decoded_from_name(raw_mime)}
+
+
+def _decoded_from_name(raw_mime: bytes) -> str | None:
+    """Decode the emitted From phrase strictly per RFC 2047 section 6.2.
+
+    A long non-ASCII name folds into several adjacent encoded-words. The
+    whitespace between them is not part of the text, but the structured
+    parser of some Python versions (3.11, 3.12, 3.14) keeps it, so
+    ``display_name`` gains spurious spaces at fold boundaries. ``decode_header``
+    joins adjacent encoded-words correctly; it is consulted only as a second
+    reading of the same bytes, after the structured parse has already proven
+    exactly one defect-free mailbox with the expected addr-spec.
+    """
+
+    raw_value = BytesParser(policy=compat32).parsebytes(raw_mime, headersonly=True)["From"]
+    if not isinstance(raw_value, str) or "=?" not in raw_value:
+        return None
+    try:
+        decoded = str(make_header(decode_header(raw_value)))
+    except Exception:  # A codec failure is simply not a match.
+        return None
+    phrase, separator, angle_addr = decoded.rpartition(" <")
+    if not separator or not angle_addr.endswith(">"):
+        return None
+    return phrase.strip()
 
 
 def _build_message(
@@ -274,17 +334,23 @@ def _build_message(
     source_message_id: str,
     references: str,
     body: str,
-    from_header: str | None,
+    from_mailbox: tuple[str, str] | None,
 ) -> bytes:
     message = EmailMessage(policy=SMTP)
     message["To"] = recipient
     message["Subject"] = subject
     message["In-Reply-To"] = source_message_id
     message["References"] = references
-    if from_header is not None:
-        message["From"] = _parse_mailbox(from_header, "from-header")
-    message.set_content(body)
-    return message.as_bytes()
+    if from_mailbox is not None:
+        # Address lets the SMTP policy quote specials and RFC 2047-encode a
+        # non-ASCII display name; the validated addr-spec is emitted as-is.
+        display_name, addr_spec = from_mailbox
+        message["From"] = Address(display_name=display_name, addr_spec=addr_spec)
+    try:
+        message.set_content(body)
+        return message.as_bytes()
+    except UnicodeError as exc:  # Defense in depth: never crash on encoding.
+        raise ReplyPreviewError("input-encoding-invalid") from exc
 
 
 def _validated_options(
@@ -292,7 +358,7 @@ def _validated_options(
     policy: Mapping[str, Any] | None,
     audit: InvocationAudit | None,
 ) -> tuple[str, Mapping[str, Any], InvocationAudit]:
-    if not isinstance(body, str):
+    if not isinstance(body, str) or _SURROGATE_RE.search(body):
         raise ReplyPreviewError("body-invalid")
     if policy is None:
         policy = {}
@@ -323,6 +389,9 @@ def build_reply_preview(
         _one_header(collected, "references"),
         source_message_id,
     )
+    from_mailbox = (
+        None if from_header is None else _parse_named_mailbox(from_header, "from-header")
+    )
 
     raw_mime = _build_message(
         recipient=recipient,
@@ -330,7 +399,7 @@ def build_reply_preview(
         source_message_id=source_message_id,
         references=references,
         body=body,
-        from_header=from_header,
+        from_mailbox=from_mailbox,
     )
 
     assertions = _round_trip_assertions(
@@ -339,6 +408,8 @@ def build_reply_preview(
             "recipient": recipient,
             "subject": subject,
             "message_id": source_message_id,
+            "references": references,
+            "from": from_mailbox,
         },
     )
     return ReplyPreview(
