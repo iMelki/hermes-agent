@@ -5,6 +5,8 @@ import importlib.util
 import json
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[2]
 COPY = ROOT / "skills/productivity/google-workspace/scripts/_email_reply_preview.py"
@@ -216,3 +218,87 @@ def test_guard_rejects_duplicate_literal_key(tmp_path):
 
     assert result["status"] == "fail"
     assert "reply-body-not-approved" in result["findings"]
+
+
+def test_guard_rejects_attribute_resolver_callee(tmp_path):
+    copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
+    consumer_path.write_text(
+        _fixture_consumer().replace(
+            "        preview = build_reply_preview([], body=args.body)",
+            "        preview = helpers.build_reply_preview([], body=args.body)",
+        ),
+        encoding="utf-8",
+    )
+
+    result = _guard_module().verify(copy_path, provenance_path, consumer_path)
+
+    assert result["status"] == "fail"
+    assert "resolver-binding-not-approved" in result["findings"]
+
+
+@pytest.mark.parametrize(
+    "rebinding",
+    [
+        "def build_reply_preview(headers, **kwargs):\n    return kwargs['raw']\n",
+        "class build_reply_preview:\n    pass\n",
+        "build_reply_preview = lambda headers, **kwargs: kwargs\n",
+        "from evil_helpers import build_reply_preview\n",
+        "import evil_helpers as build_reply_preview\n",
+        "from _email_reply_preview import ReplyPreviewError as build_reply_preview\n",
+        "from evil_helpers import *\n",
+        "class ReplyPreviewError(Exception):\n    pass\n",
+        "import _email_reply_preview\n"
+        "_email_reply_preview.build_reply_preview = print\n",
+    ],
+)
+def test_guard_rejects_module_level_rebinding_of_pinned_names(tmp_path, rebinding):
+    copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
+    consumer_path.write_text(
+        _fixture_consumer().replace(
+            "\ndef gmail_reply(args):",
+            f"\n{rebinding}\ndef gmail_reply(args):",
+        ),
+        encoding="utf-8",
+    )
+
+    result = _guard_module().verify(copy_path, provenance_path, consumer_path)
+
+    assert result["status"] == "fail"
+    assert "resolver-binding-not-approved" in result["findings"]
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        "def gmail_reply(args, build_reply_preview=None):",
+        "def gmail_reply(args):\n    build_reply_preview = args.resolver",
+        "def gmail_reply(args):\n    global build_reply_preview",
+    ],
+)
+def test_guard_rejects_local_rebinding_of_resolver(tmp_path, replacement):
+    copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
+    consumer_path.write_text(
+        _fixture_consumer().replace("def gmail_reply(args):", replacement),
+        encoding="utf-8",
+    )
+
+    result = _guard_module().verify(copy_path, provenance_path, consumer_path)
+
+    assert result["status"] == "fail"
+    assert "resolver-binding-not-approved" in result["findings"]
+
+
+def test_guard_rejects_duplicate_approved_import(tmp_path):
+    copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
+    consumer_path.write_text(
+        _fixture_consumer().replace(
+            "\ndef gmail_reply(args):",
+            "\nfrom _email_reply_preview import build_reply_preview\n\ndef gmail_reply(args):",
+        ),
+        encoding="utf-8",
+    )
+
+    result = _guard_module().verify(copy_path, provenance_path, consumer_path)
+
+    assert result["status"] == "fail"
+    assert "resolver-binding-not-approved" in result["findings"]

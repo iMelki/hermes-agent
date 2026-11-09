@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Verify a pinned reply primitive and one deliberately narrow consumer shape.
 
-The consumer claim is syntactic by design: one directly reachable resolver
-assignment inside a fail-closed ``try``, one immutable body whose raw value is
+The consumer claim is syntactic by design: one directly reachable bare-name
+resolver call, bound only by the approved ``_email_reply_preview`` import, whose
+assignment sits inside a fail-closed ``try``, one immutable body whose raw value is
 derived from ``preview.raw_mime``, and exactly the two approved send branches.
 Anything more dynamic is unproven rather than inferred safe.
 """
@@ -41,6 +42,62 @@ def _read_json(path: Path, label: str) -> dict[str, Any]:
     if not isinstance(parsed, dict):
         raise VerificationUnavailable(f"{label}-invalid-json")
     return parsed
+
+
+_PINNED_NAMES = frozenset({"build_reply_preview", "ReplyPreviewError"})
+
+
+def _bound_names(node: ast.AST) -> list[str]:
+    """Return every name a syntax node binds or redirects in its scope."""
+
+    if isinstance(node, ast.Name) and not isinstance(node.ctx, ast.Load):
+        return [node.id]
+    if isinstance(node, ast.Attribute) and not isinstance(node.ctx, ast.Load):
+        return [node.attr]
+    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        return [node.name]
+    if isinstance(node, ast.arg):
+        return [node.arg]
+    if isinstance(node, ast.alias):
+        if node.name == "*":
+            return sorted(_PINNED_NAMES)
+        return [node.asname or node.name.split(".")[0]]
+    if isinstance(node, ast.ExceptHandler) and node.name:
+        return [node.name]
+    if isinstance(node, (ast.MatchAs, ast.MatchStar)) and node.name:
+        return [node.name]
+    if isinstance(node, ast.MatchMapping) and node.rest:
+        return [node.rest]
+    if isinstance(node, (ast.Global, ast.Nonlocal)):
+        return list(node.names)
+    return []
+
+
+def _pinned_binding_findings(tree: ast.Module) -> list[str]:
+    """Fail closed unless the approved import is the only binding of each pinned name."""
+
+    approved = {
+        id(alias): alias.name
+        for node in tree.body
+        if isinstance(node, ast.ImportFrom)
+        and node.module == "_email_reply_preview"
+        and node.level == 0
+        for alias in node.names
+        if alias.name in _PINNED_NAMES and alias.asname in (None, alias.name)
+    }
+    approved_counts = dict.fromkeys(_PINNED_NAMES, 0)
+    unapproved = False
+    for node in ast.walk(tree):
+        for name in _bound_names(node):
+            if name not in _PINNED_NAMES:
+                continue
+            if approved.get(id(node)) == name:
+                approved_counts[name] += 1
+            else:
+                unapproved = True
+    if unapproved or any(count > 1 for count in approved_counts.values()):
+        return ["resolver-binding-not-approved"]
+    return []
 
 
 def _call_name(call: ast.Call) -> str:
@@ -177,7 +234,10 @@ def _resolver_statement(
     parents: dict[ast.AST, ast.AST],
     findings: list[str],
 ) -> ast.Assign | None:
-    resolver_calls = [call for call in calls if _call_name(call) == "build_reply_preview"]
+    named_calls = [call for call in calls if _call_name(call) == "build_reply_preview"]
+    if any(not isinstance(call.func, ast.Name) for call in named_calls):
+        findings.append("resolver-binding-not-approved")
+    resolver_calls = [call for call in named_calls if isinstance(call.func, ast.Name)]
     if len(resolver_calls) != 1:
         findings.append("resolver-call-count")
         return None
@@ -364,6 +424,7 @@ def _verify_consumer(path: Path) -> list[str]:
     required_imports = {"ReplyPreviewError", "build_reply_preview"}
     if not required_imports.issubset(imported_names):
         findings.append("canonical-import-missing")
+    findings.extend(_pinned_binding_findings(tree))
 
     if any(_is_to_assignment(node) for node in ast.walk(reply_function) if isinstance(node, ast.Assign)):
         findings.append("hand-rolled-to-assignment")
