@@ -6,6 +6,8 @@ import subprocess
 import sys
 import types
 from datetime import datetime, timedelta, timezone
+from email.parser import BytesParser
+from email.policy import default
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -373,15 +375,15 @@ def test_api_gmail_send_uses_conventional_mime_header_casing(api_module):
 @pytest.mark.parametrize(
     "header_names",
     [
-        ("from", "subject", "message-id"),
-        ("From", "Subject", "Message-ID"),
+        ("from", "reply-to", "subject", "message-id", "references"),
+        ("From", "Reply-To", "Subject", "Message-ID", "References"),
     ],
 )
-def test_api_gmail_reply_reads_headers_case_insensitively_and_uses_conventional_mime_header_casing(
+def test_api_gmail_reply_gws_prefers_reply_to_and_round_trips_thread_headers(
     api_module,
     header_names,
 ):
-    from_name, subject_name, message_id_name = header_names
+    from_name, reply_to_name, subject_name, message_id_name, references_name = header_names
     calls = []
 
     def fake_run_gws(parts, *, params=None, body=None):
@@ -391,16 +393,24 @@ def test_api_gmail_reply_reads_headers_case_insensitively_and_uses_conventional_
                 "userId": "me",
                 "id": "msg-1",
                 "format": "metadata",
-                "metadataHeaders": ["From", "Subject", "Message-ID"],
+                "metadataHeaders": [
+                    "From",
+                    "Reply-To",
+                    "Subject",
+                    "Message-ID",
+                    "References",
+                ],
             }
             return {
                 "id": "msg-1",
                 "threadId": "thread-1",
                 "payload": {
                     "headers": [
-                        {"name": from_name, "value": "sender@example.com"},
+                        {"name": from_name, "value": "sender@example.test"},
+                        {"name": reply_to_name, "value": "CaseSensitive@EXAMPLE.TEST"},
                         {"name": subject_name, "value": "case bug"},
-                        {"name": message_id_name, "value": "<msg-1@example.com>"},
+                        {"name": message_id_name, "value": "<msg-1@example.test>"},
+                        {"name": references_name, "value": "<root-1@example.test>"},
                     ],
                 },
             }
@@ -413,7 +423,7 @@ def test_api_gmail_reply_reads_headers_case_insensitively_and_uses_conventional_
     args = api_module.argparse.Namespace(
         message_id="msg-1",
         body="reply body",
-        from_header="recipient@example.com",
+        from_header="responder@example.test",
         func=api_module.gmail_reply,
     )
 
@@ -423,16 +433,424 @@ def test_api_gmail_reply_reads_headers_case_insensitively_and_uses_conventional_
     body = calls[1]["body"]
     assert body["threadId"] == "thread-1"
     raw = api_module.base64.urlsafe_b64decode(body["raw"])
-    raw_text = raw.decode()
-    assert "To: sender@example.com" in raw_text
-    assert "Subject: Re: case bug" in raw_text
-    assert "From: recipient@example.com" in raw_text
-    assert "In-Reply-To: <msg-1@example.com>" in raw_text
-    assert "References: <msg-1@example.com>" in raw_text
-    assert "\nto: " not in raw_text
-    assert "\nsubject: " not in raw_text
-    assert "\nin-reply-to: " not in raw_text
-    assert "\nreferences: " not in raw_text
+    parsed = BytesParser(policy=default).parsebytes(raw)
+    assert [item.addr_spec for item in parsed["To"].addresses] == [
+        "CaseSensitive@example.test"
+    ]
+    assert parsed["Cc"] is None
+    assert parsed["Bcc"] is None
+    assert str(parsed["Subject"]) == "Re: case bug"
+    assert str(parsed["From"]) == "responder@example.test"
+    assert str(parsed["In-Reply-To"]) == "<msg-1@example.test>"
+    assert str(parsed["References"]) == "<root-1@example.test> <msg-1@example.test>"
+
+
+def test_api_gmail_reply_python_api_prefers_reply_to_and_preserves_thread(api_module):
+    original = {
+        "id": "msg-1",
+        "threadId": "thread-1",
+        "payload": {
+            "headers": [
+                {"name": "From", "value": "sender@example.test"},
+                {"name": "Reply-To", "value": "operator@example.test"},
+                {"name": "Subject", "value": "=?UTF-8?B?16nXnNeV150=?="},
+                {"name": "Message-ID", "value": "<msg-1@example.test>"},
+                {"name": "References", "value": "<root-1@example.test>"},
+            ]
+        },
+    }
+    service = MagicMock()
+    messages = service.users.return_value.messages.return_value
+    messages.get.return_value.execute.return_value = original
+    messages.send.return_value.execute.return_value = {
+        "id": "sent-1",
+        "threadId": "thread-1",
+    }
+    api_module._gws_binary = lambda: None
+    api_module.build_service = lambda name, version: service
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body="reply body",
+        from_header="responder@example.test",
+        func=api_module.gmail_reply,
+    )
+
+    api_module.gmail_reply(args)
+
+    messages.get.assert_called_once_with(
+        userId="me",
+        id="msg-1",
+        format="metadata",
+        metadataHeaders=["From", "Reply-To", "Subject", "Message-ID", "References"],
+    )
+    messages.send.assert_called_once()
+    sent = messages.send.call_args.kwargs["body"]
+    assert sent["threadId"] == "thread-1"
+    parsed = BytesParser(policy=default).parsebytes(
+        api_module.base64.urlsafe_b64decode(sent["raw"])
+    )
+    assert [item.addr_spec for item in parsed["To"].addresses] == ["operator@example.test"]
+    assert parsed["Cc"] is None
+    assert parsed["Bcc"] is None
+    assert str(parsed["Subject"]) == "Re: שלום"
+    assert str(parsed["In-Reply-To"]) == "<msg-1@example.test>"
+    assert str(parsed["References"]) == "<root-1@example.test> <msg-1@example.test>"
+
+
+@pytest.mark.parametrize("provider", ["gws", "python-api"])
+@pytest.mark.parametrize(
+    "invalid_reply_to",
+    [
+        "",
+        "not-an-address",
+        "first@example.test, second@example.test",
+        "Group: member@example.test;",
+        "victim@example.test\r\nBcc: hidden@example.test",
+    ],
+)
+def test_api_gmail_reply_denial_never_invokes_either_send_branch(
+    api_module,
+    capsys,
+    provider,
+    invalid_reply_to,
+):
+    original = {
+        "id": "msg-1",
+        "threadId": "thread-1",
+        "payload": {
+            "headers": [
+                {"name": "From", "value": "sender@example.test"},
+                {"name": "Reply-To", "value": invalid_reply_to},
+                {"name": "Subject", "value": "case bug"},
+                {"name": "Message-ID", "value": "<msg-1@example.test>"},
+                {"name": "References", "value": "<root-1@example.test>"},
+            ]
+        },
+    }
+    gws_calls = []
+    messages = None
+
+    if provider == "gws":
+        def poison_gws_send(parts, *, params=None, body=None):
+            gws_calls.append(parts)
+            if parts == ["gmail", "users", "messages", "send"]:
+                raise AssertionError("GWS send authority was invoked")
+            return original
+
+        api_module._run_gws = poison_gws_send
+    else:
+        service = MagicMock()
+        messages = service.users.return_value.messages.return_value
+        messages.get.return_value.execute.return_value = original
+        messages.send.side_effect = AssertionError("Python API send authority was invoked")
+        api_module._gws_binary = lambda: None
+        api_module.build_service = lambda name, version: service
+
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body="reply body",
+        from_header="responder@example.test",
+        func=api_module.gmail_reply,
+    )
+
+    with pytest.raises(SystemExit) as caught:
+        api_module.gmail_reply(args)
+
+    assert caught.value.code == 2
+    denial = json.loads(capsys.readouterr().err)
+    assert denial["status"] == "denied"
+    assert denial["reason"].startswith("reply-to-")
+    assert "victim" not in json.dumps(denial)
+    assert "hidden" not in json.dumps(denial)
+    if provider == "gws":
+        assert gws_calls == [["gmail", "users", "messages", "get"]]
+    else:
+        assert messages.send.call_count == 0
+
+
+def test_api_gmail_reply_falls_back_to_from_only_when_reply_to_is_absent(api_module):
+    calls = []
+
+    def fake_run_gws(parts, *, params=None, body=None):
+        calls.append({"parts": parts, "body": body})
+        if parts == ["gmail", "users", "messages", "get"]:
+            return {
+                "id": "msg-1",
+                "threadId": "thread-1",
+                "payload": {
+                    "headers": [
+                        {"name": "From", "value": "sender@example.test"},
+                        {"name": "Subject", "value": "case bug"},
+                        {"name": "Message-ID", "value": "<msg-1@example.test>"},
+                    ]
+                },
+            }
+        return {"id": "sent-1", "threadId": "thread-1"}
+
+    api_module._run_gws = fake_run_gws
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body="reply body",
+        from_header="",
+        func=api_module.gmail_reply,
+    )
+
+    api_module.gmail_reply(args)
+
+    raw = api_module.base64.urlsafe_b64decode(calls[1]["body"]["raw"])
+    parsed = BytesParser(policy=default).parsebytes(raw)
+    assert [item.addr_spec for item in parsed["To"].addresses] == ["sender@example.test"]
+
+
+@pytest.mark.parametrize("provider", ["gws", "python-api"])
+@pytest.mark.parametrize(
+    ("body_text", "subject", "reason"),
+    [
+        # argv bytes that are not UTF-8 reach argparse as lone surrogates.
+        ("reply \udcff body", "case bug", "body-invalid"),
+        ("reply body", "case \ud800 bug", "subject-invalid"),
+    ],
+)
+def test_api_gmail_reply_unencodable_input_is_a_structured_denial(
+    api_module,
+    capsys,
+    provider,
+    body_text,
+    subject,
+    reason,
+):
+    original = {
+        "id": "msg-1",
+        "threadId": "thread-1",
+        "payload": {
+            "headers": [
+                {"name": "From", "value": "sender@example.test"},
+                {"name": "Subject", "value": subject},
+                {"name": "Message-ID", "value": "<msg-1@example.test>"},
+            ]
+        },
+    }
+    gws_calls = []
+    messages = None
+
+    if provider == "gws":
+        def poison_gws_send(parts, *, params=None, body=None):
+            gws_calls.append(parts)
+            if parts == ["gmail", "users", "messages", "send"]:
+                raise AssertionError("GWS send authority was invoked")
+            return original
+
+        api_module._run_gws = poison_gws_send
+    else:
+        service = MagicMock()
+        messages = service.users.return_value.messages.return_value
+        messages.get.return_value.execute.return_value = original
+        messages.send.side_effect = AssertionError("Python API send authority was invoked")
+        api_module._gws_binary = lambda: None
+        api_module.build_service = lambda name, version: service
+
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body=body_text,
+        from_header="",
+        func=api_module.gmail_reply,
+    )
+
+    with pytest.raises(SystemExit) as caught:
+        api_module.gmail_reply(args)
+
+    assert caught.value.code == 2
+    denial = json.loads(capsys.readouterr().err)
+    assert denial == {"status": "denied", "reason": reason}
+    if provider == "gws":
+        assert gws_calls == [["gmail", "users", "messages", "get"]]
+    else:
+        assert messages.send.call_count == 0
+
+
+def _named_from_original():
+    return {
+        "id": "msg-1",
+        "threadId": "thread-1",
+        "payload": {
+            "headers": [
+                {"name": "From", "value": "sender@example.test"},
+                {"name": "Reply-To", "value": "operator@example.test"},
+                {"name": "Subject", "value": "case bug"},
+                {"name": "Message-ID", "value": "<msg-1@example.test>"},
+            ]
+        },
+    }
+
+
+def _install_reply_provider(api_module, provider, original):
+    """Return a callable yielding the sent body (or None) for either provider."""
+    calls = []
+    if provider == "gws":
+        def fake_run_gws(parts, *, params=None, body=None):
+            calls.append({"parts": parts, "body": body})
+            if parts == ["gmail", "users", "messages", "get"]:
+                return original
+            return {"id": "sent-1", "threadId": "thread-1"}
+
+        api_module._run_gws = fake_run_gws
+
+        def sent():
+            sends = [c for c in calls if c["parts"] == ["gmail", "users", "messages", "send"]]
+            return sends[0]["body"] if sends else None
+    else:
+        service = MagicMock()
+        messages = service.users.return_value.messages.return_value
+        messages.get.return_value.execute.return_value = original
+        messages.send.return_value.execute.return_value = {"id": "sent-1", "threadId": "thread-1"}
+        api_module._gws_binary = lambda: None
+        api_module.build_service = lambda name, version: service
+
+        def sent():
+            if not messages.send.call_count:
+                return None
+            return messages.send.call_args.kwargs["body"]
+
+    return sent
+
+
+@pytest.mark.parametrize("provider", ["gws", "python-api"])
+@pytest.mark.parametrize(
+    ("from_header", "display_name", "emitted"),
+    [
+        ('"Support Bot" <user@example.com>', "Support Bot", b"From: Support Bot <user@example.com>"),
+        ('"Ops, Inc." <user@example.com>', "Ops, Inc.", b'From: "Ops, Inc." <user@example.com>'),
+        ("Zo\u00eb Agent <user@example.com>", "Zo\u00eb Agent", b"From: =?utf-8?q?Zo=C3=AB?= Agent <user@example.com>"),
+        ("user@example.com", "", b"From: user@example.com\r\n"),
+        # Folds into several RFC 2047 encoded-words (agent-settings#2297).
+        (
+            "\u682a\u5f0f\u4f1a\u793e\u30b5\u30f3\u30d7\u30eb\u30ab\u30b9\u30bf\u30de\u30fc"
+            "\u30b5\u30dd\u30fc\u30c8\u30bb\u30f3\u30bf\u30fc <user@example.com>",
+            None,
+            b"?=\r\n =?utf-8?b?",
+        ),
+    ],
+)
+def test_api_gmail_reply_custom_from_keeps_display_name(
+    api_module,
+    provider,
+    from_header,
+    display_name,
+    emitted,
+):
+    sent = _install_reply_provider(api_module, provider, _named_from_original())
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body="reply body",
+        from_header=from_header,
+        func=api_module.gmail_reply,
+    )
+
+    api_module.gmail_reply(args)
+
+    raw = api_module.base64.urlsafe_b64decode(sent()["raw"])
+    parsed = BytesParser(policy=default).parsebytes(raw)
+    assert len(parsed["From"].addresses) == 1
+    if display_name is None:
+        # Some Python parsers keep whitespace between folded encoded-words.
+        expected_name = from_header.rpartition(" <")[0]
+        assert "".join(parsed["From"].addresses[0].display_name.split()) == expected_name
+    else:
+        assert parsed["From"].addresses[0].display_name == display_name
+    assert parsed["From"].addresses[0].addr_spec == "user@example.com"
+    assert emitted in raw
+    assert [item.addr_spec for item in parsed["To"].addresses] == ["operator@example.test"]
+    assert parsed["Cc"] is None
+    assert parsed["Bcc"] is None
+
+
+@pytest.mark.parametrize("provider", ["gws", "python-api"])
+@pytest.mark.parametrize(
+    "from_header",
+    [
+        '"Support Bot" <user@example.com>\r\nBcc: hidden@example.test',
+        "=?UTF-8?Q?Bot=0D=0ABcc:_hidden@example.test?= <user@example.com>",
+        '"Bot\x00" <user@example.com>',
+        "Bot\udcff <user@example.com>",
+        "Bot <user@example.com>, Other <hidden@example.test>",
+    ],
+)
+def test_api_gmail_reply_custom_from_injection_never_sends(
+    api_module,
+    capsys,
+    provider,
+    from_header,
+):
+    sent = _install_reply_provider(api_module, provider, _named_from_original())
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body="reply body",
+        from_header=from_header,
+        func=api_module.gmail_reply,
+    )
+
+    with pytest.raises(SystemExit) as caught:
+        api_module.gmail_reply(args)
+
+    assert caught.value.code == 2
+    denial = json.loads(capsys.readouterr().err)
+    assert denial == {"status": "denied", "reason": "from-header-invalid"}
+    assert sent() is None
+
+
+@pytest.mark.parametrize("provider", ["gws", "python-api"])
+@pytest.mark.parametrize("subject", [None, "", "   "])
+def test_api_gmail_reply_missing_or_empty_subject_sends_bare_re(api_module, provider, subject):
+    # Pre-adoption gmail_reply sent "Re: " here; RFC 5322 makes Subject optional.
+    original = _named_from_original()
+    original["payload"]["headers"] = [
+        item for item in original["payload"]["headers"] if item["name"] != "Subject"
+    ]
+    if subject is not None:
+        original["payload"]["headers"].append({"name": "Subject", "value": subject})
+    sent = _install_reply_provider(api_module, provider, original)
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body="reply body",
+        from_header="",
+        func=api_module.gmail_reply,
+    )
+
+    api_module.gmail_reply(args)
+
+    parsed = BytesParser(policy=default).parsebytes(
+        api_module.base64.urlsafe_b64decode(sent()["raw"])
+    )
+    assert str(parsed["Subject"]) == "Re:"
+    assert [item.addr_spec for item in parsed["To"].addresses] == ["operator@example.test"]
+
+
+@pytest.mark.parametrize("provider", ["gws", "python-api"])
+@pytest.mark.parametrize("header_name", ["Reply-To", "From"])
+def test_api_gmail_reply_accepts_quoted_local_part_recipient(api_module, provider, header_name):
+    # Pre-adoption gmail_reply copied this RFC 5322 quoted local part into To.
+    original = _named_from_original()
+    headers = [item for item in original["payload"]["headers"] if item["name"] not in ("From", "Reply-To")]
+    headers.append({"name": header_name, "value": 'Support <"support team"@example.test>'})
+    if header_name == "Reply-To":
+        headers.append({"name": "From", "value": "sender@example.test"})
+    original["payload"]["headers"] = headers
+    sent = _install_reply_provider(api_module, provider, original)
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body="reply body",
+        from_header="",
+        func=api_module.gmail_reply,
+    )
+
+    api_module.gmail_reply(args)
+
+    raw = api_module.base64.urlsafe_b64decode(sent()["raw"])
+    parsed = BytesParser(policy=default).parsebytes(raw)
+    assert [item.addr_spec for item in parsed["To"].addresses] == ['"support team"@example.test']
+    assert b'To: "support team"@example.test\r\n' in raw
+    assert parsed["Cc"] is None
+    assert parsed["Bcc"] is None
 
 
 def test_api_get_credentials_refresh_persists_authorized_user_type(api_module, monkeypatch):

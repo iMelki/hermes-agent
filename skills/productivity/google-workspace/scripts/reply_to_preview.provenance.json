@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "canonicalRepository": "iMelki/agent-settings",
+  "canonicalPath": "shared/tools/email_reply_preview.py",
+  "canonicalCommit": "2126c39abd048588985f62daa5d057b520349b75",
+  "canonicalSha256": "250cfdc9bcdcee39eb990cc99825df77c80d47865caf2892c10eeb49340f9a92",
+  "copyPath": "skills/productivity/google-workspace/scripts/_email_reply_preview.py"
+}

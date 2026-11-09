@@ -188,7 +188,7 @@ $GAPI gmail send --to user@example.com --subject "Hello" --body "Message text"
 $GAPI gmail send --to user@example.com --subject "Report" --body "<h1>Q4</h1><p>Details...</p>" --html
 $GAPI gmail send --to user@example.com --subject "Hello" --from '"Research Agent" <user@example.com>' --body "Message text"
 
-# Reply (automatically threads and sets In-Reply-To)
+# Reply (Reply-To first; automatically threads and sets In-Reply-To/References)
 $GAPI gmail reply MESSAGE_ID --body "Thanks, that works for me."
 $GAPI gmail reply MESSAGE_ID --from '"Support Bot" <user@example.com>' --body "Thanks"
 
@@ -197,6 +197,16 @@ $GAPI gmail labels
 $GAPI gmail modify MESSAGE_ID --add-labels LABEL_ID
 $GAPI gmail modify MESSAGE_ID --remove-labels UNREAD
 ```
+
+Replies fail closed before the send call when a present `Reply-To` is invalid,
+ambiguous, or contains a control character. `From` is used only when `Reply-To`
+is absent. The reply preview validates one exact `To`, no `Cc`/`Bcc`, and the
+thread headers by parsing the generated MIME back before either provider branch
+can send it. Mailbox local-part spelling is preserved while domain comparison
+is case-insensitive. RFC 2047 encoded subjects are decoded and control-checked
+before the generated reply is compared with the parsed MIME subject. The send
+body is limited to unique literal `raw` and `threadId` keys; dict unpack,
+computed keys, and duplicates are rejected by the adoption guard.
 
 ### Calendar
 

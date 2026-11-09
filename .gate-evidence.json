@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "_doc": "Negative-proof ledger. A control is trusted only after an attributed failure on deliberate broken input and a verified restored pass.",
+  "exclude": [],
+  "gates": [
+    {
+      "id": "email-reply-adoption-conformance-20260917",
+      "path": "scripts/check_reply_to_primitive_conformance.py",
+      "negativeFixture": "tests/skills/fixtures/email_reply_body_unpack_override.py",
+      "description": "agent-settings#1124: the pinned provider-free resolver and the single Hermes gmail_reply entrypoint must stay within the reviewed fail-closed metadata, preview, exact two-key literal body, and two-provider send flow.",
+      "observedFailure": {
+        "date": "2026-09-17",
+        "command": "python -B scripts/check_reply_to_primitive_conformance.py --copy skills/productivity/google-workspace/scripts/_email_reply_preview.py --provenance skills/productivity/google-workspace/scripts/reply_to_preview.provenance.json --consumer tests/skills/fixtures/email_reply_body_unpack_override.py --json",
+        "breakApplied": "The hostile consumer keeps the approved literal raw/threadId entries but adds trailing **args.payload, which can override either value at runtime. Focused in-memory mutations also add a computed key and duplicate raw key.",
+        "exitCode": 1,
+        "reason": "status=fail, reason=reply-primitive-drift, finding=reply-body-not-approved, exit 1.",
+        "restoredPass": "The same command with skills/productivity/google-workspace/scripts/google_api.py restored as --consumer returned status=pass, findings=[], copySha256=7f80fb768cd3082bf1546e6694c0cdc924ad346742389988659dc3c510160de3, exit 0. The canonical test runner then passed 37 focused tests across two files, including both provider branches, ten poison-send denial cases, and unpack/computed/duplicate body-key refusals.",
+        "proofScope": "Pinned-copy integrity and deliberately narrow static adoption in gmail_reply: exact metadata binding, directly reachable fail-closed resolver assignment, exactly two unique string-literal body keys, canonical MIME body derivation, and exactly one approved send call per provider branch. The focused synthetic example.test suite separately covers Reply-To precedence, case-sensitive mailbox local parts, domain normalization, RFC 2047 subjects, From-only fallback, MIME parse-back, References, control characters, groups, multiple recipients, and zero send invocations on denial. This is syntactic conformance plus offline tests, not whole-program provider proof. No live mailbox, provider message, credential, or send was accessed."
+      }
+    },
+    {
+      "id": "email-reply-adoption-pinned-binding-strictness-20261109",
+      "path": "scripts/check_reply_to_primitive_conformance.py",
+      "negativeFixture": "tests/skills/test_reply_to_primitive_conformance.py (in-memory consumer mutations)",
+      "description": "hermes-agent#3 CodeRabbit 4516103910 / 4516103928: pinned names must have exactly one approved binding, and namespace writes by mapping or computed name (globals/vars/locals/setattr/delattr/exec/eval/compile/__import__/__builtins__, __dict__/__setitem__/__delitem__/modules, constant-key subscript stores) leave the binding unproven.",
+      "observedFailure": {
+        "date": "2026-11-09",
+        "command": ".venv/bin/python -m pytest tests/skills/test_reply_to_primitive_conformance.py -q -p no:cacheprovider (Python 3.11.15), each break applied to the guard and restored byte-for-byte (cmp verified)",
+        "breaks": {
+          "approved-count-only-capped": {
+            "change": "count != 1 reverted to count > 1",
+            "exitCode": 1,
+            "reason": "3 failed / 34 passed: test_guard_requires_exactly_one_approved_binding_per_pinned_name[aliased build_reply_preview, aliased ReplyPreviewError, missing ReplyPreviewError] did not report resolver-binding-not-approved",
+            "brokenSha256": "ed4e78884912897557cf0a26def56284519efd8d015a2d0ad501ebf7bad1403d"
+          },
+          "dynamic-namespace-names-ignored": {
+            "change": "skip _DYNAMIC_NAMESPACE_NAMES check",
+            "exitCode": 1,
+            "reason": "3 failed: globals().update(build_reply_preview=print), vars()[\"build_\" + \"reply_preview\"] = print, exec(\"build_reply_preview = print\") passed the guard",
+            "brokenSha256": "2fd2f42903d9c583cf4530921046baccdd341734fb9ec02c41ce28200c5536ee"
+          },
+          "dynamic-namespace-attributes-ignored": {
+            "change": "skip _DYNAMIC_NAMESPACE_ATTRIBUTES check",
+            "exitCode": 1,
+            "reason": "1 failed: sys.modules[__name__].__dict__.update(build_reply_preview=print) passed the guard",
+            "brokenSha256": "81ca3223fe3ef0f920f77b45b487e72805f891f5f55c9f82c828b43c8ac7dbda"
+          },
+          "constant-subscript-store-ignored": {
+            "change": "Subscript store with a constant str key no longer counts as a binding",
+            "exitCode": 1,
+            "reason": "1 failed: namespace[\"build_reply_preview\"] = print passed the guard",
+            "brokenSha256": "b638fbca4ca1f2d87b2cab65cd0faa8d5417c15f3c13d80bae152f68351a2a20"
+          }
+        },
+        "restoredPass": "Restored guard: 37 passed in the conformance test file. The live consumer google_api.py returns status=pass, findings=[], copySha256=250cfdc9bcdcee39eb990cc99825df77c80d47865caf2892c10eeb49340f9a92. The existing unpack-override fixture still fails with reply-body-not-approved.",
+        "proofScope": "Syntactic. A computed write through a primitive that is not listed (for example a C extension or an object reached only through an unlisted alias) is outside the claim and stays unproven rather than proven safe."
+      }
+    }
+  ]
+}
