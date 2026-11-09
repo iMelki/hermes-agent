@@ -798,6 +798,61 @@ def test_api_gmail_reply_custom_from_injection_never_sends(
     assert sent() is None
 
 
+@pytest.mark.parametrize("provider", ["gws", "python-api"])
+@pytest.mark.parametrize("subject", [None, "", "   "])
+def test_api_gmail_reply_missing_or_empty_subject_sends_bare_re(api_module, provider, subject):
+    # Pre-adoption gmail_reply sent "Re: " here; RFC 5322 makes Subject optional.
+    original = _named_from_original()
+    original["payload"]["headers"] = [
+        item for item in original["payload"]["headers"] if item["name"] != "Subject"
+    ]
+    if subject is not None:
+        original["payload"]["headers"].append({"name": "Subject", "value": subject})
+    sent = _install_reply_provider(api_module, provider, original)
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body="reply body",
+        from_header="",
+        func=api_module.gmail_reply,
+    )
+
+    api_module.gmail_reply(args)
+
+    parsed = BytesParser(policy=default).parsebytes(
+        api_module.base64.urlsafe_b64decode(sent()["raw"])
+    )
+    assert str(parsed["Subject"]) == "Re:"
+    assert [item.addr_spec for item in parsed["To"].addresses] == ["operator@example.test"]
+
+
+@pytest.mark.parametrize("provider", ["gws", "python-api"])
+@pytest.mark.parametrize("header_name", ["Reply-To", "From"])
+def test_api_gmail_reply_accepts_quoted_local_part_recipient(api_module, provider, header_name):
+    # Pre-adoption gmail_reply copied this RFC 5322 quoted local part into To.
+    original = _named_from_original()
+    headers = [item for item in original["payload"]["headers"] if item["name"] not in ("From", "Reply-To")]
+    headers.append({"name": header_name, "value": 'Support <"support team"@example.test>'})
+    if header_name == "Reply-To":
+        headers.append({"name": "From", "value": "sender@example.test"})
+    original["payload"]["headers"] = headers
+    sent = _install_reply_provider(api_module, provider, original)
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body="reply body",
+        from_header="",
+        func=api_module.gmail_reply,
+    )
+
+    api_module.gmail_reply(args)
+
+    raw = api_module.base64.urlsafe_b64decode(sent()["raw"])
+    parsed = BytesParser(policy=default).parsebytes(raw)
+    assert [item.addr_spec for item in parsed["To"].addresses] == ['"support team"@example.test']
+    assert b'To: "support team"@example.test\r\n' in raw
+    assert parsed["Cc"] is None
+    assert parsed["Bcc"] is None
+
+
 def test_api_get_credentials_refresh_persists_authorized_user_type(api_module, monkeypatch):
     token_path = api_module.TOKEN_PATH
     _write_token(token_path, token="ya29.old")

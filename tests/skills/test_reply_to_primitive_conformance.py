@@ -70,7 +70,7 @@ def _write_fixture(tmp_path: Path):
                 "version": 1,
                 "canonicalRepository": "iMelki/agent-settings",
                 "canonicalPath": "shared/tools/email_reply_preview.py",
-                "canonicalCommit": "47181d4cde46e8ec4c324ac62923773fd021ea68",
+                "canonicalCommit": "2126c39abd048588985f62daa5d057b520349b75",
                 "canonicalSha256": hashlib.sha256(copy_path.read_bytes()).hexdigest(),
                 "copyPath": "skills/productivity/google-workspace/scripts/_email_reply_preview.py",
             }
@@ -249,6 +249,21 @@ def test_guard_rejects_attribute_resolver_callee(tmp_path):
         "class ReplyPreviewError(Exception):\n    pass\n",
         "import _email_reply_preview\n"
         "_email_reply_preview.build_reply_preview = print\n",
+        # CodeRabbit 4516103910: writes through a namespace mapping or by name.
+        'globals()["build_reply_preview"] = print\n',
+        'globals()["ReplyPreviewError"] = Exception\n',
+        'del globals()["build_reply_preview"]\n',
+        'globals().update(build_reply_preview=print)\n',
+        'globals().__setitem__("build_reply_preview", print)\n',
+        'vars()["build_" + "reply_preview"] = print\n',
+        "import sys\n"
+        'setattr(sys.modules[__name__], "build_reply_preview", print)\n',
+        "import sys\n"
+        "sys.modules[__name__].__dict__['build_reply_preview'] = print\n",
+        'exec("build_reply_preview = print")\n',
+        "import sys\n"
+        "sys.modules[__name__].__dict__.update(build_reply_preview=print)\n",
+        'namespace = {}\nnamespace["build_reply_preview"] = print\n',
     ],
 )
 def test_guard_rejects_module_level_rebinding_of_pinned_names(tmp_path, rebinding):
@@ -279,6 +294,31 @@ def test_guard_rejects_local_rebinding_of_resolver(tmp_path, replacement):
     copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
     consumer_path.write_text(
         _fixture_consumer().replace("def gmail_reply(args):", replacement),
+        encoding="utf-8",
+    )
+
+    result = _guard_module().verify(copy_path, provenance_path, consumer_path)
+
+    assert result["status"] == "fail"
+    assert "resolver-binding-not-approved" in result["findings"]
+
+
+@pytest.mark.parametrize(
+    "import_line",
+    [
+        # CodeRabbit 4516103928: aliased imports leave the bare call unbound.
+        "from _email_reply_preview import ReplyPreviewError, build_reply_preview as resolve",
+        "from _email_reply_preview import ReplyPreviewError as PreviewError, build_reply_preview",
+        "from _email_reply_preview import build_reply_preview",
+    ],
+)
+def test_guard_requires_exactly_one_approved_binding_per_pinned_name(tmp_path, import_line):
+    copy_path, provenance_path, consumer_path = _write_fixture(tmp_path)
+    consumer_path.write_text(
+        _fixture_consumer().replace(
+            "from _email_reply_preview import ReplyPreviewError, build_reply_preview",
+            import_line,
+        ),
         encoding="utf-8",
     )
 

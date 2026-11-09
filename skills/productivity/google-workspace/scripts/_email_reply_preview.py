@@ -27,8 +27,13 @@ _CONTROL_RE = re.compile(r"[\x00-\x1f\x7f]")
 # cannot be encoded into MIME; they must be denied, never crash the encoder.
 _SURROGATE_RE = re.compile(r"[\ud800-\udfff]")
 _HEADER_NAME_RE = re.compile(r"^[!-9;-~]+$")
+# Local part: an atom run, or an RFC 5322 quoted-string of printable ASCII
+# (qtext or quoted-pair; controls, CR/LF and non-ASCII are never accepted).
+# The stdlib re-quotes a local part only when it needs quoting, so
+# ``"support"@x`` and ``support@x`` normalize to the same mailbox.
 _ADDR_SPEC_RE = re.compile(
-    r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@"
+    r"^(?:[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+"
+    r'|"(?:[\x20\x21\x23-\x5b\x5d-\x7e]|\\[\x20-\x7e])+")@'
     r"[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$"
 )
 _ATEXT = r"A-Za-z0-9!#$%&'*+\-/=?^_`{|}~"
@@ -217,12 +222,17 @@ def _resolve_recipient(
 
 
 def _reply_subject(value: Any) -> str:
-    encoded_subject = _require_safe_text(value, "subject-invalid")
+    # RFC 5322 makes Subject optional; a missing or empty one replies as "Re:".
+    if value is None:
+        return "Re:"
+    encoded_subject = _require_safe_text(value, "subject-invalid", allow_empty=True)
     try:
         subject = str(make_header(decode_header(encoded_subject)))
     except Exception as exc:  # Header codecs must fail closed without echoing input.
         raise ReplyPreviewError("subject-invalid") from exc
-    subject = _require_safe_text(subject, "subject-invalid")
+    subject = _require_safe_text(subject, "subject-invalid", allow_empty=True)
+    if not subject:
+        return "Re:"
     return subject if re.match(r"(?i)^re\s*:", subject) else f"Re: {subject}"
 
 
@@ -381,7 +391,7 @@ def build_reply_preview(
 
     collected = _collect_headers(headers)
     selected_source, recipient = _resolve_recipient(collected, policy)
-    subject = _reply_subject(_one_header(collected, "subject", required=True))
+    subject = _reply_subject(_one_header(collected, "subject"))
     source_message_id = _message_id(
         _one_header(collected, "message-id", required=True)
     )

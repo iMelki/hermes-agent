@@ -45,6 +45,13 @@ def _read_json(path: Path, label: str) -> dict[str, Any]:
 
 
 _PINNED_NAMES = frozenset({"build_reply_preview", "ReplyPreviewError"})
+# Builtins and attributes that read or write a namespace by computed name. Any
+# use leaves the binding of the pinned names unproven, because a write such as
+# ``globals()["build_" + "reply_preview"] = other`` cannot be resolved here.
+_DYNAMIC_NAMESPACE_NAMES = frozenset(
+    {"globals", "vars", "locals", "setattr", "delattr", "exec", "eval", "compile", "__import__", "__builtins__"}
+)
+_DYNAMIC_NAMESPACE_ATTRIBUTES = frozenset({"__dict__", "__setitem__", "__delitem__", "modules"})
 
 
 def _bound_names(node: ast.AST) -> list[str]:
@@ -54,6 +61,13 @@ def _bound_names(node: ast.AST) -> list[str]:
         return [node.id]
     if isinstance(node, ast.Attribute) and not isinstance(node.ctx, ast.Load):
         return [node.attr]
+    if (
+        isinstance(node, ast.Subscript)
+        and not isinstance(node.ctx, ast.Load)
+        and isinstance(node.slice, ast.Constant)
+        and isinstance(node.slice.value, str)
+    ):
+        return [node.slice.value]
     if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
         return [node.name]
     if isinstance(node, ast.arg):
@@ -88,6 +102,10 @@ def _pinned_binding_findings(tree: ast.Module) -> list[str]:
     approved_counts = dict.fromkeys(_PINNED_NAMES, 0)
     unapproved = False
     for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id in _DYNAMIC_NAMESPACE_NAMES:
+            unapproved = True
+        if isinstance(node, ast.Attribute) and node.attr in _DYNAMIC_NAMESPACE_ATTRIBUTES:
+            unapproved = True
         for name in _bound_names(node):
             if name not in _PINNED_NAMES:
                 continue
@@ -95,7 +113,9 @@ def _pinned_binding_findings(tree: ast.Module) -> list[str]:
                 approved_counts[name] += 1
             else:
                 unapproved = True
-    if unapproved or any(count > 1 for count in approved_counts.values()):
+    # Exactly one approved import per pinned name: a missing binding (e.g. an
+    # aliased import with a bare call) would raise NameError, not resolve.
+    if unapproved or any(count != 1 for count in approved_counts.values()):
         return ["resolver-binding-not-approved"]
     return []
 
