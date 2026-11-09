@@ -395,6 +395,14 @@ def gmail_reply(args):
             file=sys.stderr,
         )
         raise SystemExit(2) from exc
+    except UnicodeEncodeError as exc:
+        # Lone surrogates (e.g. non-UTF-8 argv bytes) cannot be encoded into
+        # MIME; deny with a stable reason instead of crashing mid-preview.
+        print(
+            json.dumps({"status": "denied", "reason": "input-encoding-invalid"}, indent=2),
+            file=sys.stderr,
+        )
+        raise SystemExit(2) from exc
 
     body = {
         "raw": base64.urlsafe_b64encode(preview.raw_mime).decode(),

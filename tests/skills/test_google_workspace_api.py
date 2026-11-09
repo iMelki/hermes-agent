@@ -602,6 +602,71 @@ def test_api_gmail_reply_falls_back_to_from_only_when_reply_to_is_absent(api_mod
     assert [item.addr_spec for item in parsed["To"].addresses] == ["sender@example.test"]
 
 
+@pytest.mark.parametrize("provider", ["gws", "python-api"])
+@pytest.mark.parametrize(
+    ("body_text", "subject"),
+    [
+        # argv bytes that are not UTF-8 reach argparse as lone surrogates.
+        ("reply \udcff body", "case bug"),
+        ("reply body", "case \ud800 bug"),
+    ],
+)
+def test_api_gmail_reply_unencodable_input_is_a_structured_denial(
+    api_module,
+    capsys,
+    provider,
+    body_text,
+    subject,
+):
+    original = {
+        "id": "msg-1",
+        "threadId": "thread-1",
+        "payload": {
+            "headers": [
+                {"name": "From", "value": "sender@example.test"},
+                {"name": "Subject", "value": subject},
+                {"name": "Message-ID", "value": "<msg-1@example.test>"},
+            ]
+        },
+    }
+    gws_calls = []
+    messages = None
+
+    if provider == "gws":
+        def poison_gws_send(parts, *, params=None, body=None):
+            gws_calls.append(parts)
+            if parts == ["gmail", "users", "messages", "send"]:
+                raise AssertionError("GWS send authority was invoked")
+            return original
+
+        api_module._run_gws = poison_gws_send
+    else:
+        service = MagicMock()
+        messages = service.users.return_value.messages.return_value
+        messages.get.return_value.execute.return_value = original
+        messages.send.side_effect = AssertionError("Python API send authority was invoked")
+        api_module._gws_binary = lambda: None
+        api_module.build_service = lambda name, version: service
+
+    args = api_module.argparse.Namespace(
+        message_id="msg-1",
+        body=body_text,
+        from_header="",
+        func=api_module.gmail_reply,
+    )
+
+    with pytest.raises(SystemExit) as caught:
+        api_module.gmail_reply(args)
+
+    assert caught.value.code == 2
+    denial = json.loads(capsys.readouterr().err)
+    assert denial == {"status": "denied", "reason": "input-encoding-invalid"}
+    if provider == "gws":
+        assert gws_calls == [["gmail", "users", "messages", "get"]]
+    else:
+        assert messages.send.call_count == 0
+
+
 def test_api_get_credentials_refresh_persists_authorized_user_type(api_module, monkeypatch):
     token_path = api_module.TOKEN_PATH
     _write_token(token_path, token="ya29.old")
