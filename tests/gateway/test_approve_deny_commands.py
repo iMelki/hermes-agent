@@ -423,7 +423,14 @@ class TestBlockingApprovalE2E:
         os.environ.pop("HERMES_SESSION_KEY", None)
 
     def test_blocking_approval_approve_once(self):
-        """check_all_command_guards blocks until resolve_gateway_approval is called."""
+        """check_all_command_guards blocks until resolve_gateway_approval is called.
+
+        The default approval mode is smart, which calls the auxiliary LLM
+        before the gateway notify. That probe is slower than a fixed 2.5s
+        poll when provider auto-detect is under load, so the notify is
+        missed. This test covers the blocking /approve path, so it pins
+        manual mode and waits on the notify itself.
+        """
         from tools.approval import (
             register_gateway_notify, unregister_gateway_notify,
             resolve_gateway_approval, check_all_command_guards,
@@ -431,8 +438,13 @@ class TestBlockingApprovalE2E:
 
         session_key = "e2e-test"
         notified = []
+        ready = threading.Event()
 
-        register_gateway_notify(session_key, lambda d: notified.append(d))
+        def _notify(data):
+            notified.append(data)
+            ready.set()
+
+        register_gateway_notify(session_key, _notify)
 
         result_holder = [None]
 
@@ -452,15 +464,15 @@ class TestBlockingApprovalE2E:
                 os.environ.pop("HERMES_EXEC_ASK", None)
                 os.environ.pop("HERMES_SESSION_KEY", None)
                 reset_current_session_key(token)
+                ready.set()
 
-        t = threading.Thread(target=agent_thread)
-        t.start()
+        with patch("tools.approval._get_approval_mode", return_value="manual"):
+            t = threading.Thread(target=agent_thread)
+            t.start()
+            while not ready.is_set() and t.is_alive():
+                ready.wait(0.05)
 
-        for _ in range(50):
-            if notified:
-                break
-            time.sleep(0.05)
-
+        assert ready.is_set()
         assert len(notified) == 1
         assert "rm -rf /important" in notified[0]["command"]
 
