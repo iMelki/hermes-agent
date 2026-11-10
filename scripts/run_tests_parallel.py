@@ -903,6 +903,10 @@ def main() -> int:
     fail_count = 0
     tests_passed = 0
     tests_failed = 0
+    tests_skipped = 0
+    tests_errors = 0
+    tests_xfailed = 0
+    tests_xpassed = 0
     collected_total = 0
     count_unknown = False
     collect_exit_codes: List[int] = []
@@ -911,6 +915,7 @@ def main() -> int:
 
     def _on_done(file: Path, started_at: float, fut: "Future[Tuple[Path, int, str, dict[str, int], float]]") -> None:
         nonlocal files_done, tests_done, pass_count, fail_count, tests_passed, tests_failed
+        nonlocal tests_skipped, tests_errors, tests_xfailed, tests_xpassed
         nonlocal collected_total, count_unknown
         n_tests = test_counts.get(file, 0)
         try:
@@ -935,6 +940,10 @@ def main() -> int:
             # Accumulate test-level counts from parsed summary.
             tests_passed += summary.get("passed", 0)
             tests_failed += summary.get("failed", 0)
+            tests_skipped += summary.get("skipped", 0)
+            tests_errors += summary.get("errors", 0)
+            tests_xfailed += summary.get("xfailed", 0)
+            tests_xpassed += summary.get("xpassed", 0)
             if collect_only:
                 # The printed count is informational. pytest's exit code,
                 # recorded below, decides whether the run exits 5.
@@ -982,7 +991,12 @@ def main() -> int:
     elapsed = time.monotonic() - started
     print()
     pct = min(100, (tests_done / approx_total_tests * 100)) if approx_total_tests else 0
-    print(f"=== Summary: {len(files)} files, {tests_passed} tests passed, {tests_failed} failed ({pct:.0f}% complete) in {elapsed:.1f}s ({args.jobs} workers) ===")
+    print(
+        f"=== Summary: {len(files)} files, {tests_passed} tests passed, "
+        f"{tests_failed} failed, {tests_skipped} skipped, {tests_errors} errors, "
+        f"{tests_xfailed} xfailed, {tests_xpassed} xpassed "
+        f"({pct:.0f}% complete) in {elapsed:.1f}s ({args.jobs} workers) ==="
+    )
     if collect_only:
         if count_unknown:
             print("count unknown")

@@ -1,0 +1,171 @@
+"""Parser for the Reply-To skill-test summary line.
+
+The count job reads the last ``=== Summary:`` line from scripts/run_tests.sh.
+A field the line does not mention is 0.
+"""
+
+from __future__ import annotations
+
+import importlib.util
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+_PATH = Path(__file__).resolve().parents[2] / "scripts" / "ci" / "reply_to_skill_summary.py"
+_spec = importlib.util.spec_from_file_location("reply_to_skill_summary", _PATH)
+if _spec is None or _spec.loader is None:
+    raise ImportError("Failed to load reply_to_skill_summary.py")
+_mod = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_mod)
+parse_summary_counts = _mod.parse_summary_counts
+
+_FULL_LINE = (
+    "=== Summary: 2 files, 10 tests passed, 3 failed, 4 skipped, "
+    "1 errors, 2 xfailed, 5 xpassed (100% complete) in 1.2s (8 workers) ==="
+)
+
+
+def test_summary_line_parses_every_count():
+    counts = parse_summary_counts("noise\n" + _FULL_LINE + "\ntrailer\n")
+    assert counts == {
+        "passed": 10,
+        "failed": 3,
+        "skipped": 4,
+        "errors": 1,
+        "xfailed": 2,
+        "xpassed": 5,
+    }
+
+
+def test_missing_summary_fields_default_to_zero():
+    """The old line only named passed and failed. The rest stay 0."""
+    text = (
+        "=== Summary: 1 files, 99 tests passed, 0 failed "
+        "(100% complete) in 3.0s (8 workers) ===\n"
+    )
+    counts = parse_summary_counts(text)
+    assert counts["passed"] == 99
+    assert counts["failed"] == 0
+    assert counts["skipped"] == 0
+    assert counts["errors"] == 0
+    assert counts["xfailed"] == 0
+    assert counts["xpassed"] == 0
+
+
+def test_runner_summary_counts_skip_xfail_xpass_and_error(tmp_path: Path):
+    """The suite summary the parser reads includes every outcome, not only pass/fail."""
+    probe = tmp_path / "probe"
+    probe.mkdir()
+    (probe / "test_outcomes.py").write_text(
+        "import pytest\n"
+        "\n"
+        "def test_ok():\n"
+        "    assert True\n"
+        "\n"
+        "@pytest.mark.skip(reason='nope')\n"
+        "def test_skip():\n"
+        "    assert False\n"
+        "\n"
+        "@pytest.mark.xfail\n"
+        "def test_xfail():\n"
+        "    assert False\n"
+        "\n"
+        "@pytest.mark.xfail\n"
+        "def test_xpass():\n"
+        "    assert True\n"
+        "\n"
+        "def test_error(missing_fixture):\n"
+        "    assert True\n"
+    )
+    repo_root = Path(__file__).resolve().parents[2]
+    runner = repo_root / "scripts" / "run_tests_parallel.py"
+    proc = subprocess.run(
+        [sys.executable, str(runner), str(probe), "-j", "1", "--file-timeout", "30", "-q"],
+        cwd=repo_root,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=60,
+    )
+    counts = parse_summary_counts(proc.stdout)
+    assert counts == {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 1,
+        "errors": 1,
+        "xfailed": 1,
+        "xpassed": 1,
+    }, proc.stdout
+    assert proc.returncode != 0
+
+
+def test_collected_is_the_sum_of_every_outcome():
+    counts = parse_summary_counts(_FULL_LINE)
+    assert _mod.collected_count(counts) == 25
+
+
+def _run_main(tmp_path: Path, log_text: str, rc: str) -> tuple[int, str]:
+    log = tmp_path / "run.log"
+    log.write_text(log_text)
+    summary = tmp_path / "summary.md"
+    proc = subprocess.run(
+        [sys.executable, str(_PATH), str(log), "merge-sha", "head-sha", rc, str(summary)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=30,
+    )
+    return proc.returncode, proc.stdout
+
+
+@pytest.mark.parametrize(
+    "log_text",
+    [
+        # Runner rewrote pytest exit 5 to 0: nothing ran.
+        "=== Summary: 2 files, 0 tests passed, 0 failed, 0 skipped, 0 errors, "
+        "0 xfailed, 0 xpassed (0% complete) in 0.5s (2 workers) ===\n",
+        # No summary line at all.
+        "runner crashed before printing a summary\n",
+    ],
+)
+def test_zero_collected_fails_even_when_runner_exits_zero(tmp_path: Path, log_text: str):
+    rc, out = _run_main(tmp_path, log_text, "0")
+    assert rc == 1, out
+    assert "collected=0" in out
+    assert "::error::no Reply-To test executed at head-sha" in out
+
+
+@pytest.mark.parametrize(
+    "skipped_line",
+    [
+        # A module-level pytest.skip(allow_module_level=True): no test items,
+        # one skip, and pytest exits 0 rather than 5.
+        "=== Summary: 1 files, 0 tests passed, 0 failed, 1 skipped, 0 errors, "
+        "0 xfailed, 0 xpassed (100% complete) in 0.5s (1 workers) ===\n",
+        # Every collected test skipped.
+        "=== Summary: 1 files, 0 tests passed, 0 failed, 3 skipped, 0 errors, "
+        "0 xfailed, 0 xpassed (100% complete) in 0.5s (1 workers) ===\n",
+    ],
+)
+def test_a_run_where_nothing_executed_fails(tmp_path: Path, skipped_line: str):
+    rc, out = _run_main(tmp_path, skipped_line, "0")
+    assert rc == 1, out
+    assert "::error::no Reply-To test executed at head-sha" in out
+
+
+def test_one_executed_test_beside_skips_passes(tmp_path: Path):
+    line = (
+        "=== Summary: 1 files, 1 tests passed, 0 failed, 3 skipped, 0 errors, "
+        "0 xfailed, 0 xpassed (100% complete) in 0.5s (1 workers) ===\n"
+    )
+    rc, out = _run_main(tmp_path, line, "0")
+    assert rc == 0, out
+    assert "collected=4" in out
+
+
+def test_runner_failure_exit_code_is_kept(tmp_path: Path):
+    rc, out = _run_main(tmp_path, _FULL_LINE + "\n", "1")
+    assert rc == 1, out
+    assert "collected=25" in out

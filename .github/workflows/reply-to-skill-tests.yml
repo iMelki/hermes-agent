@@ -1,0 +1,57 @@
+name: Reply-To skill tests
+
+# CTO post-merge finding on pull request #3: the Reply-To skill tests had
+# no Actions count at the PR head (7abf14a0a5). scripts/run_tests.sh treats
+# pytest exit 5 (nothing collected) as success. This job uses the default
+# pull_request checkout — the merge ref in this repository, not the fork —
+# runs the two files, logs github.sha and the PR head SHA, and fails when
+# collection is 0.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+# Same policy as the other test workflows: one in-flight run per ref,
+# and a newer push cancels the older one. Own group so it does not
+# cancel the sharded suite (tests-${{ github.ref }}).
+concurrency:
+  group: reply-to-skill-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reply-to-skill-tests:
+    name: Count Reply-To skill tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # Default checkout is the pull request merge ref in this
+          # repository. Do not set repository or ref: the token cannot
+          # fetch a fork, and an older head may not contain this script.
+          # Do not leave GITHUB_TOKEN in .git.
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # 8.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            pyproject.toml
+            uv.lock
+
+      - name: Set up Python 3.11
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        uses: ./.github/actions/retry
+        with:
+          command: uv sync --locked --python 3.11 --extra all --extra dev
+
+      - name: Run Reply-To skill tests
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: scripts/ci/reply_to_skill_tests.sh

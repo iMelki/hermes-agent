@@ -46,6 +46,8 @@ jobs:
       event_name: ${{ github.event_name }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - name: Detect affected areas
         id: classify
         uses: ./.github/actions/detect-changes
@@ -127,10 +129,19 @@ jobs:
     name: OSV scan
     uses: ./.github/workflows/osv-scanner.yml
 
+  # Always on. The Reply-To skill tests must be counted at the PR head
+  # even when the python lane would otherwise be skipped, and a 0-collect
+  # result has to fail the gate (the shared runner treats pytest exit 5
+  # as success).
+  reply-to-skill-tests:
+    name: Reply-To skill tests
+    uses: ./.github/workflows/reply-to-skill-tests.yml
+
   # ─────────────────────────────────────────────────────────────────────
   # Gate: runs after everything. ``if: always()`` ensures it reports a
-  # status even when some deps were skipped. Only actual ``failure``
-  # results cause it to fail; ``skipped`` is treated as success.
+  # status even when some deps were skipped. ``success`` and ``skipped``
+  # (a lane that did not apply) are the only allowed results. ``failure``,
+  # ``cancelled``, ``timed_out``, and any other result fail the gate.
   #
   # Branch protection should require ONLY this check.
   # ─────────────────────────────────────────────────────────────────────
@@ -147,6 +158,7 @@ jobs:
       - docker-lint
       - supply-chain
       - osv-scanner
+      - reply-to-skill-tests
       # we don't require docker to pass rn because it's so slow lol
       # - docker
     if: always()
@@ -154,14 +166,26 @@ jobs:
     steps:
       - name: Evaluate job results
         env:
-          RESULTS: ${{ toJSON(needs.*.result) }}
+          RESULTS: ${{ toJSON(needs) }}
         run: |
           echo "$RESULTS" | python3 -c "
           import json, sys
-          results = json.load(sys.stdin)
-          failed = [r for r in results if r == 'failure']
-          if failed:
-              print(f'::error::{len(failed)} job(s) failed')
+          needs = json.load(sys.stdin)
+          allowed = {'success', 'skipped'}
+          bad = []
+          if isinstance(needs, dict):
+              for name, job in needs.items():
+                  result = job.get('result') if isinstance(job, dict) else job
+                  if result not in allowed:
+                      bad.append(f'{name}={result}')
+          elif isinstance(needs, list):
+              bad = [r for r in needs if r not in allowed]
+          else:
+              print('::error::unexpected needs payload')
+              sys.exit(1)
+          if bad:
+              detail = ', '.join(bad)
+              print(f'::error::{len(bad)} job(s) not success or skipped: {detail}')
               sys.exit(1)
           print('All checks passed (or were skipped)')
           "
@@ -180,6 +204,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Restore baseline cache (PR only)
         if: github.event_name == 'pull_request'
