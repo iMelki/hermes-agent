@@ -277,3 +277,89 @@ def test_positional_path_not_treated_as_flag(tmp_path: Path) -> None:
     # Discovery found the probe file (2 tests), proving the positional path
     # was consumed as a root, not forwarded to pytest as a bad flag.
     assert "test_flagprobe.py" in proc.stdout, proc.stdout
+
+
+def test_collect_only_zero_collection_exits_5(tmp_path: Path) -> None:
+    """--collect-only keeps pytest exit 5 when the file collects nothing."""
+    probe = tmp_path / "probe"
+    probe.mkdir()
+    (probe / "test_empty.py").write_text("def helper():\n    return 1\n")
+    proc = _run_runner(probe, "--collect-only")
+    assert proc.returncode == 5, proc.stdout
+
+
+def test_collect_only_prints_collected_count(tmp_path: Path) -> None:
+    """--collect-only exits 0 and prints pytest's collected count."""
+    probe_dir = _make_probe_dir(tmp_path)
+    proc = _run_runner(probe_dir, "--collect-only")
+    assert proc.returncode == 0, proc.stdout
+    assert "2 tests collected" in proc.stdout, proc.stdout
+
+
+def test_collect_only_partial_deselect_prints_selected_count(tmp_path: Path) -> None:
+    """``1/2 tests collected`` is 1 selected, not the 2 that were discovered."""
+    probe_dir = _make_probe_dir(tmp_path)
+    proc = _run_runner(probe_dir, "--collect-only", "-k", "test_alpha")
+    assert proc.returncode == 0, proc.stdout
+    assert "1 test collected" in proc.stdout, proc.stdout
+    assert "2 tests collected" not in proc.stdout, proc.stdout
+
+
+def test_collect_only_count_ignores_node_ids_and_docstrings(tmp_path: Path) -> None:
+    """``-vv`` docstrings and parametrized IDs can contain the count phrases.
+
+    Only pytest's own summary line is a count. A docstring saying
+    ``1/2 tests collected`` and an ID containing ``no tests collected`` must
+    not change the reported number.
+    """
+    probe = tmp_path / "probe"
+    probe.mkdir()
+    (probe / "test_phrases.py").write_text(
+        "import pytest\n\n"
+        "def test_doc():\n"
+        "    \"\"\"1/2 tests collected\"\"\"\n\n"
+        "@pytest.mark.parametrize('x', ['no tests collected', 'b'])\n"
+        "def test_ids(x):\n"
+        "    assert x\n"
+    )
+    proc = _run_runner(probe, "--collect-only", "-vv")
+    assert proc.returncode == 0, proc.stdout
+    assert "3 tests collected" in proc.stdout, proc.stdout
+    assert "0 tests collected" not in proc.stdout, proc.stdout
+    assert "1 test collected" not in proc.stdout, proc.stdout
+
+
+def test_collect_only_count_survives_color_output(tmp_path: Path) -> None:
+    """``--color=yes`` colours the summary line; the count must still be read."""
+    probe_dir = _make_probe_dir(tmp_path)
+    proc = _run_runner(probe_dir, "--collect-only", "-q", "--color=yes")
+    assert proc.returncode == 0, proc.stdout
+    assert "2 tests collected" in proc.stdout, proc.stdout
+    assert "count unknown" not in proc.stdout, proc.stdout
+
+
+def test_collect_only_all_deselected_exits_5(tmp_path: Path) -> None:
+    """Deselecting every test keeps pytest exit 5, even if the header says collected N items."""
+    probe_dir = _make_probe_dir(tmp_path)
+    proc = _run_runner(probe_dir, "--collect-only", "-k", "does_not_match")
+    assert proc.returncode == 5, proc.stdout
+    assert "0 tests collected" in proc.stdout, proc.stdout
+    assert "2 tests collected" not in proc.stdout, proc.stdout
+
+
+def test_collect_only_qq_keeps_pytest_exit_when_count_hidden(tmp_path: Path) -> None:
+    """``-qq`` omits the summary. Don't turn a successful collection into exit 5."""
+    probe_dir = _make_probe_dir(tmp_path)
+    proc = _run_runner(probe_dir, "--collect-only", "-qq")
+    assert proc.returncode == 0, proc.stdout
+    assert "count unknown" in proc.stdout, proc.stdout
+
+
+def test_normal_run_still_treats_empty_collection_as_success(tmp_path: Path) -> None:
+    """Without --collect-only, exit 5 stays a pass and no count line is printed."""
+    probe = tmp_path / "probe"
+    probe.mkdir()
+    (probe / "test_empty.py").write_text("def helper():\n    return 1\n")
+    proc = _run_runner(probe)
+    assert proc.returncode == 0, proc.stdout
+    assert "tests collected" not in proc.stdout
