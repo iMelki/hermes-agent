@@ -294,12 +294,17 @@ class TestDetectProviderForModel:
         assert detect_provider_for_model("gpt-5.3-codex", "openai-codex") is None
 
     def test_short_alias_resolves_to_static_model(self):
-        """Short aliases (e.g. sonnet) should resolve without network lookups."""
-        with patch(
-            "hermes_cli.models.fetch_openrouter_models",
-            side_effect=AssertionError("network lookup should not run"),
+        """Short aliases (e.g. sonnet) should resolve without a catalog fetch."""
+        with (
+            _no_remote_curated_catalog() as catalog_fetch,
+            patch(
+                "hermes_cli.models.fetch_openrouter_models",
+                wraps=_models_mod.fetch_openrouter_models,
+            ) as model_fetch,
         ):
             result = detect_provider_for_model("sonnet", "auto")
+        assert model_fetch.call_count == 0
+        assert catalog_fetch.call_count == 0
         assert result is not None
         assert result[0] == "anthropic"
         assert result[1].startswith("claude-sonnet")
