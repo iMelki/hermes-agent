@@ -107,3 +107,19 @@ for (const [label, body, expected] of [
     }
   })
 }
+
+const FOOTGUN = 'windows-footgun-proof.mjs'
+
+test('footgun proof: a missing restored fixture fails instead of passing on 0 files scanned', () => {
+  const repoRoot = join(here, '../..')
+  const checker = readFileSync(join(repoRoot, 'scripts/check-windows-footguns.py'), 'utf8')
+  const root = fixture(FOOTGUN, 'scripts/check-windows-footguns.py', checker)
+  try {
+    mkdirSync(join(root, 'tests/gate-evidence/windows-footgun'), { recursive: true })
+    copyFileSync(join(here, 'windows-footgun/deliberate_os_kill.py'), join(root, 'tests/gate-evidence/windows-footgun/deliberate_os_kill.py'))
+    const r = runProof(root, FOOTGUN)
+    assert.equal(r.status, 3)
+    copyFileSync(join(here, 'windows-footgun/restored_os_kill.py'), join(root, 'tests/gate-evidence/windows-footgun/restored_os_kill.py'))
+    assert.equal(runProof(root, FOOTGUN).status, 0)
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})

@@ -19,7 +19,9 @@ if (neg.status !== 1 || !/os\.kill\(pid, 0\)/.test(negText) || !/Windows footgun
   process.exit(2)
 }
 const pos = run(good)
-if (pos.status !== 0 || !/No Windows footguns found/.test(pos.stdout + pos.stderr)) {
+// The checker reports success for a path it cannot find ("0 file(s) scanned"),
+// so require that it actually scanned the one restored fixture.
+if (pos.status !== 0 || !/No Windows footguns found \(1 file\(s\) scanned\)/.test(pos.stdout + pos.stderr)) {
   console.error('restored pass failed', { status: pos.status, text: pos.stdout + pos.stderr })
   process.exit(3)
 }
