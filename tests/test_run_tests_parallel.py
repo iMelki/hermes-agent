@@ -305,6 +305,30 @@ def test_collect_only_partial_deselect_prints_selected_count(tmp_path: Path) -> 
     assert "2 tests collected" not in proc.stdout, proc.stdout
 
 
+def test_collect_only_count_ignores_node_ids_and_docstrings(tmp_path: Path) -> None:
+    """``-vv`` docstrings and parametrized IDs can contain the count phrases.
+
+    Only pytest's own summary line is a count. A docstring saying
+    ``1/2 tests collected`` and an ID containing ``no tests collected`` must
+    not change the reported number.
+    """
+    probe = tmp_path / "probe"
+    probe.mkdir()
+    (probe / "test_phrases.py").write_text(
+        "import pytest\n\n"
+        "def test_doc():\n"
+        "    \"\"\"1/2 tests collected\"\"\"\n\n"
+        "@pytest.mark.parametrize('x', ['no tests collected', 'b'])\n"
+        "def test_ids(x):\n"
+        "    assert x\n"
+    )
+    proc = _run_runner(probe, "--collect-only", "-vv")
+    assert proc.returncode == 0, proc.stdout
+    assert "3 tests collected" in proc.stdout, proc.stdout
+    assert "0 tests collected" not in proc.stdout, proc.stdout
+    assert "1 test collected" not in proc.stdout, proc.stdout
+
+
 def test_collect_only_all_deselected_exits_5(tmp_path: Path) -> None:
     """Deselecting every test keeps pytest exit 5, even if the header says collected N items."""
     probe_dir = _make_probe_dir(tmp_path)

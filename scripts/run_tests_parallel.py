@@ -338,22 +338,39 @@ def _parse_collected_count(output: str) -> int | None:
     ``deselected`` (or use the explicit ``selected`` figure). ``no tests
     collected`` is 0 and wins over that discovery header. ``-qq`` hides
     these lines; that is None, not zero.
+
+    Only pytest's own summary and header lines are read: a line that starts
+    in column 0 and, after any ``=`` banner, begins with the phrase. Node IDs
+    (``tests/x.py::test_y[...]``) and the indented docstrings ``-vv`` prints
+    in the collection tree can contain the same words and are ignored.
     """
     import re
 
-    ratios = re.findall(r"(\d+)/(\d+) tests collected\b", output)
+    phrase = re.compile(
+        r"(?:\d+(?:/\d+)? tests? collected\b|no tests collected\b|collected \d+ items?\b)"
+    )
+    kept = []
+    for line in output.splitlines():
+        if not line or line[0].isspace():
+            continue
+        body = line.strip().strip("=").strip()
+        if phrase.match(body):
+            kept.append(body)
+    text = "\n".join(kept)
+
+    ratios = re.findall(r"(?m)^(\d+)/(\d+) tests collected\b", text)
     if ratios:
         return int(ratios[-1][0])
-    if re.search(r"\bno tests collected\b", output):
+    if re.search(r"(?m)^no tests collected\b", text):
         return 0
     # The denominator of ``N/M tests collected`` is not a selected count.
-    plain = re.findall(r"(?<!/)(\d+) tests? collected\b", output)
+    plain = re.findall(r"(?m)^(\d+) tests? collected\b", text)
     if plain:
         return int(plain[-1])
     headers = list(
         re.finditer(
-            r"collected (\d+) items?(?: / (\d+) deselected)?(?: / (\d+) selected)?",
-            output,
+            r"(?m)^collected (\d+) items?(?: / (\d+) deselected)?(?: / (\d+) selected)?",
+            text,
         )
     )
     if not headers:
