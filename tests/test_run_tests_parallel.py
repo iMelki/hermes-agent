@@ -277,3 +277,30 @@ def test_positional_path_not_treated_as_flag(tmp_path: Path) -> None:
     # Discovery found the probe file (2 tests), proving the positional path
     # was consumed as a root, not forwarded to pytest as a bad flag.
     assert "test_flagprobe.py" in proc.stdout, proc.stdout
+
+
+def test_collect_only_zero_collection_exits_5(tmp_path: Path) -> None:
+    """--collect-only keeps pytest exit 5 when the file collects nothing."""
+    probe = tmp_path / "probe"
+    probe.mkdir()
+    (probe / "test_empty.py").write_text("def helper():\n    return 1\n")
+    proc = _run_runner(probe, "--collect-only")
+    assert proc.returncode == 5, proc.stdout
+
+
+def test_collect_only_prints_collected_count(tmp_path: Path) -> None:
+    """--collect-only exits 0 and prints pytest's collected count."""
+    probe_dir = _make_probe_dir(tmp_path)
+    proc = _run_runner(probe_dir, "--collect-only")
+    assert proc.returncode == 0, proc.stdout
+    assert "2 tests collected" in proc.stdout, proc.stdout
+
+
+def test_normal_run_still_treats_empty_collection_as_success(tmp_path: Path) -> None:
+    """Without --collect-only, exit 5 stays a pass and no count line is printed."""
+    probe = tmp_path / "probe"
+    probe.mkdir()
+    (probe / "test_empty.py").write_text("def helper():\n    return 1\n")
+    proc = _run_runner(probe)
+    assert proc.returncode == 0, proc.stdout
+    assert "tests collected" not in proc.stdout
