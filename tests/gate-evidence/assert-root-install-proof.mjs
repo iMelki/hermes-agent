@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs'
+import { mkdirSync, writeFileSync, rmSync, rmdirSync, existsSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join, resolve } from 'node:path'
@@ -46,7 +46,9 @@ try {
   // Remove only what this proof created.
   if (createdVite) rmSync(viteDir, { recursive: true, force: true })
   if (!hadNodeModules && existsSync(nodeModules)) {
-    try { rmSync(nodeModules, { recursive: false }) } catch { /* not empty: leave it */ }
+    // rmdirSync removes the directory only when it is empty. rmSync without
+    // `recursive` throws on any directory, which left an empty node_modules.
+    try { rmdirSync(nodeModules) } catch { /* not empty: leave it */ }
   }
 }
 process.exit(code)

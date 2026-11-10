@@ -47,6 +47,14 @@ for (const [label, exitPositive] of [['success', 0], ['child failure', 7]]) {
       assert.equal(existsSync(join(root, 'node_modules/vite')), false)
     } finally { rmSync(root, { recursive: true, force: true }) }
   })
+  test(`root-install: a node_modules the proof created is removed again (${label})`, () => {
+    const root = fixture(ROOT, 'apps/desktop/scripts/assert-root-install.mjs', rootStub(exitPositive))
+    try {
+      const r = runProof(root, ROOT)
+      assert.equal(r.status, exitPositive === 0 ? 0 : 3)
+      assert.equal(existsSync(join(root, 'node_modules')), false)
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
 }
 
 const COMP = 'component-sourcing-preflight-proof.mjs'
