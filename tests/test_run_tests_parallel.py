@@ -329,6 +329,15 @@ def test_collect_only_count_ignores_node_ids_and_docstrings(tmp_path: Path) -> N
     assert "1 test collected" not in proc.stdout, proc.stdout
 
 
+def test_collect_only_count_survives_color_output(tmp_path: Path) -> None:
+    """``--color=yes`` colours the summary line; the count must still be read."""
+    probe_dir = _make_probe_dir(tmp_path)
+    proc = _run_runner(probe_dir, "--collect-only", "-q", "--color=yes")
+    assert proc.returncode == 0, proc.stdout
+    assert "2 tests collected" in proc.stdout, proc.stdout
+    assert "count unknown" not in proc.stdout, proc.stdout
+
+
 def test_collect_only_all_deselected_exits_5(tmp_path: Path) -> None:
     """Deselecting every test keeps pytest exit 5, even if the header says collected N items."""
     probe_dir = _make_probe_dir(tmp_path)

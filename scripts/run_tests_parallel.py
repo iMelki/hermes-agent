@@ -342,13 +342,16 @@ def _parse_collected_count(output: str) -> int | None:
     Only pytest's own summary and header lines are read: a line that starts
     in column 0 and, after any ``=`` banner, begins with the phrase. Node IDs
     (``tests/x.py::test_y[...]``) and the indented docstrings ``-vv`` prints
-    in the collection tree can contain the same words and are ignored.
+    in the collection tree can contain the same words and are ignored. ANSI
+    colour codes (``--color=yes``) are stripped before matching.
     """
     import re
 
     phrase = re.compile(
         r"(?:\d+(?:/\d+)? tests? collected\b|no tests collected\b|collected \d+ items?\b)"
     )
+    # ``--color=yes`` wraps the summary in ANSI SGR codes; drop them first.
+    output = re.sub(r"\x1b\[[0-9;]*m", "", output)
     kept = []
     for line in output.splitlines():
         if not line or line[0].isspace():
