@@ -2,8 +2,9 @@
 # Run the Reply-To skill tests, log collected/passed/failed counts, and
 # fail when pytest collects nothing.
 #
-# GitHub Actions calls this with EXPECTED_SHA set to the pull request
-# head. A local run omits that variable and just executes the suite.
+# GitHub Actions checks out the pull request merge ref (github.sha).
+# PR_HEAD_SHA is the pull request head, logged beside github.sha.
+# A local run omits both and logs the working tree commit.
 #
 # Extra arguments replace the default file list (used to prove the
 # zero-collected failure). With no arguments the two CTO-named files run:
@@ -17,10 +18,14 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 cd "$REPO_ROOT"
 
 SHA="$(git rev-parse HEAD)"
-if [ -n "${EXPECTED_SHA:-}" ] && [ "$SHA" != "$EXPECTED_SHA" ]; then
-  echo "::error::checked out ${SHA}, expected PR head ${EXPECTED_SHA}"
+# Actions sets GITHUB_SHA to the merge ref on pull_request. The checkout
+# must be that commit, not a fork head override.
+if [ -n "${GITHUB_SHA:-}" ] && [ "$SHA" != "$GITHUB_SHA" ]; then
+  echo "::error::checked out ${SHA}, expected github.sha ${GITHUB_SHA}"
   exit 1
 fi
+GITHUB_SHA_VALUE="${GITHUB_SHA:-$SHA}"
+PR_HEAD_SHA_VALUE="${PR_HEAD_SHA:-}"
 
 if [ "$#" -gt 0 ]; then
   FILES=("$@")
@@ -33,12 +38,13 @@ fi
 
 write_summary() {
   local collected="$1" passed="$2" failed="$3" skipped="$4" errors="$5"
-  echo "reply-to-skill-tests sha=${SHA} collected=${collected} passed=${passed} failed=${failed} skipped=${skipped} errors=${errors}"
+  echo "reply-to-skill-tests github_sha=${GITHUB_SHA_VALUE} pr_head_sha=${PR_HEAD_SHA_VALUE} collected=${collected} passed=${passed} failed=${failed} skipped=${skipped} errors=${errors}"
   if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
     {
       echo "### Reply-To skill tests"
       echo
-      echo "- sha: \`${SHA}\`"
+      echo "- github.sha: \`${GITHUB_SHA_VALUE}\`"
+      echo "- pr_head_sha: \`${PR_HEAD_SHA_VALUE}\`"
       echo "- collected: ${collected}"
       echo "- passed: ${passed}"
       echo "- failed: ${failed}"
@@ -126,11 +132,11 @@ set -e
 echo "----- scripts/run_tests.sh (exit ${RUN_RC}) -----"
 cat "$RUN_LOG"
 
-"$PYTHON" - "$RUN_LOG" "$SHA" "$COLLECTED" "$RUN_RC" "${GITHUB_STEP_SUMMARY:-}" <<'PY'
+"$PYTHON" - "$RUN_LOG" "$GITHUB_SHA_VALUE" "$PR_HEAD_SHA_VALUE" "$COLLECTED" "$RUN_RC" "${GITHUB_STEP_SUMMARY:-}" <<'PY'
 import re
 import sys
 
-log, sha, collected, rc, summary_path = sys.argv[1:]
+log, github_sha, pr_head_sha, collected, rc, summary_path = sys.argv[1:]
 text = open(log, encoding="utf-8", errors="replace").read()
 passed = failed = skipped = errors = 0
 summary = re.search(r"=== Summary:.*?(\d+) tests passed, (\d+) failed", text)
@@ -148,13 +154,15 @@ else:
     errors = last("errors")
 
 print(
-    f"reply-to-skill-tests sha={sha} collected={collected} "
-    f"passed={passed} failed={failed} skipped={skipped} errors={errors}"
+    f"reply-to-skill-tests github_sha={github_sha} pr_head_sha={pr_head_sha} "
+    f"collected={collected} passed={passed} failed={failed} "
+    f"skipped={skipped} errors={errors}"
 )
 if summary_path:
     with open(summary_path, "a", encoding="utf-8") as fh:
         fh.write("### Reply-To skill tests\n\n")
-        fh.write(f"- sha: `{sha}`\n")
+        fh.write(f"- github.sha: `{github_sha}`\n")
+        fh.write(f"- pr_head_sha: `{pr_head_sha}`\n")
         fh.write(f"- collected: {collected}\n")
         fh.write(f"- passed: {passed}\n")
         fh.write(f"- failed: {failed}\n")

@@ -1,10 +1,10 @@
 name: Reply-To skill tests
 
 # CTO post-merge finding on pull request #3: the Reply-To skill tests had
-# no Actions count at the PR head (7abf14a0a5). A pull_request checkout
-# defaults to the synthetic merge commit, and scripts/run_tests.sh treats
-# pytest exit 5 (nothing collected) as success. This job checks out the
-# PR head itself, runs the two files, logs the counts, and fails when
+# no Actions count at the PR head (7abf14a0a5). scripts/run_tests.sh treats
+# pytest exit 5 (nothing collected) as success. This job uses the default
+# pull_request checkout — the merge ref in this repository, not the fork —
+# runs the two files, logs github.sha and the PR head SHA, and fails when
 # collection is 0.
 
 on:
@@ -26,15 +26,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout PR head
+      - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          # pull_request's default ref is refs/pull/<n>/merge, not the head.
-          # Pin the head SHA so the count is for the commit under review.
-          # The head repository can be a fork. Do not leave GITHUB_TOKEN in .git.
+          # Default checkout is the pull request merge ref in this
+          # repository. Do not set repository or ref: the token cannot
+          # fetch a fork, and an older head may not contain this script.
+          # Do not leave GITHUB_TOKEN in .git.
           persist-credentials: false
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # 8.2.0
@@ -54,5 +53,5 @@ jobs:
 
       - name: Run Reply-To skill tests
         env:
-          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: scripts/ci/reply_to_skill_tests.sh
