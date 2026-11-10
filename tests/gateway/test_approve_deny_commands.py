@@ -484,7 +484,12 @@ class TestBlockingApprovalE2E:
         unregister_gateway_notify(session_key)
 
     def test_blocking_approval_deny(self):
-        """check_all_command_guards returns BLOCKED when denied."""
+        """check_all_command_guards returns BLOCKED when denied.
+
+        Same race as approve_once. Default mode is smart, so the auxiliary
+        lookup runs before the notify. A fixed 2.5s poll can deny before
+        that lookup finishes, leaving result_holder[0] as None.
+        """
         from tools.approval import (
             register_gateway_notify, unregister_gateway_notify,
             resolve_gateway_approval, check_all_command_guards,
@@ -492,7 +497,13 @@ class TestBlockingApprovalE2E:
 
         session_key = "e2e-deny"
         notified = []
-        register_gateway_notify(session_key, lambda d: notified.append(d))
+        ready = threading.Event()
+
+        def _notify(data):
+            notified.append(data)
+            ready.set()
+
+        register_gateway_notify(session_key, _notify)
 
         result_holder = [None]
 
@@ -512,13 +523,17 @@ class TestBlockingApprovalE2E:
                 os.environ.pop("HERMES_EXEC_ASK", None)
                 os.environ.pop("HERMES_SESSION_KEY", None)
                 reset_current_session_key(token)
+                ready.set()
 
-        t = threading.Thread(target=agent_thread)
-        t.start()
-        for _ in range(50):
-            if notified:
-                break
-            time.sleep(0.05)
+        with patch("tools.approval._get_approval_mode", return_value="manual"):
+            t = threading.Thread(target=agent_thread)
+            t.start()
+            while not ready.is_set() and t.is_alive():
+                ready.wait(0.05)
+
+        assert ready.is_set()
+        assert len(notified) == 1
+        assert "rm -rf /important" in notified[0]["command"]
 
         resolve_gateway_approval(session_key, "deny")
         t.join(timeout=5)
@@ -576,7 +591,14 @@ class TestBlockingApprovalE2E:
 
         session_key = "e2e-parallel"
         notified = []
-        register_gateway_notify(session_key, lambda d: notified.append(d))
+        ready = threading.Event()
+
+        def _notify(data):
+            notified.append(data)
+            if len(notified) >= 3:
+                ready.set()
+
+        register_gateway_notify(session_key, _notify)
 
         results = [None, None, None]
 
@@ -602,14 +624,13 @@ class TestBlockingApprovalE2E:
             threading.Thread(target=make_agent(1, "rm -rf /b")),
             threading.Thread(target=make_agent(2, "rm -rf /c")),
         ]
-        for t in threads:
-            t.start()
-
-        # Wait for all 3 to block
-        for _ in range(100):
-            if len(notified) >= 3:
-                break
-            time.sleep(0.05)
+        # Smart mode would run an auxiliary lookup before each notify.
+        # Wait on the notifies themselves instead of a fixed poll.
+        with patch("tools.approval._get_approval_mode", return_value="manual"):
+            for t in threads:
+                t.start()
+            while not ready.is_set() and any(t.is_alive() for t in threads):
+                ready.wait(0.05)
 
         assert len(notified) == 3
         assert len(_gateway_queues.get(session_key, [])) == 3
@@ -658,18 +679,18 @@ class TestBlockingApprovalE2E:
             threading.Thread(target=make_agent(0, "rm -rf /x")),
             threading.Thread(target=make_agent(1, "rm -rf /y")),
         ]
-        for t in threads:
-            t.start()
-
-        # Wait for both threads to register pending approvals instead of
-        # relying on a fixed sleep.  The approval module stores entries in
-        # _gateway_queues[session_key] — poll until we see 2 entries.
+        # Queue entries are created only after smart approval returns.
+        # Pin manual mode and wait until both threads have queued, or exited.
         from tools.approval import _gateway_queues
-        deadline = time.monotonic() + 5
-        while time.monotonic() < deadline:
-            if len(_gateway_queues.get(session_key, [])) >= 2:
-                break
-            time.sleep(0.05)
+        queued = threading.Event()
+        with patch("tools.approval._get_approval_mode", return_value="manual"):
+            for t in threads:
+                t.start()
+            while (
+                len(_gateway_queues.get(session_key, [])) < 2
+                and any(t.is_alive() for t in threads)
+            ):
+                queued.wait(0.05)
 
         # Approve first, deny second
         resolve_gateway_approval(session_key, "once")   # oldest
@@ -816,8 +837,18 @@ class TestCrossSessionApprovalIsolation:
         )
         notified_a = []
         notified_b = []
-        register_gateway_notify("session-A", lambda d: notified_a.append(d))
-        register_gateway_notify("session-B", lambda d: notified_b.append(d))
+        ready = threading.Event()
+
+        def _notify_a(data):
+            notified_a.append(data)
+            ready.set()
+
+        def _notify_b(data):
+            notified_b.append(data)
+            ready.set()
+
+        register_gateway_notify("session-A", _notify_a)
+        register_gateway_notify("session-B", _notify_b)
 
         # Concurrent session B clobbered the process-global env var last.
         os.environ["HERMES_SESSION_KEY"] = "session-B"
@@ -837,14 +868,14 @@ class TestCrossSessionApprovalIsolation:
                 )
             finally:
                 reset_current_session_key(token)
+                ready.set()
 
         t = threading.Thread(target=worker_a)
-        t.start()
         try:
-            for _ in range(50):
-                if notified_a or notified_b:
-                    break
-                time.sleep(0.05)
+            with patch("tools.approval._get_approval_mode", return_value="manual"):
+                t.start()
+                while not ready.is_set() and t.is_alive():
+                    ready.wait(0.05)
 
             # The prompt must land in session A (the originator), never B.
             assert len(notified_a) == 1, "approval prompt did not route to session A"
