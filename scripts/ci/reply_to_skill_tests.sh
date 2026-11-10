@@ -71,6 +71,13 @@ for candidate in "$REPO_ROOT/.venv" "$REPO_ROOT/venv" "$HOME/.hermes/hermes-agen
     PYTHON="$candidate/bin/python"
     break
   fi
+  # Same Git Bash fallback as scripts/run_tests.sh: a Windows venv has
+  # Scripts/python.exe, not bin/python. Scoped to MSYS so Linux and WSL
+  # keep the POSIX layout.
+  if [ -n "${MSYSTEM:-}" ] && [ -x "$candidate/Scripts/python.exe" ]; then
+    PYTHON="$candidate/Scripts/python.exe"
+    break
+  fi
 done
 if [ -z "$PYTHON" ]; then
   echo "error: no virtualenv found in $REPO_ROOT/.venv or $REPO_ROOT/venv" >&2
