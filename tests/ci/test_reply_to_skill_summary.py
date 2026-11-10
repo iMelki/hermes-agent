@@ -99,3 +99,55 @@ def test_runner_summary_counts_skip_xfail_xpass_and_error(tmp_path: Path):
         "xpassed": 1,
     }, proc.stdout
     assert proc.returncode != 0
+
+
+def test_collected_is_the_sum_of_every_outcome():
+    counts = parse_summary_counts(_FULL_LINE)
+    assert _mod.collected_count(counts) == 25
+
+
+def _run_main(tmp_path: Path, log_text: str, rc: str) -> tuple[int, str]:
+    log = tmp_path / "run.log"
+    log.write_text(log_text)
+    summary = tmp_path / "summary.md"
+    proc = subprocess.run(
+        [sys.executable, str(_PATH), str(log), "merge-sha", "head-sha", rc, str(summary)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=30,
+    )
+    return proc.returncode, proc.stdout
+
+
+@pytest.mark.parametrize(
+    "log_text",
+    [
+        # Runner rewrote pytest exit 5 to 0: nothing ran.
+        "=== Summary: 2 files, 0 tests passed, 0 failed, 0 skipped, 0 errors, "
+        "0 xfailed, 0 xpassed (0% complete) in 0.5s (2 workers) ===\n",
+        # No summary line at all.
+        "runner crashed before printing a summary\n",
+    ],
+)
+def test_zero_collected_fails_even_when_runner_exits_zero(tmp_path: Path, log_text: str):
+    rc, out = _run_main(tmp_path, log_text, "0")
+    assert rc == 1, out
+    assert "collected=0" in out
+    assert "::error::0 tests collected at head-sha" in out
+
+
+def test_all_skipped_run_still_counts_as_collected(tmp_path: Path):
+    line = (
+        "=== Summary: 1 files, 0 tests passed, 0 failed, 3 skipped, 0 errors, "
+        "0 xfailed, 0 xpassed (100% complete) in 0.5s (1 workers) ===\n"
+    )
+    rc, out = _run_main(tmp_path, line, "0")
+    assert rc == 0, out
+    assert "collected=3" in out
+
+
+def test_runner_failure_exit_code_is_kept(tmp_path: Path):
+    rc, out = _run_main(tmp_path, _FULL_LINE + "\n", "1")
+    assert rc == 1, out
+    assert "collected=25" in out

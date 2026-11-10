@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Run the Reply-To skill tests, log collected/passed/failed counts, and
-# fail when pytest collects nothing.
+# Run the Reply-To skill tests through scripts/run_tests.sh, log the
+# collected count and every outcome count, and fail when no test ran.
 #
 # GitHub Actions checks out the pull request merge ref (github.sha).
 # PR_HEAD_SHA is the pull request head, logged beside github.sha.
@@ -77,56 +77,14 @@ if [ -z "$PYTHON" ]; then
   exit 1
 fi
 
-COLLECT_LOG="$(mktemp)"
 RUN_LOG="$(mktemp)"
-trap 'rm -f "$COLLECT_LOG" "$RUN_LOG"' EXIT
+trap 'rm -f "$RUN_LOG"' EXIT
 
-set +e
-env -i \
-  PATH="$PATH" \
-  HOME="$HOME" \
-  TZ=UTC \
-  LANG=C.UTF-8 \
-  LC_ALL=C.UTF-8 \
-  PYTHONUTF8=1 \
-  PYTHONHASHSEED=0 \
-  PYTHONDONTWRITEBYTECODE=1 \
-  "$PYTHON" -m pytest --collect-only -q "${FILES[@]}" >"$COLLECT_LOG" 2>&1
-COLLECT_RC=$?
-set -e
-
-echo "----- pytest --collect-only (exit ${COLLECT_RC}) -----"
-cat "$COLLECT_LOG"
-
-COLLECTED="$("$PYTHON" - "$COLLECT_LOG" <<'PY'
-import re
-import sys
-
-text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
-if re.search(r"no tests collected", text):
-    print(0)
-    raise SystemExit
-nums = [int(n) for n in re.findall(r"(?m)^(\d+) tests? collected\b", text)]
-if not nums:
-    nums = [int(n) for n in re.findall(r"collected (\d+) items?\b", text)]
-print(nums[-1] if nums else 0)
-PY
-)"
-
-echo "collected=${COLLECTED}"
-
-if [ "$COLLECTED" -eq 0 ] || [ "$COLLECT_RC" -eq 5 ]; then
-  echo "::error::0 tests collected at ${SHA}"
-  write_summary 0 0 0 0 0
-  exit 1
-fi
-
-if [ "$COLLECT_RC" -ne 0 ]; then
-  echo "::error::test collection failed with exit ${COLLECT_RC}"
-  write_summary "$COLLECTED" 0 0 0 1
-  exit "$COLLECT_RC"
-fi
-
+# Collection and execution both go through the canonical runner
+# (scripts/run_tests.sh, one isolated process per file). The runner maps
+# pytest exit 5 to success, so the zero-test check is made on the
+# runner's own summary: reply_to_skill_summary.py adds every outcome
+# (passed, failed, skipped, errors, xfailed, xpassed) and fails on 0.
 set +e
 scripts/run_tests.sh "${FILES[@]}" -q >"$RUN_LOG" 2>&1
 RUN_RC=$?
@@ -136,5 +94,5 @@ echo "----- scripts/run_tests.sh (exit ${RUN_RC}) -----"
 cat "$RUN_LOG"
 
 "$PYTHON" "$REPO_ROOT/scripts/ci/reply_to_skill_summary.py" \
-  "$RUN_LOG" "$GITHUB_SHA_VALUE" "$PR_HEAD_SHA_VALUE" "$COLLECTED" "$RUN_RC" \
+  "$RUN_LOG" "$GITHUB_SHA_VALUE" "$PR_HEAD_SHA_VALUE" "$RUN_RC" \
   "${GITHUB_STEP_SUMMARY:-}"
