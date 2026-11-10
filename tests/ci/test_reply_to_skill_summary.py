@@ -134,17 +134,35 @@ def test_zero_collected_fails_even_when_runner_exits_zero(tmp_path: Path, log_te
     rc, out = _run_main(tmp_path, log_text, "0")
     assert rc == 1, out
     assert "collected=0" in out
-    assert "::error::0 tests collected at head-sha" in out
+    assert "::error::no Reply-To test executed at head-sha" in out
 
 
-def test_all_skipped_run_still_counts_as_collected(tmp_path: Path):
-    line = (
+@pytest.mark.parametrize(
+    "skipped_line",
+    [
+        # A module-level pytest.skip(allow_module_level=True): no test items,
+        # one skip, and pytest exits 0 rather than 5.
+        "=== Summary: 1 files, 0 tests passed, 0 failed, 1 skipped, 0 errors, "
+        "0 xfailed, 0 xpassed (100% complete) in 0.5s (1 workers) ===\n",
+        # Every collected test skipped.
         "=== Summary: 1 files, 0 tests passed, 0 failed, 3 skipped, 0 errors, "
+        "0 xfailed, 0 xpassed (100% complete) in 0.5s (1 workers) ===\n",
+    ],
+)
+def test_a_run_where_nothing_executed_fails(tmp_path: Path, skipped_line: str):
+    rc, out = _run_main(tmp_path, skipped_line, "0")
+    assert rc == 1, out
+    assert "::error::no Reply-To test executed at head-sha" in out
+
+
+def test_one_executed_test_beside_skips_passes(tmp_path: Path):
+    line = (
+        "=== Summary: 1 files, 1 tests passed, 0 failed, 3 skipped, 0 errors, "
         "0 xfailed, 0 xpassed (100% complete) in 0.5s (1 workers) ===\n"
     )
     rc, out = _run_main(tmp_path, line, "0")
     assert rc == 0, out
-    assert "collected=3" in out
+    assert "collected=4" in out
 
 
 def test_runner_failure_exit_code_is_kept(tmp_path: Path):

@@ -5,9 +5,12 @@ The runner prints one ``=== Summary:`` line. Fields that line omits count
 as zero so an older line with only passed and failed does not pretend the
 other counters were measured as something else.
 
-``collected`` is the sum of every outcome on that line. The runner rewrites
-pytest exit 5 (nothing collected) to 0, so a sum of 0 is the zero-collect
-signal and fails the job even when the runner exit code is 0.
+``collected`` is the sum of every outcome on that line and is reported, not
+gated. The gate is ``executed``: outcomes other than ``skipped``. The runner
+rewrites pytest exit 5 (nothing collected) to 0, and a module-level skip
+reports ``1 skipped`` with no test items, so the job fails when no test
+executed even when the runner exit code is 0. A run where every test is
+skipped therefore fails too: the job exists to show the tests ran.
 """
 
 from __future__ import annotations
@@ -51,6 +54,11 @@ def parse_summary_counts(text: str) -> dict[str, int]:
 def collected_count(counts: dict[str, int]) -> int:
     """Tests that reached an outcome: every counter on the summary line."""
     return sum(counts[name] for name in COUNT_FIELDS)
+
+
+def executed_count(counts: dict[str, int]) -> int:
+    """Tests that ran: every outcome except ``skipped``."""
+    return sum(counts[name] for name in COUNT_FIELDS if name != "skipped")
 
 
 def format_count_line(
@@ -109,8 +117,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     if int(rc) != 0:
         return int(rc)
-    if collected == "0":
-        print(f"::error::0 tests collected at {pr_head_sha or github_sha}")
+    if executed_count(counts) == 0:
+        print(
+            f"::error::no Reply-To test executed at {pr_head_sha or github_sha} "
+            f"(collected={collected}, skipped={counts['skipped']})"
+        )
         return 1
     return 0
 
