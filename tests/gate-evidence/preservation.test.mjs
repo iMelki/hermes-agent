@@ -2,7 +2,7 @@
 // Runs each proof in an isolated temp repo with stub target scripts; never the live checkout.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, existsSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, copyFileSync, existsSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -82,5 +82,28 @@ for (const [label, negExit] of [['success', 1], ['child failure', 9]]) {
       assert.equal(r.status, negExit === 1 ? 0 : 2)
       assert.equal(existsSync(join(root, PLANT)), false)
     } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+}
+
+const DIST = 'assert-dist-built-proof.mjs'
+const distStub = (body) => `export function checkDistBuilt() { ${body} }\n`
+
+for (const [label, body, expected] of [
+  ['negative check passes unexpectedly', 'return { ok: true }', 2],
+  ['restored check fails', "return { ok: false, error: 'no dist directory' }", 3],
+]) {
+  test(`dist-built proof: failure path still removes its temp fixture (${label})`, () => {
+    const root = fixture(DIST, 'apps/desktop/scripts/assert-dist-built.mjs', distStub(body))
+    const tmp = mkdtempSync(join(tmpdir(), 'gate-proof-tmp-'))
+    try {
+      const r = spawnSync(process.execPath, [join(root, 'tests/gate-evidence', DIST)], {
+        cwd: root, encoding: 'utf8', env: { ...process.env, TMPDIR: tmp, TMP: tmp, TEMP: tmp },
+      })
+      assert.equal(r.status, expected)
+      assert.deepEqual(readdirSync(tmp), [])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+      rmSync(tmp, { recursive: true, force: true })
+    }
   })
 }
