@@ -239,10 +239,14 @@ def _run_one_file(
         4 = pytest CLI usage error
         5 = no tests collected
 
-    We treat exit 5 as a pass: it just means every test in the file was
-    skipped or filtered by a marker (e.g. ``-m 'not integration'`` skips
-    files where every test is marked integration). That's intentional and
-    not a failure mode.
+    We treat exit 5 as a pass during a normal run: it just means every
+    test in the file was skipped or filtered by a marker (e.g.
+    ``-m 'not integration'`` skips files where every test is marked
+    integration). That's intentional and not a failure mode.
+
+    ``--collect-only`` is the exception. Callers need pytest's real exit
+    code (5 when nothing was collected) and the collected count, so that
+    mode does not rewrite exit 5.
 
     On per-file timeout (``file_timeout`` seconds) or any other exception
     during ``communicate()``, we kill the whole process group / process
@@ -306,14 +310,86 @@ def _run_one_file(
 
         output +=  "\n"
 
-    if rc == 5:
+    if rc == 5 and not _is_collect_only(pytest_args):
         # No tests collected — every test in the file was filtered out.
         # Treat as a pass; surface info in a slightly distinct status
-        # so the operator can spot it.
+        # so the operator can spot it. --collect-only keeps exit 5.
         rc = 0
     summary = _parse_pytest_summary(output)
     subproc_wall = time.monotonic() - subproc_start
     return file, rc, output, summary, subproc_wall
+
+
+def _is_collect_only(pytest_args: List[str]) -> bool:
+    """True when this invocation is pytest's collection-only mode."""
+    for arg in pytest_args:
+        if arg in {"--collect-only", "--collectonly", "--co"}:
+            return True
+        if arg.startswith("--collect-only=") or arg.startswith("--collectonly="):
+            return True
+    return False
+
+
+def _parse_collected_count(output: str) -> int | None:
+    """Return how many tests were selected, or None if the text has no count.
+
+    ``1/2 tests collected`` means 1 selected, not 2. ``collected N items``
+    counts tests that ``-k`` / ``-m`` may then deselect, so subtract
+    ``deselected`` (or use the explicit ``selected`` figure). ``no tests
+    collected`` is 0 and wins over that discovery header. ``-qq`` hides
+    these lines; that is None, not zero.
+
+    Only pytest's own summary and header lines are read: a line that starts
+    in column 0 and, after any ``=`` banner, begins with the phrase. Node IDs
+    (``tests/x.py::test_y[...]``) and the indented docstrings ``-vv`` prints
+    in the collection tree can contain the same words and are ignored. ANSI
+    colour codes (``--color=yes``) are stripped before matching.
+    """
+    import re
+
+    phrase = re.compile(
+        r"(?:\d+(?:/\d+)? tests? collected\b|no tests collected\b|collected \d+ items?\b)"
+    )
+    # ``--color=yes`` wraps the summary in ANSI SGR codes; drop them first.
+    output = re.sub(r"\x1b\[[0-9;]*m", "", output)
+    kept = []
+    for line in output.splitlines():
+        if not line or line[0].isspace():
+            continue
+        body = line.strip().strip("=").strip()
+        if phrase.match(body):
+            kept.append(body)
+    text = "\n".join(kept)
+
+    ratios = re.findall(r"(?m)^(\d+)/(\d+) tests collected\b", text)
+    if ratios:
+        return int(ratios[-1][0])
+    if re.search(r"(?m)^no tests collected\b", text):
+        return 0
+    # The denominator of ``N/M tests collected`` is not a selected count.
+    plain = re.findall(r"(?m)^(\d+) tests? collected\b", text)
+    if plain:
+        return int(plain[-1])
+    headers = list(
+        re.finditer(
+            r"(?m)^collected (\d+) items?(?: / (\d+) deselected)?(?: / (\d+) selected)?",
+            text,
+        )
+    )
+    if not headers:
+        return None
+    last = headers[-1]
+    discovered = int(last.group(1))
+    if last.group(3) is not None:
+        return int(last.group(3))
+    deselected = int(last.group(2)) if last.group(2) is not None else 0
+    return max(discovered - deselected, 0)
+
+
+def _format_collected(count: int) -> str:
+    """Pytest's collected-count phrase, e.g. ``2 tests collected``."""
+    noun = "test" if count == 1 else "tests"
+    return f"{count} {noun} collected"
 
 
 def _parse_pytest_summary(output: str) -> dict[str, int]:
@@ -827,10 +903,15 @@ def main() -> int:
     fail_count = 0
     tests_passed = 0
     tests_failed = 0
+    collected_total = 0
+    count_unknown = False
+    collect_exit_codes: List[int] = []
+    collect_only = _is_collect_only(pytest_passthrough)
     lock = threading.Lock()
 
     def _on_done(file: Path, started_at: float, fut: "Future[Tuple[Path, int, str, dict[str, int], float]]") -> None:
         nonlocal files_done, tests_done, pass_count, fail_count, tests_passed, tests_failed
+        nonlocal collected_total, count_unknown
         n_tests = test_counts.get(file, 0)
         try:
             fpath, rc, output, summary, subproc_wall = fut.result()
@@ -854,8 +935,20 @@ def main() -> int:
             # Accumulate test-level counts from parsed summary.
             tests_passed += summary.get("passed", 0)
             tests_failed += summary.get("failed", 0)
+            if collect_only:
+                # The printed count is informational. pytest's exit code,
+                # recorded below, decides whether the run exits 5.
+                parsed = _parse_collected_count(output)
+                if parsed is None:
+                    count_unknown = True
+                else:
+                    collected_total += parsed
+                collect_exit_codes.append(rc)
             file_times.append((fpath, subproc_wall))
-            if rc == 0:
+            # --collect-only exit 5 means pytest selected nothing. Keep
+            # that code for the process exit, but don't dump it as a
+            # test failure.
+            if rc == 0 or (collect_only and rc == 5):
                 pass_count += 1
             else:
                 fail_count += 1
@@ -868,7 +961,7 @@ def main() -> int:
                 file_summary=summary,
                 subproc_wall=subproc_wall,
             )
-            if rc != 0:
+            if rc != 0 and not (collect_only and rc == 5):
                 _print_inline_failure(fpath, output, repo_root, pytest_passthrough)
 
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
@@ -890,6 +983,11 @@ def main() -> int:
     print()
     pct = min(100, (tests_done / approx_total_tests * 100)) if approx_total_tests else 0
     print(f"=== Summary: {len(files)} files, {tests_passed} tests passed, {tests_failed} failed ({pct:.0f}% complete) in {elapsed:.1f}s ({args.jobs} workers) ===")
+    if collect_only:
+        if count_unknown:
+            print("count unknown")
+        else:
+            print(_format_collected(collected_total))
 
     # Save durations for future --slice runs. Each slice writes its own
     # partial test_durations.json; a CI merge step joins them later.
@@ -955,6 +1053,10 @@ def main() -> int:
                 print(f"  {_format_file(file, repo_root)}")
         return 1
 
+    # pytest's exit code wins over whatever the count parser read.
+    # Exit 5 only when every collect-only subprocess actually exited 5.
+    if collect_only and collect_exit_codes and all(rc == 5 for rc in collect_exit_codes):
+        return 5
     return 0
 
 
