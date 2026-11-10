@@ -76,6 +76,32 @@ def _clear_approval_state():
     mod._pending.clear()
 
 
+_NOTIFY_DEADLINE_S = 10
+
+
+def _wait_for_notify(ready, threads, message="worker did not reach notify within 10s"):
+    """Wait for a notify event until workers exit or the deadline passes.
+
+    ``ready.wait(0.05)`` is only a slice so a dead worker is noticed. The
+    monotonic deadline is what stops a missed notify from hanging the slice
+    job. Workers are daemons so a failed assert can exit without waiting out
+    the gateway approval timeout.
+    """
+    if isinstance(threads, threading.Thread):
+        threads = (threads,)
+    deadline = time.monotonic() + _NOTIFY_DEADLINE_S
+    while (
+        not ready.is_set()
+        and any(t.is_alive() for t in threads)
+        and time.monotonic() < deadline
+    ):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        ready.wait(min(0.05, remaining))
+    assert ready.is_set(), message
+
+
 # ------------------------------------------------------------------
 # Blocking gateway approval infrastructure (tools/approval.py)
 # ------------------------------------------------------------------
@@ -467,12 +493,10 @@ class TestBlockingApprovalE2E:
                 ready.set()
 
         with patch("tools.approval._get_approval_mode", return_value="manual"):
-            t = threading.Thread(target=agent_thread)
+            t = threading.Thread(target=agent_thread, daemon=True)
             t.start()
-            while not ready.is_set() and t.is_alive():
-                ready.wait(0.05)
+            _wait_for_notify(ready, t)
 
-        assert ready.is_set()
         assert len(notified) == 1
         assert "rm -rf /important" in notified[0]["command"]
 
@@ -526,12 +550,10 @@ class TestBlockingApprovalE2E:
                 ready.set()
 
         with patch("tools.approval._get_approval_mode", return_value="manual"):
-            t = threading.Thread(target=agent_thread)
+            t = threading.Thread(target=agent_thread, daemon=True)
             t.start()
-            while not ready.is_set() and t.is_alive():
-                ready.wait(0.05)
+            _wait_for_notify(ready, t)
 
-        assert ready.is_set()
         assert len(notified) == 1
         assert "rm -rf /important" in notified[0]["command"]
 
@@ -620,17 +642,16 @@ class TestBlockingApprovalE2E:
             return run
 
         threads = [
-            threading.Thread(target=make_agent(0, "rm -rf /a")),
-            threading.Thread(target=make_agent(1, "rm -rf /b")),
-            threading.Thread(target=make_agent(2, "rm -rf /c")),
+            threading.Thread(target=make_agent(0, "rm -rf /a"), daemon=True),
+            threading.Thread(target=make_agent(1, "rm -rf /b"), daemon=True),
+            threading.Thread(target=make_agent(2, "rm -rf /c"), daemon=True),
         ]
         # Smart mode would run an auxiliary lookup before each notify.
-        # Wait on the notifies themselves instead of a fixed poll.
+        # Wait on the third notify, and give up at the deadline.
         with patch("tools.approval._get_approval_mode", return_value="manual"):
             for t in threads:
                 t.start()
-            while not ready.is_set() and any(t.is_alive() for t in threads):
-                ready.wait(0.05)
+            _wait_for_notify(ready, threads)
 
         assert len(notified) == 3
         assert len(_gateway_queues.get(session_key, [])) == 3
@@ -654,7 +675,15 @@ class TestBlockingApprovalE2E:
         )
 
         session_key = "e2e-mixed"
-        register_gateway_notify(session_key, lambda d: None)
+        notified = []
+        queued = threading.Event()
+
+        def _notify(data):
+            notified.append(data)
+            if len(notified) >= 2:
+                queued.set()
+
+        register_gateway_notify(session_key, _notify)
 
         results = [None, None]
 
@@ -676,21 +705,21 @@ class TestBlockingApprovalE2E:
             return run
 
         threads = [
-            threading.Thread(target=make_agent(0, "rm -rf /x")),
-            threading.Thread(target=make_agent(1, "rm -rf /y")),
+            threading.Thread(target=make_agent(0, "rm -rf /x"), daemon=True),
+            threading.Thread(target=make_agent(1, "rm -rf /y"), daemon=True),
         ]
         # Queue entries are created only after smart approval returns.
-        # Pin manual mode and wait until both threads have queued, or exited.
+        # The notify callback sets the event once both have arrived.
         from tools.approval import _gateway_queues
-        queued = threading.Event()
         with patch("tools.approval._get_approval_mode", return_value="manual"):
             for t in threads:
                 t.start()
-            while (
-                len(_gateway_queues.get(session_key, [])) < 2
-                and any(t.is_alive() for t in threads)
-            ):
-                queued.wait(0.05)
+            _wait_for_notify(queued, threads)
+
+        pending = _gateway_queues.get(session_key, [])
+        assert len(pending) == 2, (
+            f"expected exactly 2 queue entries, got {len(pending)}"
+        )
 
         # Approve first, deny second
         resolve_gateway_approval(session_key, "once")   # oldest
@@ -870,12 +899,11 @@ class TestCrossSessionApprovalIsolation:
                 reset_current_session_key(token)
                 ready.set()
 
-        t = threading.Thread(target=worker_a)
+        t = threading.Thread(target=worker_a, daemon=True)
         try:
             with patch("tools.approval._get_approval_mode", return_value="manual"):
                 t.start()
-                while not ready.is_set() and t.is_alive():
-                    ready.wait(0.05)
+                _wait_for_notify(ready, t)
 
             # The prompt must land in session A (the originator), never B.
             assert len(notified_a) == 1, "approval prompt did not route to session A"
@@ -919,8 +947,20 @@ class TestCrossSessionApprovalIsolation:
         os.environ["HERMES_GATEWAY_SESSION"] = "1"
         os.environ["HERMES_EXEC_ASK"] = "1"
 
-        register_gateway_notify("sess-A", lambda d: None)
-        register_gateway_notify("sess-B", lambda d: None)
+        seen = []
+        seen_lock = threading.Lock()
+        ready = threading.Event()
+
+        def _make_notify(key):
+            def _notify(_data):
+                with seen_lock:
+                    seen.append(key)
+                    if "sess-A" in seen and "sess-B" in seen:
+                        ready.set()
+            return _notify
+
+        register_gateway_notify("sess-A", _make_notify("sess-A"))
+        register_gateway_notify("sess-B", _make_notify("sess-B"))
 
         results = {"sess-A": None, "sess-B": None}
 
@@ -931,17 +971,20 @@ class TestCrossSessionApprovalIsolation:
             finally:
                 reset_current_session_key(token)
 
-        ta = threading.Thread(target=worker, args=("sess-A", "rm -rf /a-data"))
-        tb = threading.Thread(target=worker, args=("sess-B", "rm -rf /b-data"))
-        ta.start()
-        tb.start()
+        ta = threading.Thread(
+            target=worker, args=("sess-A", "rm -rf /a-data"), daemon=True,
+        )
+        tb = threading.Thread(
+            target=worker, args=("sess-B", "rm -rf /b-data"), daemon=True,
+        )
         try:
-            # Wait until both sessions have a pending approval in their queue.
-            for _ in range(100):
-                if (len(_gateway_queues.get("sess-A", [])) >= 1
-                        and len(_gateway_queues.get("sess-B", [])) >= 1):
-                    break
-                time.sleep(0.05)
+            # Manual mode skips the auxiliary lookup that used to outrun
+            # this wait. The queue entry is appended before notify, so both
+            # notifies mean both sessions have a pending approval.
+            with patch("tools.approval._get_approval_mode", return_value="manual"):
+                ta.start()
+                tb.start()
+                _wait_for_notify(ready, (ta, tb))
 
             # Each command must be parked in its OWN session queue.
             qa = _gateway_queues.get("sess-A", [])
