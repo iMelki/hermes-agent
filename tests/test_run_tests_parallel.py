@@ -296,6 +296,32 @@ def test_collect_only_prints_collected_count(tmp_path: Path) -> None:
     assert "2 tests collected" in proc.stdout, proc.stdout
 
 
+def test_collect_only_partial_deselect_prints_selected_count(tmp_path: Path) -> None:
+    """``1/2 tests collected`` is 1 selected, not the 2 that were discovered."""
+    probe_dir = _make_probe_dir(tmp_path)
+    proc = _run_runner(probe_dir, "--collect-only", "-k", "test_alpha")
+    assert proc.returncode == 0, proc.stdout
+    assert "1 test collected" in proc.stdout, proc.stdout
+    assert "2 tests collected" not in proc.stdout, proc.stdout
+
+
+def test_collect_only_all_deselected_exits_5(tmp_path: Path) -> None:
+    """Deselecting every test keeps pytest exit 5, even if the header says collected N items."""
+    probe_dir = _make_probe_dir(tmp_path)
+    proc = _run_runner(probe_dir, "--collect-only", "-k", "does_not_match")
+    assert proc.returncode == 5, proc.stdout
+    assert "0 tests collected" in proc.stdout, proc.stdout
+    assert "2 tests collected" not in proc.stdout, proc.stdout
+
+
+def test_collect_only_qq_keeps_pytest_exit_when_count_hidden(tmp_path: Path) -> None:
+    """``-qq`` omits the summary. Don't turn a successful collection into exit 5."""
+    probe_dir = _make_probe_dir(tmp_path)
+    proc = _run_runner(probe_dir, "--collect-only", "-qq")
+    assert proc.returncode == 0, proc.stdout
+    assert "count unknown" in proc.stdout, proc.stdout
+
+
 def test_normal_run_still_treats_empty_collection_as_success(tmp_path: Path) -> None:
     """Without --collect-only, exit 5 stays a pass and no count line is printed."""
     probe = tmp_path / "probe"

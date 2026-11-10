@@ -330,23 +330,40 @@ def _is_collect_only(pytest_args: List[str]) -> bool:
     return False
 
 
-def _parse_collected_count(output: str) -> int:
-    """Return how many tests pytest collected, from its own summary line.
+def _parse_collected_count(output: str) -> int | None:
+    """Return how many tests were selected, or None if the text has no count.
 
-    Pytest prints ``N tests collected`` / ``1 test collected``, sometimes
-    ``collected N items``, and ``no tests collected`` when the count is 0.
+    ``1/2 tests collected`` means 1 selected, not 2. ``collected N items``
+    counts tests that ``-k`` / ``-m`` may then deselect, so subtract
+    ``deselected`` (or use the explicit ``selected`` figure). ``no tests
+    collected`` is 0 and wins over that discovery header. ``-qq`` hides
+    these lines; that is None, not zero.
     """
     import re
 
-    numbered = [int(n) for n in re.findall(r"(\d+) tests? collected\b", output)]
-    if numbered:
-        return numbered[-1]
-    items = [int(n) for n in re.findall(r"collected (\d+) items?\b", output)]
-    if items:
-        return items[-1]
+    ratios = re.findall(r"(\d+)/(\d+) tests collected\b", output)
+    if ratios:
+        return int(ratios[-1][0])
     if re.search(r"\bno tests collected\b", output):
         return 0
-    return 0
+    # The denominator of ``N/M tests collected`` is not a selected count.
+    plain = re.findall(r"(?<!/)(\d+) tests? collected\b", output)
+    if plain:
+        return int(plain[-1])
+    headers = list(
+        re.finditer(
+            r"collected (\d+) items?(?: / (\d+) deselected)?(?: / (\d+) selected)?",
+            output,
+        )
+    )
+    if not headers:
+        return None
+    last = headers[-1]
+    discovered = int(last.group(1))
+    if last.group(3) is not None:
+        return int(last.group(3))
+    deselected = int(last.group(2)) if last.group(2) is not None else 0
+    return max(discovered - deselected, 0)
 
 
 def _format_collected(count: int) -> str:
@@ -867,12 +884,14 @@ def main() -> int:
     tests_passed = 0
     tests_failed = 0
     collected_total = 0
+    count_unknown = False
+    collect_exit_codes: List[int] = []
     collect_only = _is_collect_only(pytest_passthrough)
     lock = threading.Lock()
 
     def _on_done(file: Path, started_at: float, fut: "Future[Tuple[Path, int, str, dict[str, int], float]]") -> None:
         nonlocal files_done, tests_done, pass_count, fail_count, tests_passed, tests_failed
-        nonlocal collected_total
+        nonlocal collected_total, count_unknown
         n_tests = test_counts.get(file, 0)
         try:
             fpath, rc, output, summary, subproc_wall = fut.result()
@@ -897,11 +916,18 @@ def main() -> int:
             tests_passed += summary.get("passed", 0)
             tests_failed += summary.get("failed", 0)
             if collect_only:
-                collected_total += _parse_collected_count(output)
+                # The printed count is informational. pytest's exit code,
+                # recorded below, decides whether the run exits 5.
+                parsed = _parse_collected_count(output)
+                if parsed is None:
+                    count_unknown = True
+                else:
+                    collected_total += parsed
+                collect_exit_codes.append(rc)
             file_times.append((fpath, subproc_wall))
-            # --collect-only exit 5 means nothing was collected. Keep the
-            # code, but don't treat it as a test failure: the process exit
-            # below is 5 when the total collected count is 0.
+            # --collect-only exit 5 means pytest selected nothing. Keep
+            # that code for the process exit, but don't dump it as a
+            # test failure.
             if rc == 0 or (collect_only and rc == 5):
                 pass_count += 1
             else:
@@ -938,7 +964,10 @@ def main() -> int:
     pct = min(100, (tests_done / approx_total_tests * 100)) if approx_total_tests else 0
     print(f"=== Summary: {len(files)} files, {tests_passed} tests passed, {tests_failed} failed ({pct:.0f}% complete) in {elapsed:.1f}s ({args.jobs} workers) ===")
     if collect_only:
-        print(_format_collected(collected_total))
+        if count_unknown:
+            print("count unknown")
+        else:
+            print(_format_collected(collected_total))
 
     # Save durations for future --slice runs. Each slice writes its own
     # partial test_durations.json; a CI merge step joins them later.
@@ -1004,7 +1033,9 @@ def main() -> int:
                 print(f"  {_format_file(file, repo_root)}")
         return 1
 
-    if collect_only and collected_total == 0:
+    # pytest's exit code wins over whatever the count parser read.
+    # Exit 5 only when every collect-only subprocess actually exited 5.
+    if collect_only and collect_exit_codes and all(rc == 5 for rc in collect_exit_codes):
         return 5
     return 0
 
