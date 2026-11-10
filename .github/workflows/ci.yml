@@ -127,6 +127,14 @@ jobs:
     name: OSV scan
     uses: ./.github/workflows/osv-scanner.yml
 
+  # Always on. The Reply-To skill tests must be counted at the PR head
+  # even when the python lane would otherwise be skipped, and a 0-collect
+  # result has to fail the gate (the shared runner treats pytest exit 5
+  # as success).
+  reply-to-skill-tests:
+    name: Reply-To skill tests
+    uses: ./.github/workflows/reply-to-skill-tests.yml
+
   # ─────────────────────────────────────────────────────────────────────
   # Gate: runs after everything. ``if: always()`` ensures it reports a
   # status even when some deps were skipped. Only actual ``failure``
@@ -147,6 +155,7 @@ jobs:
       - docker-lint
       - supply-chain
       - osv-scanner
+      - reply-to-skill-tests
       # we don't require docker to pass rn because it's so slow lol
       # - docker
     if: always()
