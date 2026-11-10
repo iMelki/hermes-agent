@@ -827,10 +827,15 @@ def main() -> int:
     fail_count = 0
     tests_passed = 0
     tests_failed = 0
+    tests_skipped = 0
+    tests_errors = 0
+    tests_xfailed = 0
+    tests_xpassed = 0
     lock = threading.Lock()
 
     def _on_done(file: Path, started_at: float, fut: "Future[Tuple[Path, int, str, dict[str, int], float]]") -> None:
         nonlocal files_done, tests_done, pass_count, fail_count, tests_passed, tests_failed
+        nonlocal tests_skipped, tests_errors, tests_xfailed, tests_xpassed
         n_tests = test_counts.get(file, 0)
         try:
             fpath, rc, output, summary, subproc_wall = fut.result()
@@ -854,6 +859,10 @@ def main() -> int:
             # Accumulate test-level counts from parsed summary.
             tests_passed += summary.get("passed", 0)
             tests_failed += summary.get("failed", 0)
+            tests_skipped += summary.get("skipped", 0)
+            tests_errors += summary.get("errors", 0)
+            tests_xfailed += summary.get("xfailed", 0)
+            tests_xpassed += summary.get("xpassed", 0)
             file_times.append((fpath, subproc_wall))
             if rc == 0:
                 pass_count += 1
@@ -889,7 +898,12 @@ def main() -> int:
     elapsed = time.monotonic() - started
     print()
     pct = min(100, (tests_done / approx_total_tests * 100)) if approx_total_tests else 0
-    print(f"=== Summary: {len(files)} files, {tests_passed} tests passed, {tests_failed} failed ({pct:.0f}% complete) in {elapsed:.1f}s ({args.jobs} workers) ===")
+    print(
+        f"=== Summary: {len(files)} files, {tests_passed} tests passed, "
+        f"{tests_failed} failed, {tests_skipped} skipped, {tests_errors} errors, "
+        f"{tests_xfailed} xfailed, {tests_xpassed} xpassed "
+        f"({pct:.0f}% complete) in {elapsed:.1f}s ({args.jobs} workers) ==="
+    )
 
     # Save durations for future --slice runs. Each slice writes its own
     # partial test_durations.json; a CI merge step joins them later.

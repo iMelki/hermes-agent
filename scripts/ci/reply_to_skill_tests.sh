@@ -38,7 +38,8 @@ fi
 
 write_summary() {
   local collected="$1" passed="$2" failed="$3" skipped="$4" errors="$5"
-  echo "reply-to-skill-tests github_sha=${GITHUB_SHA_VALUE} pr_head_sha=${PR_HEAD_SHA_VALUE} collected=${collected} passed=${passed} failed=${failed} skipped=${skipped} errors=${errors}"
+  local xfailed="${6:-0}" xpassed="${7:-0}"
+  echo "reply-to-skill-tests github_sha=${GITHUB_SHA_VALUE} pr_head_sha=${PR_HEAD_SHA_VALUE} collected=${collected} passed=${passed} failed=${failed} skipped=${skipped} errors=${errors} xfailed=${xfailed} xpassed=${xpassed}"
   if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
     {
       echo "### Reply-To skill tests"
@@ -50,6 +51,8 @@ write_summary() {
       echo "- failed: ${failed}"
       echo "- skipped: ${skipped}"
       echo "- errors: ${errors}"
+      echo "- xfailed: ${xfailed}"
+      echo "- xpassed: ${xpassed}"
     } >>"$GITHUB_STEP_SUMMARY"
   fi
 }
@@ -132,41 +135,6 @@ set -e
 echo "----- scripts/run_tests.sh (exit ${RUN_RC}) -----"
 cat "$RUN_LOG"
 
-"$PYTHON" - "$RUN_LOG" "$GITHUB_SHA_VALUE" "$PR_HEAD_SHA_VALUE" "$COLLECTED" "$RUN_RC" "${GITHUB_STEP_SUMMARY:-}" <<'PY'
-import re
-import sys
-
-log, github_sha, pr_head_sha, collected, rc, summary_path = sys.argv[1:]
-text = open(log, encoding="utf-8", errors="replace").read()
-passed = failed = skipped = errors = 0
-summary = re.search(r"=== Summary:.*?(\d+) tests passed, (\d+) failed", text)
-if summary:
-    passed = int(summary.group(1))
-    failed = int(summary.group(2))
-else:
-    def last(word: str) -> int:
-        found = re.findall(rf"(\d+) {word}\b", text)
-        return int(found[-1]) if found else 0
-
-    passed = last("passed")
-    failed = last("failed")
-    skipped = last("skipped")
-    errors = last("errors")
-
-print(
-    f"reply-to-skill-tests github_sha={github_sha} pr_head_sha={pr_head_sha} "
-    f"collected={collected} passed={passed} failed={failed} "
-    f"skipped={skipped} errors={errors}"
-)
-if summary_path:
-    with open(summary_path, "a", encoding="utf-8") as fh:
-        fh.write("### Reply-To skill tests\n\n")
-        fh.write(f"- github.sha: `{github_sha}`\n")
-        fh.write(f"- pr_head_sha: `{pr_head_sha}`\n")
-        fh.write(f"- collected: {collected}\n")
-        fh.write(f"- passed: {passed}\n")
-        fh.write(f"- failed: {failed}\n")
-        fh.write(f"- skipped: {skipped}\n")
-        fh.write(f"- errors: {errors}\n")
-raise SystemExit(int(rc))
-PY
+"$PYTHON" "$REPO_ROOT/scripts/ci/reply_to_skill_summary.py" \
+  "$RUN_LOG" "$GITHUB_SHA_VALUE" "$PR_HEAD_SHA_VALUE" "$COLLECTED" "$RUN_RC" \
+  "${GITHUB_STEP_SUMMARY:-}"
