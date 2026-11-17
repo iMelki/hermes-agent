@@ -1,5 +1,6 @@
 """Tests for the hermes_cli models module."""
 
+from contextlib import contextmanager
 from unittest.mock import patch, MagicMock
 
 from hermes_cli.nous_account import NousPortalAccountInfo
@@ -57,6 +58,27 @@ class TestOpenRouterModels:
             assert isinstance(desc, str)
 
 
+@contextmanager
+def _no_remote_curated_catalog():
+    """Use the in-repo OpenRouter snapshot and forbid the curated HTTP fetch.
+
+    ``fetch_openrouter_models`` prefers ``get_curated_openrouter_models``,
+    which GETs the live manifest. These tests supply their own catalog
+    response and must not touch that network path.
+    """
+    fetch = MagicMock(
+        side_effect=AssertionError("curated catalog HTTP fetch must not run")
+    )
+    with (
+        patch("hermes_cli.model_catalog._fetch_manifest", fetch),
+        patch(
+            "hermes_cli.model_catalog.get_curated_openrouter_models",
+            return_value=None,
+        ),
+    ):
+        yield fetch
+
+
 class TestFetchOpenRouterModels:
     def test_live_fetch_recomputes_free_tags(self, monkeypatch):
         class _Resp:
@@ -70,9 +92,13 @@ class TestFetchOpenRouterModels:
                 return b'{"data":[{"id":"anthropic/claude-opus-4.8","pricing":{"prompt":"0.000015","completion":"0.000075"}},{"id":"qwen/qwen3.7-max","pricing":{"prompt":"0.000000325","completion":"0.00000195"}},{"id":"nvidia/nemotron-3-super-120b-a12b:free","pricing":{"prompt":"0","completion":"0"}}]}'
 
         monkeypatch.setattr(_models_mod, "_openrouter_catalog_cache", None)
-        with patch("hermes_cli.models._urlopen_model_catalog_request", return_value=_Resp()):
+        with (
+            _no_remote_curated_catalog() as catalog_fetch,
+            patch("hermes_cli.models._urlopen_model_catalog_request", return_value=_Resp()),
+        ):
             models = fetch_openrouter_models(force_refresh=True)
 
+        assert catalog_fetch.call_count == 0
         assert models == [
             ("anthropic/claude-opus-4.8", "recommended"),
             ("qwen/qwen3.7-max", ""),
@@ -82,9 +108,13 @@ class TestFetchOpenRouterModels:
 
     def test_falls_back_to_static_snapshot_on_fetch_failure(self, monkeypatch):
         monkeypatch.setattr(_models_mod, "_openrouter_catalog_cache", None)
-        with patch("hermes_cli.models._urlopen_model_catalog_request", side_effect=OSError("boom")):
+        with (
+            _no_remote_curated_catalog() as catalog_fetch,
+            patch("hermes_cli.models._urlopen_model_catalog_request", side_effect=OSError("boom")),
+        ):
             models = fetch_openrouter_models(force_refresh=True)
 
+        assert catalog_fetch.call_count == 0
         assert models == OPENROUTER_MODELS
 
     def test_filters_out_models_without_tool_support(self, monkeypatch):
@@ -164,9 +194,13 @@ class TestFetchOpenRouterModels:
                 )
 
         monkeypatch.setattr(_models_mod, "_openrouter_catalog_cache", None)
-        with patch("hermes_cli.models._urlopen_model_catalog_request", return_value=_Resp()):
+        with (
+            _no_remote_curated_catalog() as catalog_fetch,
+            patch("hermes_cli.models._urlopen_model_catalog_request", return_value=_Resp()),
+        ):
             models = fetch_openrouter_models(force_refresh=True)
 
+        assert catalog_fetch.call_count == 0
         ids = [mid for mid, _ in models]
         assert "anthropic/claude-opus-4.8" in ids
         assert "qwen/qwen3.7-max" in ids
@@ -260,12 +294,17 @@ class TestDetectProviderForModel:
         assert detect_provider_for_model("gpt-5.3-codex", "openai-codex") is None
 
     def test_short_alias_resolves_to_static_model(self):
-        """Short aliases (e.g. sonnet) should resolve without network lookups."""
-        with patch(
-            "hermes_cli.models.fetch_openrouter_models",
-            side_effect=AssertionError("network lookup should not run"),
+        """Short aliases (e.g. sonnet) should resolve without a catalog fetch."""
+        with (
+            _no_remote_curated_catalog() as catalog_fetch,
+            patch(
+                "hermes_cli.models.fetch_openrouter_models",
+                wraps=_models_mod.fetch_openrouter_models,
+            ) as model_fetch,
         ):
             result = detect_provider_for_model("sonnet", "auto")
+        assert model_fetch.call_count == 0
+        assert catalog_fetch.call_count == 0
         assert result is not None
         assert result[0] == "anthropic"
         assert result[1].startswith("claude-sonnet")
