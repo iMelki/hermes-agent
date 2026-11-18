@@ -1374,6 +1374,14 @@ def run_conversation(
                         continue
                     # Incompatibility is request-specific, not a failed provider.
                     agent._rate_limited_until = previous_cooldown
+                    # Nothing was dispatched, so the rejection must not count
+                    # as a provider attempt or consume an iteration.
+                    api_call_count -= 1
+                    agent._api_call_count = api_call_count
+                    try:
+                        agent.iteration_budget.refund()
+                    except Exception:
+                        pass
                     agent._flush_status_buffer()
                     agent._persist_session(messages, conversation_history)
                     return {
