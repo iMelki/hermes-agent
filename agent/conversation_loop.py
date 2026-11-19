@@ -1263,8 +1263,6 @@ def run_conversation(
                 if env_var_enabled("HERMES_DUMP_REQUESTS"):
                     agent._dump_api_request_debug(api_kwargs, reason="preflight")
 
-                _record_bounded_proof_provider_attempt(agent)
-
                 # Always prefer the streaming path — even without stream
                 # consumers.  Streaming gives us fine-grained health
                 # checking (90s stale-stream detection, 60s read timeout)
@@ -1319,6 +1317,11 @@ def run_conversation(
                     if isinstance(getattr(agent, "client", None), Mock):
                         _use_streaming = False
 
+                from agent.text_only_fallback_guard import reject_fallback
+
+                class _IncompatibleTextOnlyRoute(Exception):
+                    pass
+
                 def _perform_api_call(next_api_kwargs):
                     if agent.api_mode == "codex_responses":
                         next_api_kwargs = agent._get_transport().preflight_kwargs(
@@ -1326,6 +1329,11 @@ def run_conversation(
                             allow_stream=False,
                             is_github_responses=agent._is_copilot_url(),
                         )
+                    if reject_fallback(
+                        {"provider": "custom", "base_url": agent.base_url}, next_api_kwargs
+                    ):
+                        raise _IncompatibleTextOnlyRoute()
+                    _record_bounded_proof_provider_attempt(agent)
                     if _use_streaming:
                         return agent._interruptible_streaming_api_call(
                             next_api_kwargs, on_first_delta=_stop_spinner
@@ -1334,7 +1342,8 @@ def run_conversation(
 
                 from hermes_cli.middleware import run_llm_execution_middleware
 
-                response = run_llm_execution_middleware(
+                try:
+                    response = run_llm_execution_middleware(
                     api_kwargs,
                     _perform_api_call,
                     original_request=_original_api_kwargs,
@@ -1349,7 +1358,40 @@ def run_conversation(
                     api_mode=agent.api_mode,
                     api_call_count=api_call_count,
                     middleware_trace=list(_llm_middleware_trace),
-                )
+                    )
+                except _IncompatibleTextOnlyRoute:
+                    _stop_spinner()
+                    agent._buffer_status(
+                        "The local Gemini route cannot handle this tool request; trying the next provider."
+                    )
+                    previous_cooldown = getattr(agent, "_rate_limited_until", 0)
+                    if agent._try_activate_fallback():
+                        active_system_prompt = _sync_failover_system_message(
+                            agent, api_messages, active_system_prompt)
+                        retry_count = 0
+                        compression_attempts = 0
+                        _retry.primary_recovery_attempted = False
+                        continue
+                    # Incompatibility is request-specific, not a failed provider.
+                    agent._rate_limited_until = previous_cooldown
+                    # Nothing was dispatched, so the rejection must not count
+                    # as a provider attempt or consume an iteration.
+                    api_call_count -= 1
+                    agent._api_call_count = api_call_count
+                    try:
+                        agent.iteration_budget.refund()
+                    except Exception:
+                        pass
+                    agent._flush_status_buffer()
+                    agent._persist_session(messages, conversation_history)
+                    return {
+                        "final_response": "No compatible provider is available for this tool request.",
+                        "messages": messages,
+                        "api_calls": api_call_count,
+                        "completed": False,
+                        "failed": True,
+                        "error": "unsupported_tool_calls",
+                    }
                 
                 api_duration = time.time() - api_start_time
                 
