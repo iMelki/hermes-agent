@@ -10,6 +10,7 @@ import time
 import uuid
 import re
 from dataclasses import dataclass, fields, replace
+from contextlib import nullcontext
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -997,6 +998,42 @@ class CredentialPool:
         except Exception as exc:
             logger.debug("Failed to sync %s pool entry back to auth store: %s", self.provider, exc)
 
+
+    def _xai_pool_entry_owned_by_root(self, entry: PooledCredential) -> bool:
+        """True when this xAI device_code entry is the shared root grant.
+
+        Caller must hold ``_auth_store_lock``. A profile with no own
+        ``providers.xai-oauth`` block is reading the root fallback, so the
+        ROOT store owns the refresh-token chain. Manual pool entries are
+        independent and stay on the profile lock only.
+
+        Classic mode (no distinct root) returns False: the profile lock
+        already *is* the root lock, and ``_root_auth_store_lock`` is a
+        no-op so we cannot self-deadlock by flocking the same path twice.
+        """
+        if self.provider != "xai-oauth" or entry.source != "device_code":
+            return False
+        if auth_mod._root_auth_lock_path() is None:
+            return False
+        try:
+            auth_store = _load_auth_store()
+            if auth_mod._profile_has_own_xai_oauth_state(auth_store):
+                return False
+            _state, source_path = auth_mod._load_provider_state_with_source(
+                auth_store, "xai-oauth"
+            )
+        except Exception:
+            return False
+        if source_path is None:
+            return False
+        global_path = auth_mod._global_auth_file_path()
+        if global_path is None:
+            return False
+        try:
+            return source_path.resolve(strict=False) == global_path.resolve(strict=False)
+        except Exception:
+            return source_path == global_path
+
     def _refresh_entry(self, entry: PooledCredential, *, force: bool) -> Optional[PooledCredential]:
         if entry.auth_type != AUTH_TYPE_OAUTH or not entry.refresh_token:
             if force:
@@ -1026,6 +1063,53 @@ class CredentialPool:
                     if not force and not self._entry_needs_refresh(entry):
                         return entry
                 return self._refresh_entry_impl(entry, force=force)
+        # xAI OAuth refresh tokens are single-use. This is the same race
+        # hermes-agent#14 fixed in hermes_cli.auth.resolve_xai_oauth_runtime_credentials:
+        # two processes can both read one refresh token, both POST, and the
+        # loser gets invalid_grant. Hold the owning store's _file_lock
+        # (fcntl.flock on POSIX, msvcrt.locking on Windows) across the
+        # re-read, POST and write. After the lock is taken, re-read; if
+        # another process already rotated the grant, skip the POST.
+        #
+        # Lock order (see hermes_cli.auth._root_auth_store_lock): profile
+        # ``_auth_store_lock`` FIRST (outer), root ``_root_auth_store_lock``
+        # SECOND (inner). Never take the profile lock while holding only
+        # the root lock. Classic mode is a no-op for the root lock.
+        # Nested helpers (_sync, _persist, write-back) re-enter
+        # ``_auth_store_lock`` via the per-thread depth guard, so this
+        # cannot self-deadlock.
+        if self.provider == "xai-oauth":
+            refresh_timeout_seconds = auth_mod.env_float(
+                "HERMES_XAI_REFRESH_TIMEOUT_SECONDS", 20
+            )
+            lock_timeout = max(
+                float(auth_mod.AUTH_LOCK_TIMEOUT_SECONDS),
+                float(refresh_timeout_seconds) + 5.0,
+            )
+            seen_access = entry.access_token or ""
+            seen_refresh = entry.refresh_token or ""
+            with _auth_store_lock(timeout_seconds=lock_timeout):
+                from_root = self._xai_pool_entry_owned_by_root(entry)
+                root_lock = (
+                    auth_mod._root_auth_store_lock(timeout_seconds=lock_timeout)
+                    if from_root
+                    else nullcontext()
+                )
+                with root_lock:
+                    synced = self._sync_xai_oauth_entry_from_auth_store(entry)
+                    if synced is not entry:
+                        entry = synced
+                    if (
+                        (entry.access_token or "") != seen_access
+                        or (entry.refresh_token or "") != seen_refresh
+                    ):
+                        logger.debug(
+                            "Pool entry %s: xAI OAuth tokens already rotated "
+                            "by another process; skipping refresh POST",
+                            entry.id,
+                        )
+                        return entry
+                    return self._refresh_entry_impl(entry, force=force)
         return self._refresh_entry_impl(entry, force=force)
 
     def _refresh_entry_impl(
