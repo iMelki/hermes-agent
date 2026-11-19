@@ -642,8 +642,17 @@ def run_import(args) -> None:
 
             try:
                 target.parent.mkdir(parents=True, exist_ok=True)
-                with zf.open(member) as src, open(target, "wb") as dst:
-                    dst.write(src.read())
+                if target.name == "auth.json":
+                    # Credential store: replace it under its auth.lock and
+                    # atomically (0600), so an import never interleaves with
+                    # a refresh, login or logout on the same store.
+                    from hermes_cli.auth import replace_auth_file_locked
+
+                    with zf.open(member) as src:
+                        replace_auth_file_locked(target, src.read())
+                else:
+                    with zf.open(member) as src, open(target, "wb") as dst:
+                        dst.write(src.read())
                 if target.name in _SECRET_FILE_NAMES:
                     os.chmod(target, 0o600)
                 restored += 1
@@ -974,7 +983,12 @@ def restore_quick_snapshot(
         dst.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            if dst.suffix == ".db":
+            if dst.name == "auth.json":
+                # Credential store: locked, atomic, 0600 (see auth.py).
+                from hermes_cli.auth import replace_auth_file_locked
+
+                replace_auth_file_locked(dst, src.read_bytes())
+            elif dst.suffix == ".db":
                 # Atomic-ish replace for databases
                 tmp = dst.parent / f".{dst.name}.snap_restore"
                 shutil.copy2(src, tmp)

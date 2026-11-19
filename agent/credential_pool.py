@@ -528,14 +528,17 @@ def _write_through_provider_state_to_global_root(
             except Exception:
                 return
     try:
-        if global_path.exists():
-            global_store = _load_auth_store(global_path)
-        else:
-            global_store = {}
-        if not isinstance(global_store, dict):
-            return
-        _store_provider_state(global_store, provider_id, dict(state), set_active=False)
-        auth_mod._save_auth_store(global_store, global_path)
+        # Every root writer takes <root>/auth.lock (hermes-agent#14). The
+        # caller holds the profile lock, so the order stays profile -> root.
+        with auth_mod._root_auth_store_lock():
+            if global_path.exists():
+                global_store = _load_auth_store(global_path)
+            else:
+                global_store = {}
+            if not isinstance(global_store, dict):
+                return
+            _store_provider_state(global_store, provider_id, dict(state), set_active=False)
+            auth_mod._save_auth_store(global_store, global_path)
     except Exception as exc:  # pragma: no cover - best effort
         logger.debug(
             "%s pool refresh: write-through to global root failed: %s",
@@ -1079,13 +1082,8 @@ class CredentialPool:
         # ``_auth_store_lock`` via the per-thread depth guard, so this
         # cannot self-deadlock.
         if self.provider == "xai-oauth":
-            refresh_timeout_seconds = auth_mod.env_float(
-                "HERMES_XAI_REFRESH_TIMEOUT_SECONDS", 20
-            )
-            lock_timeout = max(
-                float(auth_mod.AUTH_LOCK_TIMEOUT_SECONDS),
-                float(refresh_timeout_seconds) + 5.0,
-            )
+            # Same waiter bound as hermes_cli.auth: outlasts one refresh POST.
+            lock_timeout = auth_mod._auth_lock_wait_seconds()
             seen_access = entry.access_token or ""
             seen_refresh = entry.refresh_token or ""
             with _auth_store_lock(timeout_seconds=lock_timeout):
@@ -1109,11 +1107,16 @@ class CredentialPool:
                             entry.id,
                         )
                         return entry
-                    return self._refresh_entry_impl(entry, force=force)
+                    # A root-owned grant is refreshed through the shared
+                    # path in hermes_cli.auth (verified root write, recovery
+                    # record on failure, no profile fork).
+                    return self._refresh_entry_impl(
+                        entry, force=force, shared_root=from_root
+                    )
         return self._refresh_entry_impl(entry, force=force)
 
     def _refresh_entry_impl(
-        self, entry: PooledCredential, *, force: bool
+        self, entry: PooledCredential, *, force: bool, shared_root: bool = False
     ) -> Optional[PooledCredential]:
         try:
             if self.provider == "anthropic":
@@ -1160,6 +1163,20 @@ class CredentialPool:
                     refresh_token=refreshed["refresh_token"],
                     last_refresh=refreshed.get("last_refresh"),
                 )
+            elif self.provider == "xai-oauth" and shared_root:
+                # Shared root grant: the caller holds profile + root locks.
+                # resolve_xai_oauth_runtime_credentials re-enters them,
+                # POSTs once, writes ROOT and verifies the re-read; it raises
+                # (keeping the rotated grant in a recovery record) otherwise.
+                auth_mod.resolve_xai_oauth_runtime_credentials(force_refresh=True)
+                updated = self._sync_xai_oauth_entry_from_auth_store(entry)
+                if (updated.refresh_token or "") == (entry.refresh_token or ""):
+                    raise auth_mod.AuthError(
+                        "xAI OAuth shared refresh did not rotate the pool entry.",
+                        provider="xai-oauth",
+                        code="xai_pool_sync_failed",
+                        relogin_required=False,
+                    )
             elif self.provider == "xai-oauth":
                 # Adopt fresher tokens from auth.json before spending the
                 # refresh_token — single-use tokens consumed by another
@@ -1273,7 +1290,12 @@ class CredentialPool:
                                 if isinstance(tokens, dict):
                                     store_refresh = str(tokens.get("refresh_token") or "").strip()
                                     entry_refresh = str(entry.refresh_token or "").strip()
-                                    if not store_refresh or store_refresh == entry_refresh:
+                                    # A shared root grant was already quarantined
+                                    # IN ROOT by hermes_cli.auth; writing here would
+                                    # fork a token-less copy into this profile.
+                                    if not shared_root and (
+                                        not store_refresh or store_refresh == entry_refresh
+                                    ):
                                         tokens.pop("access_token", None)
                                         tokens.pop("refresh_token", None)
                                         state["tokens"] = tokens
@@ -1456,8 +1478,11 @@ class CredentialPool:
         self._persist()
         # Sync refreshed tokens back to auth.json providers so that
         # _seed_from_singletons() on the next load_pool() sees fresh state
-        # instead of re-seeding stale/consumed tokens.
-        self._sync_device_code_entry_to_auth_store(updated)
+        # instead of re-seeding stale/consumed tokens. A shared root grant
+        # was already written (and verified) to ROOT; syncing it into this
+        # profile would fork the seat off the shared grant.
+        if not shared_root:
+            self._sync_device_code_entry_to_auth_store(updated)
         return updated
 
     def _entry_needs_refresh(self, entry: PooledCredential) -> bool:
