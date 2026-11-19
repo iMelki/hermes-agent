@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "_doc": "Negative-proof ledger. A control is trusted only after an attributed failure on deliberate broken input and a verified restored pass. Local executable gates were proved on 2026-09-19; CI workflow candidates are classified but not fabricated into this ledger until each has its own fail-for-right-reason plus restored-pass proof.",
+  "exclude": [],
+  "gates": [
+    {
+      "id": "assert-dist-built-20260919",
+      "path": "apps/desktop/scripts/assert-dist-built.mjs",
+      "negativeFixture": "tests/gate-evidence/assert-dist-built-proof.mjs",
+      "description": "Desktop postbuild guard: refuse to package when apps/desktop/dist lacks index.html plus a JS assets bundle (blank-page packaging failure).",
+      "observedFailure": {
+        "date": "2026-09-19",
+        "command": "node apps/desktop/scripts/assert-dist-built.mjs ; node tests/gate-evidence/assert-dist-built-proof.mjs",
+        "breakApplied": "Proof copies the real CLI into a temporary worktree where apps/desktop/dist is absent, then spawns node apps/desktop/scripts/assert-dist-built.mjs (the CLI entry point, not the exported helper).",
+        "exitCode": 1,
+        "reason": "The child CLI printed 'assert-dist-built: no dist directory at ...' and exited 1. The wrapper recorded that child status separately and continued.",
+        "restoredPass": "The proof wrote a minimal apps/desktop/dist (non-empty index.html and assets/*.js) in the same temporary worktree; the child CLI printed 'assert-dist-built: dist/index.html + assets present' and exited 0. The wrapper exits 0 only when both child statuses match the ritual, and deletes the temporary worktree afterward.",
+        "proofScope": "Local packaging guard only. Does not prove electron-builder, vite, or hosted desktop CI."
+      }
+    },
+    {
+      "id": "assert-root-install-20260919",
+      "path": "apps/desktop/scripts/assert-root-install.mjs",
+      "negativeFixture": "tests/gate-evidence/assert-root-install-proof.mjs",
+      "description": "Desktop dev/build guard: require repo-root node_modules/vite before renderer tooling runs.",
+      "observedFailure": {
+        "date": "2026-09-19",
+        "command": "node apps/desktop/scripts/assert-root-install.mjs ; node tests/gate-evidence/assert-root-install-proof.mjs",
+        "breakApplied": "Proof copies the real CLI into a temporary worktree without node_modules/vite/package.json, then spawns node apps/desktop/scripts/assert-root-install.mjs.",
+        "exitCode": 1,
+        "reason": "The child CLI printed 'Run from repo root: ... && npm ci' and exited 1. The wrapper recorded that child status separately and continued.",
+        "restoredPass": "The proof wrote a temporary node_modules/vite/package.json stub in the same worktree; the child CLI exited 0 with no error. The wrapper exits 0 only when both sides of the ritual succeed, and the temporary worktree is deleted afterward. The live checkout is not modified.",
+        "proofScope": "Presence check for root vite install only. Does not prove npm ci, lockfile integrity, or a full desktop build."
+      }
+    },
+    {
+      "id": "verify-component-sourcing-preflight-20260919",
+      "path": "scripts/verify-component-sourcing-preflight.mjs",
+      "negativeFixture": "tests/gate-evidence/component-sourcing-preflight-proof.mjs",
+      "description": "Fork-local component sourcing preflight: every web/src/components/*.(tsx|jsx) file must be baselined or covered by a sourcing record.",
+      "observedFailure": {
+        "date": "2026-09-19",
+        "command": "node tests/gate-evidence/component-sourcing-preflight-proof.mjs",
+        "breakApplied": "Proof copies the real preflight CLI plus docs/preflight and web/src/components into a temporary worktree, then plants web/src/components/_gate_evidence_uncovered.tsx there (no baseline entry, no preflight record).",
+        "exitCode": 1,
+        "reason": "The child CLI printed COMPONENT_SOURCING_PREFLIGHT=fail and named the planted file as a new component with no sourcing-preflight record; exit 1.",
+        "restoredPass": "The proof deleted the planted file in the temporary worktree; the child CLI printed COMPONENT_SOURCING_PREFLIGHT=pass and exited 0. The wrapper exits 0 only when both child statuses match the ritual. The live checkout is not modified.",
+        "proofScope": "Fork-local preflight over web/src/components only. Does not prove React runtime behavior or hosted UI CI."
+      }
+    },
+    {
+      "id": "check-windows-footguns-20260919",
+      "path": "scripts/check-windows-footguns.py",
+      "negativeFixture": "tests/gate-evidence/windows-footgun-proof.mjs",
+      "description": "Grep-based Windows footgun checker used by lint workflow --all and by explicit path scans before PRs.",
+      "observedFailure": {
+        "date": "2026-09-19",
+        "command": "python3 scripts/check-windows-footguns.py tests/gate-evidence/windows-footgun/deliberate_os_kill.py ; node tests/gate-evidence/windows-footgun-proof.mjs",
+        "breakApplied": "Proof copies scripts/check-windows-footguns.py and the committed deliberate fixture into a temporary worktree, then spawns the real checker on that copied path. The committed fixture under tests/ is outside the checker's --all roots, so it does not poison the lint workflow full scan.",
+        "exitCode": 1,
+        "reason": "The child CLI reported '[os.kill(pid, 0)]' on the fixture line with the CTRL_C_EVENT Windows attribution and exited 1 with '1 Windows footgun(s) found'.",
+        "restoredPass": "The proof copied tests/gate-evidence/windows-footgun/restored_os_kill.py (same call with '# windows-footgun: ok') into the worktree; the child CLI printed 'No Windows footguns found (1 file(s) scanned)' and exited 0. The wrapper requires both sides and keeps its own exit status distinct from the child's.",
+        "proofScope": "One rule (os.kill pid 0) via explicit path scan. Does not re-prove every FOOTGUNS pattern or the lint.yml workflow_call wiring."
+      }
+    }
+  ]
+}
