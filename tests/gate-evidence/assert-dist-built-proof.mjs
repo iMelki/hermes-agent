@@ -1,33 +1,51 @@
 #!/usr/bin/env node
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { tmpdir } from 'node:os'
-import { checkDistBuilt } from '../../apps/desktop/scripts/assert-dist-built.mjs'
+import {
+  openWorktree,
+  closeWorktree,
+  copyFromSource,
+  runNode,
+  skipRestore,
+  formatResult,
+  textOf,
+} from './harness.mjs'
 
-// Set the exit code instead of calling process.exit() inside the try:
-// process.exit() skips `finally`, which would leave the temp fixture behind.
-function prove(root) {
-  const missing = checkDistBuilt(join(root, 'missing-dist'))
-  if (missing.ok || !/no dist directory/.test(missing.error || '')) {
-    console.error('expected missing-dist failure, got', missing)
-    return 2
-  }
-  const dist = join(root, 'dist')
-  mkdirSync(join(dist, 'assets'), { recursive: true })
-  writeFileSync(join(dist, 'index.html'), '<!doctype html><div id=root></div>')
-  writeFileSync(join(dist, 'assets', 'index-proof.js'), 'console.log(1)')
-  const ok = checkDistBuilt(dist)
-  if (!ok.ok) {
-    console.error('expected restored pass, got', ok)
-    return 3
-  }
-  console.log('assert-dist-built proof: fail-for-right-reason + restored-pass ok')
-  return 0
-}
-
-const root = mkdtempSync(join(tmpdir(), 'hermes-assert-dist-proof-'))
+const NAME = 'assert-dist-built'
+const SCRIPT = 'apps/desktop/scripts/assert-dist-built.mjs'
+const work = openWorktree()
+let wrapper = 0
+let childNegative = null
+let childRestored = null
 try {
-  process.exitCode = prove(root)
+  copyFromSource(work, SCRIPT)
+  copyFromSource(work, 'apps/desktop/scripts/utils.mjs')
+  const neg = runNode(work, SCRIPT)
+  childNegative = neg.status
+  const negText = textOf(neg)
+  if (childNegative !== 1 || !/no dist directory/.test(negText)) {
+    console.error('negative proof failed', { status: childNegative, text: negText })
+    wrapper = 2
+  } else if (!skipRestore()) {
+    const dist = join(work.root, 'apps/desktop/dist')
+    mkdirSync(join(dist, 'assets'), { recursive: true })
+    writeFileSync(join(dist, 'index.html'), '<!doctype html><div id=root></div>')
+    writeFileSync(join(dist, 'assets', 'index-proof.js'), 'console.log(1)')
+  }
+  if (wrapper === 0) {
+    const pos = runNode(work, SCRIPT)
+    childRestored = pos.status
+    const posText = textOf(pos)
+    if (childRestored !== 0 || !/dist\/index.html \+ assets present/.test(posText)) {
+      console.error('restored pass failed', { status: childRestored, text: posText })
+      wrapper = 3
+    }
+  }
+  if (wrapper === 0) {
+    console.log('assert-dist-built proof: fail-for-right-reason + restored-pass ok')
+  }
+  console.log(formatResult(NAME, childNegative, childRestored, wrapper))
 } finally {
-  rmSync(root, { recursive: true, force: true })
+  closeWorktree(work)
 }
+process.exitCode = wrapper

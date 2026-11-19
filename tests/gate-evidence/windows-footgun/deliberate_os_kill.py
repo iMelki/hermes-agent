@@ -1,4 +1,4 @@
-# Deliberate Windows footgun for negative proof (agent-settings#1130).
+# Deliberate Windows footgun for negative proof.
 # Not scanned by --all (tests/ is outside that root list); pass this path
 # explicitly to scripts/check-windows-footguns.py.
 import os

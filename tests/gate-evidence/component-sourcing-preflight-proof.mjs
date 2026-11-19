@@ -1,43 +1,69 @@
 #!/usr/bin/env node
-import { writeFileSync, unlinkSync } from 'node:fs'
-import { spawnSync } from 'node:child_process'
-import { fileURLToPath } from 'node:url'
-import { dirname, join, resolve } from 'node:path'
+import { mkdirSync, writeFileSync, unlinkSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
+import {
+  openWorktree,
+  closeWorktree,
+  copyFromSource,
+  runNode,
+  skipRestore,
+  formatResult,
+  textOf,
+} from './harness.mjs'
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-const plant = join(repoRoot, 'web/src/components/_gate_evidence_uncovered.tsx')
-const script = join(repoRoot, 'scripts/verify-component-sourcing-preflight.mjs')
-
-function run() {
-  return spawnSync(process.execPath, [script], { cwd: repoRoot, encoding: 'utf8' })
-}
-
-// Exclusive create: never overwrite an owner file at the plant path.
+const NAME = 'component-sourcing-preflight'
+const SCRIPT = 'scripts/verify-component-sourcing-preflight.mjs'
+const PLANT = 'web/src/components/_gate_evidence_uncovered.tsx'
+const work = openWorktree()
+const plant = join(work.root, PLANT)
+let wrapper = 0
+let childNegative = null
+let childRestored = null
+let createdPlant = false
 try {
-  writeFileSync(plant, 'export default function GateEvidenceUncovered(){ return null }\n', { flag: 'wx' })
-} catch (err) {
-  if (err.code === 'EEXIST') {
-    console.error('refusing to overwrite existing plant path; run in a clean checkout')
-    process.exit(4)
+  copyFromSource(work, SCRIPT)
+  copyFromSource(work, 'docs/preflight')
+  copyFromSource(work, 'web/src/components')
+
+  if (existsSync(plant)) {
+    console.error('refusing to overwrite existing plant path; run in a clean worktree')
+    wrapper = 4
+  } else {
+    mkdirSync(join(work.root, 'web/src/components'), { recursive: true })
+    writeFileSync(plant, 'export default function GateEvidenceUncovered(){ return null }\n', { flag: 'wx' })
+    createdPlant = true
+    const neg = runNode(work, SCRIPT)
+    childNegative = neg.status
+    const negText = textOf(neg)
+    if (
+      childNegative !== 1
+      || !/COMPONENT_SOURCING_PREFLIGHT=fail/.test(negText)
+      || !/_gate_evidence_uncovered\.tsx/.test(negText)
+    ) {
+      console.error('negative proof failed', { status: childNegative, text: negText })
+      wrapper = 2
+    } else if (!skipRestore()) {
+      unlinkSync(plant)
+      createdPlant = false
+    }
+    if (wrapper === 0) {
+      const pos = runNode(work, SCRIPT)
+      childRestored = pos.status
+      const posText = textOf(pos)
+      if (childRestored !== 0 || !/COMPONENT_SOURCING_PREFLIGHT=pass/.test(posText)) {
+        console.error('restored pass failed', { status: childRestored, text: posText })
+        wrapper = 3
+      }
+    }
   }
-  throw err
-}
-
-let code = 0
-try {
-  const neg = run()
-  if (neg.status !== 1 || !/COMPONENT_SOURCING_PREFLIGHT=fail/.test(neg.stderr + neg.stdout) || !/_gate_evidence_uncovered\.tsx/.test(neg.stderr + neg.stdout)) {
-    console.error('negative proof failed', { status: neg.status, out: neg.stdout, err: neg.stderr })
-    code = 2
+  if (wrapper === 0) {
+    console.log('component-sourcing-preflight proof: fail-for-right-reason + restored-pass ok')
+  }
+  if (wrapper !== 4) {
+    console.log(formatResult(NAME, childNegative, childRestored, wrapper))
   }
 } finally {
-  unlinkSync(plant) // only reached after our exclusive create succeeded
+  if (createdPlant && existsSync(plant)) unlinkSync(plant)
+  closeWorktree(work)
 }
-if (code) process.exit(code)
-
-const pos = run()
-if (pos.status !== 0 || !/COMPONENT_SOURCING_PREFLIGHT=pass/.test(pos.stdout + pos.stderr)) {
-  console.error('restored pass failed', { status: pos.status, out: pos.stdout, err: pos.stderr })
-  process.exit(3)
-}
-console.log('component-sourcing-preflight proof: fail-for-right-reason + restored-pass ok')
+process.exitCode = wrapper
