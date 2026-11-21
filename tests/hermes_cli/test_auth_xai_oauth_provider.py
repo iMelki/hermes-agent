@@ -1633,8 +1633,12 @@ def test_pool_refresh_adopts_singleton_tokens_when_consumed_elsewhere(tmp_path, 
 
     selected = pool.select()
     assert selected is not None
-    assert refresh_calls["refresh_token_seen"] == "rt-rotated-by-other-process"
-    assert selected.access_token == final_at
+    # The pool re-reads under the store lock (hermes-agent#14). It adopts the
+    # rotated pair and, because that pair is already fresh, skips the POST.
+    # Either way it must never replay the consumed "rt-stale" token.
+    assert refresh_calls["refresh_token_seen"] in (None, "rt-rotated-by-other-process")
+    assert selected.access_token in (other_process_at, final_at)
+    assert selected.refresh_token in ("rt-rotated-by-other-process", "rt-final")
 
 
 def test_pool_refresh_recovers_when_other_process_already_refreshed(tmp_path, monkeypatch):

@@ -33,7 +33,7 @@ import threading
 import time
 import uuid
 import webbrowser
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager, nullcontext
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
@@ -70,6 +70,13 @@ except Exception:
 
 AUTH_STORE_VERSION = 1
 AUTH_LOCK_TIMEOUT_SECONDS = 15.0
+# Extra wait a lock waiter allows beyond the longest network call a holder
+# may make while holding an auth-store lock (see _auth_lock_wait_seconds).
+AUTH_LOCK_HOLD_HEADROOM_SECONDS = 10.0
+# Recovery record written beside an auth store when a refreshed (rotated)
+# xAI grant could not be saved and verified there. See
+# _persist_xai_refresh_verified / _apply_pending_xai_recovery.
+XAI_OAUTH_RECOVERY_FILENAME = "auth.xai-oauth-recovery.json"
 
 # Nous Portal defaults
 DEFAULT_NOUS_PORTAL_URL = "https://portal.nousresearch.com"
@@ -1059,9 +1066,36 @@ def _file_lock(
                     pass
 
 
+def _xai_refresh_timeout_seconds() -> float:
+    """Timeout for one xAI token-endpoint POST (HERMES_XAI_REFRESH_TIMEOUT_SECONDS)."""
+    return float(env_float("HERMES_XAI_REFRESH_TIMEOUT_SECONDS", 20))
+
+
+def _auth_lock_wait_seconds() -> float:
+    """Default wait for the profile and root auth-store locks.
+
+    A holder of ``<root>/auth.lock`` may keep it across ONE xAI refresh POST
+    (bounded by ``HERMES_XAI_REFRESH_TIMEOUT_SECONDS``). OIDC discovery runs
+    BEFORE the lock is taken, so it is not part of the hold. Every default
+    waiter (root-mode ``_auth_store_lock`` and profile-mode
+    ``_root_auth_store_lock``) must outlast that hold, so the default wait is
+    the POST timeout plus ``AUTH_LOCK_HOLD_HEADROOM_SECONDS``, and never less
+    than ``AUTH_LOCK_TIMEOUT_SECONDS``.
+    """
+    return max(
+        float(AUTH_LOCK_TIMEOUT_SECONDS),
+        _xai_refresh_timeout_seconds() + float(AUTH_LOCK_HOLD_HEADROOM_SECONDS),
+    )
+
+
 @contextmanager
-def _auth_store_lock(timeout_seconds: float = AUTH_LOCK_TIMEOUT_SECONDS):
+def _auth_store_lock(timeout_seconds: Optional[float] = None):
     """Cross-process advisory lock for auth.json reads+writes.  Reentrant.
+
+    ``timeout_seconds=None`` uses ``_auth_lock_wait_seconds()``: in classic /
+    root mode this is the same file as ``<root>/auth.lock``, which a profile
+    seat may hold across an xAI refresh POST, so the default waiter must
+    outlast that hold.
 
     Lock ordering invariant: when this lock is held together with
     ``_nous_shared_store_lock``, acquire ``_auth_store_lock`` FIRST
@@ -1069,6 +1103,8 @@ def _auth_store_lock(timeout_seconds: float = AUTH_LOCK_TIMEOUT_SECONDS):
     refresh paths follow this order; violating it risks deadlock
     against a concurrent import on the shared store.
     """
+    if timeout_seconds is None:
+        timeout_seconds = _auth_lock_wait_seconds()
     with _file_lock(
         _auth_lock_path(),
         _auth_lock_holder,
@@ -1076,6 +1112,204 @@ def _auth_store_lock(timeout_seconds: float = AUTH_LOCK_TIMEOUT_SECONDS):
         "Timed out waiting for auth store lock",
     ):
         yield
+
+
+_root_auth_lock_holder = threading.local()
+
+
+def _root_auth_lock_path() -> Optional[Path]:
+    """Return the lock file guarding the global-root ``auth.json``.
+
+    Returns ``None`` when there is no distinct root store (classic mode,
+    where the profile store IS the root store and ``_auth_store_lock``
+    already guards it). Taking a second flock on the same file from the
+    same process would self-deadlock, so the same-path case is a no-op.
+
+    The path is the same one a root-mode Hermes process uses for its own
+    ``_auth_store_lock`` (``<root>/auth.lock``), so profile refreshers and
+    root-mode processes serialise on one kernel lock.
+    """
+    global_path = _global_auth_file_path()
+    if global_path is None:
+        return None
+    root_lock = global_path.with_suffix(".lock")
+    try:
+        if root_lock.resolve(strict=False) == _auth_lock_path().resolve(strict=False):
+            return None
+    except Exception:
+        if root_lock == _auth_lock_path():
+            return None
+    # Pytest seat belt (mirrors _load_global_auth_store): never create a
+    # lock file next to the real user's ~/.hermes/auth.json from a test.
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        real_home_env = os.environ.get("HOME", "")
+        if real_home_env:
+            real_root = Path(real_home_env) / ".hermes" / "auth.json"
+            try:
+                if global_path.resolve(strict=False) == real_root.resolve(strict=False):
+                    return None
+            except Exception:
+                return None
+    return root_lock
+
+
+@contextmanager
+def _root_auth_store_lock(timeout_seconds: Optional[float] = None):
+    """Cross-process lock for the global-root ``auth.json``.  Reentrant.
+
+    Used when a profile process refreshes a rotating OAuth grant (xAI) that
+    it resolved from the root store: the root lock must be held across the
+    whole read -> token POST -> write so two profiles can never spend the
+    same single-use refresh token.
+
+    Mechanism: ``_file_lock`` (``fcntl.flock`` on POSIX,
+    ``msvcrt.locking`` on Windows). Both are kernel locks tied to the open
+    file handle, so a crashed or killed holder releases the lock
+    automatically; a stale lock file on disk never blocks. A lock held by a
+    live but stuck process raises ``TimeoutError`` after
+    ``timeout_seconds``.
+
+    Lock ordering invariant: profile ``_auth_store_lock`` FIRST (outer),
+    root ``_root_auth_store_lock`` SECOND (inner). Never take the profile
+    lock while holding only the root lock. In classic mode (no distinct
+    root) this is a no-op because the profile lock already is the root lock.
+    """
+    if timeout_seconds is None:
+        timeout_seconds = _auth_lock_wait_seconds()
+    lock_path = _root_auth_lock_path()
+    if lock_path is None:
+        yield
+        return
+    with _file_lock(
+        lock_path,
+        _root_auth_lock_holder,
+        timeout_seconds,
+        (
+            f"Timed out after {max(1.0, float(timeout_seconds)):.0f}s waiting for the "
+            f"root auth store lock ({lock_path}). Another Hermes process is "
+            "refreshing the shared sign-in or is stuck holding the lock."
+        ),
+    ):
+        yield
+
+
+def _root_auth_lock_held() -> bool:
+    """True when this thread holds ``_root_auth_store_lock`` (or no distinct root lock exists)."""
+    if _root_auth_lock_path() is None:
+        return _auth_lock_held()
+    return getattr(_root_auth_lock_holder, "depth", 0) > 0
+
+
+def _auth_lock_held() -> bool:
+    return getattr(_auth_lock_holder, "depth", 0) > 0
+
+
+def _is_root_auth_path(path: Optional[Path]) -> bool:
+    """True when ``path`` is the distinct global-root ``auth.json`` (profile mode)."""
+    if path is None:
+        return False
+    global_path = _global_auth_file_path()
+    if global_path is None:
+        return False
+    try:
+        return path.resolve(strict=False) == global_path.resolve(strict=False)
+    except Exception:
+        return path == global_path
+
+
+@contextmanager
+def _lock_for_auth_file(auth_file: Path, timeout_seconds: Optional[float] = None):
+    """Take the lock that guards ``auth_file`` (``<dir>/auth.lock``).
+
+    Used by import / restore paths that replace an ``auth.json`` wholesale.
+    Reuses the profile or root lock (and their reentrancy state) when
+    ``auth_file`` is one of those stores, so the import queues on the same
+    kernel lock as refresh, login and logout.
+    """
+    lock_path = auth_file.with_suffix(".lock")
+
+    def _same(a: Optional[Path]) -> bool:
+        if a is None:
+            return False
+        try:
+            return a.resolve(strict=False) == lock_path.resolve(strict=False)
+        except Exception:
+            return a == lock_path
+
+    try:
+        profile_lock: Optional[Path] = _auth_lock_path()
+    except Exception:
+        profile_lock = None
+    try:
+        root_lock: Optional[Path] = _root_auth_lock_path()
+    except Exception:
+        root_lock = None
+    if _same(profile_lock):
+        with _auth_store_lock(timeout_seconds=timeout_seconds):
+            yield
+        return
+    if _same(root_lock):
+        with _root_auth_store_lock(timeout_seconds=timeout_seconds):
+            yield
+        return
+    with _file_lock(
+        lock_path,
+        threading.local(),
+        timeout_seconds if timeout_seconds is not None else _auth_lock_wait_seconds(),
+        f"Timed out waiting for auth store lock ({lock_path})",
+    ):
+        yield
+
+
+def _atomic_write_private_bytes(path: Path, payload: bytes) -> None:
+    """Write ``payload`` to ``path`` atomically with mode 0600.
+
+    O_EXCL temp file created 0600, fsync, atomic replace, then fsync of the
+    parent directory. Same recipe as ``_save_auth_store``.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_name(f"{path.name}.tmp.{os.getpid()}.{uuid.uuid4().hex}")
+    try:
+        fd = os.open(
+            str(tmp_path),
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+            stat.S_IRUSR | stat.S_IWUSR,
+        )
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        atomic_replace(tmp_path, path)
+        try:
+            dir_fd = os.open(str(path.parent), os.O_RDONLY)
+        except OSError:
+            dir_fd = None
+        if dir_fd is not None:
+            try:
+                os.fsync(dir_fd)
+            finally:
+                os.close(dir_fd)
+    finally:
+        try:
+            if tmp_path.exists():
+                tmp_path.unlink()
+        except OSError:
+            pass
+    try:
+        path.chmod(stat.S_IRUSR | stat.S_IWUSR)
+    except OSError:
+        pass
+
+
+def replace_auth_file_locked(auth_file: Path, payload: bytes) -> None:
+    """Replace an ``auth.json`` wholesale (backup import / snapshot restore).
+
+    Holds the store's ``auth.lock`` across the write and writes atomically
+    (0600), so an import never interleaves with a refresh, login or logout
+    on the same store.
+    """
+    with _lock_for_auth_file(auth_file):
+        _atomic_write_private_bytes(auth_file, payload)
 
 
 def _load_auth_store(auth_file: Optional[Path] = None) -> Dict[str, Any]:
@@ -1121,6 +1355,25 @@ def _load_auth_store(auth_file: Optional[Path] = None) -> Dict[str, Any]:
 
 
 def _save_auth_store(auth_store: Dict[str, Any], target_path: Optional[Path] = None) -> Path:
+    # Every write to the shared global-root store must hold <root>/auth.lock
+    # (hermes-agent#14). Writers take it themselves; this is the backstop so
+    # an unlocked caller can never write root while a seat is mid-refresh.
+    if (
+        target_path is not None
+        and _is_root_auth_path(target_path)
+        and _root_auth_lock_path() is not None
+        and not _root_auth_lock_held()
+    ):
+        logger.warning(
+            "auth: write to the global-root auth store without its lock; "
+            "taking <root>/auth.lock for this write."
+        )
+        with _root_auth_store_lock():
+            return _save_auth_store_unlocked(auth_store, target_path)
+    return _save_auth_store_unlocked(auth_store, target_path)
+
+
+def _save_auth_store_unlocked(auth_store: Dict[str, Any], target_path: Optional[Path] = None) -> Path:
     # target_path=None preserves the existing contract (write the active
     # store at _auth_file_path()). An explicit path lets callers persist a
     # specific store — e.g. the global-root write-through for rotating xAI
@@ -1247,9 +1500,14 @@ def _save_provider_state_to_source(
         _save_auth_store(auth_store)
         return
 
-    source_store = _load_auth_store(source_path)
-    _save_provider_state(source_store, provider_id, state)
-    _save_auth_store(source_store, target_path=source_path)
+    # Writing another store (in practice the global root): hold that store's
+    # lock across load -> merge -> save (profile lock is already held by the
+    # caller, so the order stays profile -> root).
+    root_lock = _root_auth_store_lock() if _is_root_auth_path(source_path) else nullcontext()
+    with root_lock:
+        source_store = _load_auth_store(source_path)
+        _save_provider_state(source_store, provider_id, state)
+        _save_auth_store(source_store, target_path=source_path)
 
 
 def _store_provider_state(
@@ -3916,16 +4174,100 @@ def _xai_oauth_state_has_usable_tokens(state: Optional[Dict[str, Any]]) -> bool:
 
 
 def _read_xai_oauth_tokens(*, _lock: bool = True) -> Dict[str, Any]:
+    data, _from_root, _locations = _read_xai_oauth_tokens_with_origin(_lock=_lock)
+    return data
+
+
+def _read_xai_oauth_tokens_with_source(*, _lock: bool = True) -> tuple[Dict[str, Any], bool]:
+    data, from_root, _locations = _read_xai_oauth_tokens_with_origin(_lock=_lock)
+    return data, from_root
+
+
+def _xai_refresh_token_of(obj: Any) -> str:
+    if not isinstance(obj, dict):
+        return ""
+    return str(obj.get("refresh_token", "") or "").strip()
+
+
+def _xai_store_grant_locations(store: Dict[str, Any], refresh_token: str) -> List[str]:
+    """Where ``store`` holds the xAI grant whose refresh token is ``refresh_token``.
+
+    Looks only at the store's OWN data (no root fallback): ``"provider"`` for
+    ``providers["xai-oauth"]["tokens"]`` and ``"pool"`` for any
+    ``credential_pool["xai-oauth"]`` entry.
+    """
+    if not refresh_token or not isinstance(store, dict):
+        return []
+    locations: List[str] = []
+    providers = store.get("providers")
+    own = providers.get("xai-oauth") if isinstance(providers, dict) else None
+    if isinstance(own, dict) and _xai_refresh_token_of(own.get("tokens")) == refresh_token:
+        locations.append("provider")
+    pool = store.get("credential_pool")
+    entries = pool.get("xai-oauth") if isinstance(pool, dict) else None
+    if isinstance(entries, list) and any(
+        _xai_refresh_token_of(e) == refresh_token for e in entries
+    ):
+        locations.append("pool")
+    return locations
+
+
+def _profile_owns_usable_xai_provider_block(auth_store: Dict[str, Any]) -> bool:
+    providers = auth_store.get("providers") if isinstance(auth_store, dict) else None
+    own_state = providers.get("xai-oauth") if isinstance(providers, dict) else None
+    return _xai_oauth_state_has_usable_tokens(own_state if isinstance(own_state, dict) else None)
+
+
+def _xai_may_use_root_grant(auth_store: Dict[str, Any]) -> bool:
+    """True when the grant this profile uses may be the shared root grant.
+
+    Decided from the PROFILE store only, which cannot change while the
+    profile lock is held. When True, a refresh must take the root lock
+    before re-reading, so a re-read that resolves to root is always under
+    the root lock (hermes-agent#14 blocker 5).
+    """
+    if _global_auth_file_path() is None:
+        return False
+    return not _profile_owns_usable_xai_provider_block(auth_store)
+
+
+def _read_xai_oauth_tokens_with_origin(
+    *, _lock: bool = True
+) -> tuple[Dict[str, Any], bool, List[str]]:
+    """Like ``_read_xai_oauth_tokens`` but also reports where the grant lives.
+
+    Returns ``(data, from_root, root_locations)``. ``from_root`` is ``True``
+    when the selected grant is the global-root store's grant, held either in
+    root ``providers["xai-oauth"]`` or in a root ``credential_pool["xai-oauth"]``
+    entry (the profile has no usable xai-oauth provider block of its own).
+    ``root_locations`` lists where root holds it (``"provider"``/``"pool"``).
+    Refreshing such a grant must happen under the ROOT lock and be written
+    back to the ROOT store at those locations.
+    """
     if _lock:
         with _auth_store_lock():
             auth_store = _load_auth_store()
     else:
         auth_store = _load_auth_store()
     state = _xai_oauth_state_from_store(auth_store)
+    global_store: Optional[Dict[str, Any]] = None
     if not _xai_oauth_state_has_usable_tokens(state):
-        global_state = _xai_oauth_state_from_store(_load_global_auth_store())
+        global_store = _load_global_auth_store()
+        global_state = _xai_oauth_state_from_store(global_store)
         if _xai_oauth_state_has_usable_tokens(global_state):
             state = global_state
+    from_root = False
+    root_locations: List[str] = []
+    if (
+        _xai_oauth_state_has_usable_tokens(state)
+        and _global_auth_file_path() is not None
+        and not _profile_owns_usable_xai_provider_block(auth_store)
+    ):
+        if global_store is None:
+            global_store = _load_global_auth_store()
+        chosen_refresh = _xai_refresh_token_of(state["tokens"])
+        root_locations = _xai_store_grant_locations(global_store, chosen_refresh)
+        from_root = bool(root_locations)
     if not state:
         raise AuthError(
             "No xAI OAuth credentials stored. Select xAI Grok OAuth (SuperGrok / Premium+) in `hermes model`.",
@@ -3962,7 +4304,8 @@ def _read_xai_oauth_tokens(*, _lock: bool = True) -> Dict[str, Any]:
         "last_refresh": state.get("last_refresh"),
         "discovery": state.get("discovery") or {},
         "redirect_uri": state.get("redirect_uri"),
-    }
+        "auth_mode": state.get("auth_mode"),
+    }, from_root, root_locations
 
 
 def _profile_has_own_xai_oauth_state(auth_store: Dict[str, Any]) -> bool:
@@ -4009,16 +4352,19 @@ def _write_through_xai_oauth_to_global_root(state: Dict[str, Any]) -> None:
             except Exception:
                 return
     try:
-        if global_path.exists():
-            global_store = _load_auth_store(global_path)
-        else:
-            global_store = {}
-        if not isinstance(global_store, dict):
-            return
-        _store_provider_state(global_store, "xai-oauth", dict(state), set_active=False)
-        _save_auth_store(global_store, global_path)
-    except Exception as exc:  # pragma: no cover - best effort
-        logger.debug("xAI OAuth: write-through to global root failed: %s", exc)
+        # Same <root>/auth.lock as every other root writer (hermes-agent#14).
+        # Callers hold the profile lock, so the order stays profile -> root.
+        with _root_auth_store_lock():
+            if global_path.exists():
+                global_store = _load_auth_store(global_path)
+            else:
+                global_store = {}
+            if not isinstance(global_store, dict):
+                return
+            _store_provider_state(global_store, "xai-oauth", dict(state), set_active=False)
+            _save_auth_store(global_store, global_path)
+    except Exception as exc:
+        logger.warning("xAI OAuth: write-through to global root failed: %s", type(exc).__name__)
 
 
 def _save_xai_oauth_tokens(
@@ -4050,6 +4396,335 @@ def _save_xai_oauth_tokens(
         _save_auth_store(auth_store)
         if write_through_to_root:
             _write_through_xai_oauth_to_global_root(state)
+
+
+def _xai_token_fingerprint(token: str) -> str:
+    """Short non-reversible fingerprint of a token, for recovery bookkeeping only."""
+    if not token:
+        return ""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()[:16]
+
+
+def _xai_recovery_path(store_path: Path) -> Path:
+    return store_path.with_name(XAI_OAUTH_RECOVERY_FILENAME)
+
+
+def _apply_xai_grant_to_store(
+    store: Dict[str, Any],
+    tokens: Dict[str, Any],
+    *,
+    previous_refresh_token: str,
+    locations: List[str],
+    discovery: Optional[Dict[str, Any]],
+    redirect_uri: str,
+    last_refresh: str,
+    auth_mode: str,
+) -> None:
+    """Put a rotated xAI grant into ``store`` at ``locations`` (in memory)."""
+    if "provider" in locations:
+        providers = store.get("providers")
+        state = dict(providers.get("xai-oauth") or {}) if isinstance(providers, dict) else {}
+        state["tokens"] = dict(tokens)
+        state["last_refresh"] = last_refresh
+        state["auth_mode"] = auth_mode
+        state.pop("last_auth_error", None)
+        if discovery:
+            state["discovery"] = discovery
+        if redirect_uri:
+            state["redirect_uri"] = redirect_uri
+        _store_provider_state(store, "xai-oauth", state, set_active=False)
+    if "pool" in locations:
+        pool = store.get("credential_pool")
+        entries = pool.get("xai-oauth") if isinstance(pool, dict) else None
+        if isinstance(entries, list):
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+                if _xai_refresh_token_of(entry) != previous_refresh_token:
+                    continue
+                entry["access_token"] = tokens.get("access_token")
+                entry["refresh_token"] = tokens.get("refresh_token")
+                entry["last_refresh"] = last_refresh
+                for key in (
+                    "last_status", "last_status_at", "last_error_code",
+                    "last_error_reason", "last_error_message", "last_error_reset_at",
+                ):
+                    if key in entry:
+                        entry[key] = None
+
+
+def _xai_store_file_holds_grant(store_path: Path, refresh_token: str, locations: List[str]) -> bool:
+    """Re-read ``store_path`` from disk and confirm every location holds ``refresh_token``."""
+    try:
+        raw = json.loads(store_path.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    if not isinstance(raw, dict) or not locations:
+        return False
+    found = _xai_store_grant_locations(raw, refresh_token)
+    return all(loc in found for loc in locations)
+
+
+def _write_xai_recovery_record(store_path: Path, record: Dict[str, Any]) -> Path:
+    """Write the recovery record beside ``store_path`` (0600, atomic).
+
+    An existing record is never overwritten: a new refresh POST is refused
+    while one is pending (see ``_apply_pending_xai_recovery``), so a second
+    record can only appear if that guard was bypassed. Keep both then.
+    """
+    path = _xai_recovery_path(store_path)
+    if path.exists():
+        path = path.with_name(
+            f"{path.stem}.{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.{uuid.uuid4().hex[:8]}.json"
+        )
+    _atomic_write_private_bytes(path, (json.dumps(record, indent=2) + "\n").encode("utf-8"))
+    return path
+
+
+def _persist_xai_refresh_verified(
+    store_path: Path,
+    write: Callable[[], None],
+    tokens: Dict[str, Any],
+    *,
+    previous_refresh_token: str,
+    locations: List[str],
+    discovery: Optional[Dict[str, Any]],
+    redirect_uri: str,
+    last_refresh: str,
+    auth_mode: str,
+) -> None:
+    """Run ``write`` and count it as saved only after a verified re-read.
+
+    Caller MUST hold the lock guarding ``store_path``. After ``write``
+    (atomic temp file + fsync + rename + directory fsync, via
+    ``_save_auth_store``), ``store_path`` is re-read from disk and every
+    location must hold the new refresh token. Otherwise the rotated grant,
+    which the token endpoint has already issued (the previous refresh token
+    is now spent), is kept in a 0600 recovery record beside the store and a
+    distinct ``AuthError`` is raised that names the record. The next refresh
+    attempt applies the record under the same lock before any new POST.
+    Token values are never logged or put in error messages.
+    """
+    new_refresh = _xai_refresh_token_of(tokens)
+    failure: Optional[str] = None
+    try:
+        write()
+        if not _xai_store_file_holds_grant(store_path, new_refresh, locations):
+            failure = "re-read after write did not find the refreshed grant"
+    except Exception as exc:
+        failure = f"write failed ({type(exc).__name__})"
+    if failure is None:
+        return
+    record = {
+        "provider": "xai-oauth",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "target": str(store_path),
+        "locations": list(locations),
+        "previous_refresh_fingerprint": _xai_token_fingerprint(previous_refresh_token),
+        "refresh_fingerprint": _xai_token_fingerprint(new_refresh),
+        "tokens": dict(tokens),
+        "last_refresh": last_refresh,
+        "discovery": discovery or {},
+        "redirect_uri": redirect_uri,
+        "auth_mode": auth_mode,
+    }
+    try:
+        recovery_path = _write_xai_recovery_record(store_path, record)
+    except Exception as rec_exc:
+        logger.error(
+            "xAI OAuth: refreshed grant could not be saved to %s (%s) and the "
+            "recovery record could not be written (%s).",
+            store_path, failure, type(rec_exc).__name__,
+        )
+        raise AuthError(
+            f"xAI OAuth refresh rotated the grant but it could not be saved to {store_path} "
+            f"({failure}) and no recovery record could be written beside it. "
+            "Sign in again with `hermes model`.",
+            provider="xai-oauth",
+            code="xai_store_write_unrecoverable",
+            relogin_required=True,
+        ) from None
+    logger.error(
+        "xAI OAuth: refreshed grant could not be saved to %s (%s); kept it in %s.",
+        store_path, failure, recovery_path,
+    )
+    raise AuthError(
+        f"xAI OAuth refresh rotated the grant but it could not be saved to {store_path} "
+        f"({failure}). The new grant is kept in {recovery_path} (mode 0600); the next "
+        "refresh attempt applies it under the auth lock before any new token request. "
+        "Do not delete that file.",
+        provider="xai-oauth",
+        code="xai_store_write_failed",
+        relogin_required=False,
+    )
+
+
+def _save_xai_oauth_tokens_to_root(
+    tokens: Dict[str, Any],
+    *,
+    previous_refresh_token: str = "",
+    locations: Optional[List[str]] = None,
+    discovery: Optional[Dict[str, Any]] = None,
+    redirect_uri: str = "",
+    last_refresh: Optional[str] = None,
+    auth_mode: str = "oauth_device_code",
+) -> None:
+    """Persist a refreshed root-sourced xAI grant to the ROOT store only.
+
+    Takes ``_root_auth_store_lock`` itself (reentrant, so a caller that
+    already holds it across the POST keeps one continuous hold). The profile
+    store is left alone so the seat keeps reading the shared root grant
+    instead of forking its own copy. ``locations`` says where root holds the
+    grant (``"provider"`` block and/or ``"pool"`` entries matching
+    ``previous_refresh_token``); default is the provider block.
+
+    Success only after a verified re-read of root. On failure the rotated
+    grant goes to a 0600 recovery record beside root and ``AuthError``
+    (``xai_store_write_failed``) is raised; nothing is saved to the profile.
+    """
+    if last_refresh is None:
+        last_refresh = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    locations = list(locations or ["provider"])
+    global_path = _global_auth_file_path()
+    if global_path is None or _root_auth_lock_path() is None:
+        # Classic mode, or the pytest seat belt refused the real user's
+        # ~/.hermes/auth.json: there is no separate root store to write.
+        raise AuthError(
+            "xAI OAuth: no writable global-root auth store for a root-sourced refresh.",
+            provider="xai-oauth",
+            code="xai_root_store_unavailable",
+            relogin_required=False,
+        )
+
+    def _write() -> None:
+        root_store = _load_auth_store(global_path) if global_path.exists() else {}
+        if not isinstance(root_store, dict):
+            root_store = {}
+        _apply_xai_grant_to_store(
+            root_store,
+            tokens,
+            previous_refresh_token=previous_refresh_token,
+            locations=locations,
+            discovery=discovery,
+            redirect_uri=redirect_uri,
+            last_refresh=last_refresh,
+            auth_mode=auth_mode,
+        )
+        _save_auth_store(root_store, global_path)
+
+    with _root_auth_store_lock():
+        _persist_xai_refresh_verified(
+            global_path,
+            _write,
+            tokens,
+            previous_refresh_token=previous_refresh_token,
+            locations=locations,
+            discovery=discovery,
+            redirect_uri=redirect_uri,
+            last_refresh=last_refresh,
+            auth_mode=auth_mode,
+        )
+
+
+def _apply_pending_xai_recovery(store_path: Path) -> bool:
+    """Apply a pending xAI recovery record for ``store_path``, if any.
+
+    Caller MUST hold the lock guarding ``store_path``. Runs before any
+    refresh POST. Returns True when a record was applied (the store now
+    holds the recovered grant). Outcomes:
+
+    * The store still holds the spent token the record replaced (or holds
+      no usable grant): write the recovered grant, verify the re-read, then
+      remove the record.
+    * The store already holds the recovered grant: remove the record.
+    * The store holds some other grant (for example a fresh sign-in): keep
+      the record under a ``.stale-<ts>`` name and continue.
+    * Anything else (unreadable record, write or verify failure): raise
+      ``AuthError`` so no new POST spends a token while a grant is pending.
+    """
+    path = _xai_recovery_path(store_path)
+    if not path.exists():
+        return False
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+        tokens = dict(record["tokens"])
+        new_refresh = _xai_refresh_token_of(tokens)
+        if not new_refresh or not str(tokens.get("access_token") or "").strip():
+            raise ValueError("record has no usable tokens")
+        locations = [loc for loc in record.get("locations") or ["provider"] if loc in ("provider", "pool")]
+        prev_fp = str(record.get("previous_refresh_fingerprint") or "")
+    except Exception as exc:
+        raise AuthError(
+            f"xAI OAuth recovery record {path} is unreadable ({type(exc).__name__}); "
+            "refusing to refresh until it is resolved. Sign in again with `hermes model` "
+            "after moving it aside.",
+            provider="xai-oauth",
+            code="xai_recovery_unreadable",
+            relogin_required=False,
+        ) from None
+
+    store = _load_auth_store(store_path) if store_path.exists() else {}
+    if _xai_store_grant_locations(store, new_refresh):
+        path.unlink()
+        logger.info("xAI OAuth: recovery record %s already applied; removed.", path)
+        return False
+    current_refreshes: List[str] = []
+    providers = store.get("providers") if isinstance(store, dict) else None
+    own = providers.get("xai-oauth") if isinstance(providers, dict) else None
+    if isinstance(own, dict):
+        current_refreshes.append(_xai_refresh_token_of(own.get("tokens")))
+    pool = store.get("credential_pool") if isinstance(store, dict) else None
+    entries = pool.get("xai-oauth") if isinstance(pool, dict) else None
+    if isinstance(entries, list):
+        current_refreshes.extend(_xai_refresh_token_of(e) for e in entries)
+    current_refreshes = [r for r in current_refreshes if r]
+    spent = [r for r in current_refreshes if _xai_token_fingerprint(r) == prev_fp]
+    if current_refreshes and not spent:
+        stale = path.with_name(
+            f"{path.stem}.stale-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
+        )
+        os.replace(path, stale)
+        logger.warning(
+            "xAI OAuth: %s holds a different grant than recovery record expected; "
+            "kept the record as %s and left the store unchanged.",
+            store_path, stale,
+        )
+        return False
+    previous_refresh = spent[0] if spent else ""
+    if not spent:
+        locations = ["provider"]
+
+    def _write() -> None:
+        target = _load_auth_store(store_path) if store_path.exists() else {}
+        _apply_xai_grant_to_store(
+            target,
+            tokens,
+            previous_refresh_token=previous_refresh,
+            locations=locations,
+            discovery=record.get("discovery") or None,
+            redirect_uri=str(record.get("redirect_uri") or ""),
+            last_refresh=str(record.get("last_refresh") or ""),
+            auth_mode=str(record.get("auth_mode") or "oauth_device_code"),
+        )
+        _save_auth_store(target, store_path)
+
+    try:
+        _write()
+        ok = _xai_store_file_holds_grant(store_path, new_refresh, locations)
+    except Exception as exc:
+        ok = False
+        logger.error("xAI OAuth: applying recovery record failed (%s)", type(exc).__name__)
+    if not ok:
+        raise AuthError(
+            f"xAI OAuth: could not apply the pending recovery record {path} to {store_path}; "
+            "refusing to refresh until it is applied. The record is kept.",
+            provider="xai-oauth",
+            code="xai_recovery_apply_failed",
+            relogin_required=False,
+        )
+    path.unlink()
+    logger.warning("xAI OAuth: applied pending recovery record to %s.", store_path)
+    return True
 
 
 def _xai_access_token_is_expiring(access_token: str, skew_seconds: int = 0) -> bool:
@@ -4354,7 +5029,17 @@ def _refresh_xai_oauth_tokens(
     token_endpoint: str,
     redirect_uri: str = "",
     timeout_seconds: float,
+    persist_to_root: bool = False,
+    root_locations: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
+    """POST the refresh and persist the rotated grant, verified.
+
+    Returns the new tokens only after the store that owns the grant (root
+    for a shared grant, else this profile) has been written and re-read with
+    the new refresh token in place. Otherwise raises ``AuthError`` and the
+    rotated grant is kept in a recovery record (see
+    ``_persist_xai_refresh_verified``).
+    """
     # Re-persist whatever auth_mode is already stored (legacy pre-device-code
     # logins may still carry ``oauth_pkce``): the refresh hot path must not
     # relabel how the grant was originally obtained.
@@ -4363,6 +5048,7 @@ def _refresh_xai_oauth_tokens(
         auth_mode = str(state.get("auth_mode") or "oauth_device_code")
     except Exception:
         auth_mode = "oauth_device_code"
+    previous_refresh = _xai_refresh_token_of(tokens)
     refreshed = refresh_xai_oauth_pure(
         str(tokens.get("access_token", "") or ""),
         str(tokens.get("refresh_token", "") or ""),
@@ -4378,14 +5064,100 @@ def _refresh_xai_oauth_tokens(
         updated_tokens["expires_in"] = refreshed["expires_in"]
     if refreshed.get("token_type"):
         updated_tokens["token_type"] = refreshed["token_type"]
-    _save_xai_oauth_tokens(
-        updated_tokens,
-        discovery={"token_endpoint": token_endpoint},
-        redirect_uri=redirect_uri,
-        last_refresh=refreshed["last_refresh"],
-        auth_mode=auth_mode,
-    )
+    discovery = {"token_endpoint": token_endpoint}
+    if persist_to_root:
+        _save_xai_oauth_tokens_to_root(
+            updated_tokens,
+            previous_refresh_token=previous_refresh,
+            locations=root_locations or ["provider"],
+            discovery=discovery,
+            redirect_uri=redirect_uri,
+            last_refresh=refreshed["last_refresh"],
+            auth_mode=auth_mode,
+        )
+        return updated_tokens
+
+    def _write() -> None:
+        _save_xai_oauth_tokens(
+            updated_tokens,
+            discovery=discovery,
+            redirect_uri=redirect_uri,
+            last_refresh=refreshed["last_refresh"],
+            auth_mode=auth_mode,
+        )
+
+    with _auth_store_lock():
+        _persist_xai_refresh_verified(
+            _auth_file_path(),
+            _write,
+            updated_tokens,
+            previous_refresh_token=previous_refresh,
+            locations=["provider"],
+            discovery=discovery,
+            redirect_uri=redirect_uri,
+            last_refresh=refreshed["last_refresh"],
+            auth_mode=auth_mode,
+        )
     return updated_tokens
+
+
+def _quarantine_xai_oauth_grant(
+    exc: "AuthError",
+    *,
+    from_root: bool,
+    spent_refresh_token: str,
+    root_locations: List[str],
+) -> None:
+    """Record a terminal xAI refresh failure in the store that owns the grant.
+
+    For a shared root grant (root lock held by the caller), the dead tokens
+    are cleared IN ROOT at the locations that held them, so no other seat
+    POSTs the dead refresh token again, and the profile is not written (no
+    fork). For a profile-owned grant the profile block is quarantined as
+    before.
+    """
+    error_record = {
+        "provider": "xai-oauth",
+        "code": exc.code or "xai_refresh_failed",
+        "message": str(exc),
+        "reason": "runtime_refresh_failure",
+        "relogin_required": True,
+        "at": datetime.now(timezone.utc).isoformat(),
+    }
+    global_path = _global_auth_file_path()
+    if from_root and global_path is not None and _root_auth_lock_path() is not None:
+        with _root_auth_store_lock():
+            root_store = _load_auth_store(global_path) if global_path.exists() else {}
+            if "provider" in root_locations:
+                providers = root_store.get("providers")
+                state = dict(providers.get("xai-oauth") or {}) if isinstance(providers, dict) else {}
+                q_tokens = dict(state.get("tokens") or {})
+                if _xai_refresh_token_of(q_tokens) == spent_refresh_token:
+                    q_tokens.pop("access_token", None)
+                    q_tokens.pop("refresh_token", None)
+                    state["tokens"] = q_tokens
+                    state["last_auth_error"] = error_record
+                    _store_provider_state(root_store, "xai-oauth", state, set_active=False)
+            if "pool" in root_locations:
+                pool = root_store.get("credential_pool")
+                entries = pool.get("xai-oauth") if isinstance(pool, dict) else None
+                for entry in entries if isinstance(entries, list) else []:
+                    if isinstance(entry, dict) and _xai_refresh_token_of(entry) == spent_refresh_token:
+                        entry.pop("access_token", None)
+                        entry.pop("refresh_token", None)
+                        entry["last_error_code"] = error_record["code"]
+                        entry["last_error_reason"] = error_record["reason"]
+            _save_auth_store(root_store, global_path)
+        return
+    _q_store = _load_auth_store()
+    _q_state = _load_provider_state(_q_store, "xai-oauth") or {}
+    _q_tokens = dict(_q_state.get("tokens") or {})
+    _q_tokens.pop("access_token", None)
+    _q_tokens.pop("refresh_token", None)
+    _q_state["tokens"] = _q_tokens
+    _q_state["last_auth_error"] = error_record
+    _store_provider_state(_q_store, "xai-oauth", _q_state, set_active=False)
+    _save_auth_store(_q_store)
 
 
 def resolve_xai_oauth_runtime_credentials(
@@ -4394,10 +5166,12 @@ def resolve_xai_oauth_runtime_credentials(
     refresh_if_expiring: bool = True,
     refresh_skew_seconds: Optional[int] = None,
 ) -> Dict[str, Any]:
-    data = _read_xai_oauth_tokens()
+    with _auth_store_lock():
+        profile_store = _load_auth_store()
+        data, _from_root, _locs = _read_xai_oauth_tokens_with_origin(_lock=False)
     tokens = dict(data["tokens"])
     access_token = str(tokens.get("access_token", "") or "").strip()
-    refresh_timeout_seconds = env_float("HERMES_XAI_REFRESH_TIMEOUT_SECONDS", 20)
+    refresh_timeout_seconds = _xai_refresh_timeout_seconds()
     discovery = dict(data.get("discovery") or {})
     token_endpoint = str(discovery.get("token_endpoint", "") or "").strip()
     redirect_uri = str(data.get("redirect_uri", "") or "").strip()
@@ -4410,60 +5184,112 @@ def resolve_xai_oauth_runtime_credentials(
     should_refresh = bool(force_refresh)
     if (not should_refresh) and refresh_if_expiring:
         should_refresh = _xai_access_token_is_expiring(access_token, effective_skew)
-    if should_refresh:
-        with _auth_store_lock(timeout_seconds=max(float(AUTH_LOCK_TIMEOUT_SECONDS), refresh_timeout_seconds + 5.0)):
-            data = _read_xai_oauth_tokens(_lock=False)
-            tokens = dict(data["tokens"])
-            access_token = str(tokens.get("access_token", "") or "").strip()
-            discovery = dict(data.get("discovery") or {})
-            token_endpoint = str(discovery.get("token_endpoint", "") or "").strip()
-            redirect_uri = str(data.get("redirect_uri", "") or "").strip()
-            effective_skew = (
-                int(refresh_skew_seconds)
-                if refresh_skew_seconds is not None
-                else _xai_proactive_refresh_skew_seconds(access_token)
+
+    may_use_root = _xai_may_use_root_grant(profile_store)
+    global_path = _global_auth_file_path()
+    recovery_store = global_path if (may_use_root and global_path is not None) else _auth_file_path()
+    recovery_pending = _xai_recovery_path(recovery_store).exists()
+
+    if should_refresh or recovery_pending:
+        # OIDC discovery is a pure GET: do it BEFORE taking any lock so the
+        # root lock is held across at most one refresh POST (blocker 2).
+        if should_refresh and not token_endpoint:
+            token_endpoint = _xai_oauth_discovery(refresh_timeout_seconds)["token_endpoint"]
+        discovered_endpoint = token_endpoint
+        # Lock order (see _root_auth_store_lock): profile lock FIRST, root
+        # lock SECOND. The root lock is taken whenever the profile has no
+        # usable grant of its own (decided under the profile lock, which no
+        # other writer can change while we hold it), so a re-read that
+        # resolves to the root grant is always under the root lock.
+        lock_timeout = _auth_lock_wait_seconds()
+        seen_access = access_token
+        seen_refresh = str(tokens.get("refresh_token", "") or "").strip()
+        with _auth_store_lock(timeout_seconds=lock_timeout):
+            profile_store = _load_auth_store()
+            may_use_root = _xai_may_use_root_grant(profile_store)
+            root_lock = (
+                _root_auth_store_lock(timeout_seconds=lock_timeout)
+                if may_use_root
+                else nullcontext()
             )
-            should_refresh = bool(force_refresh)
-            if (not should_refresh) and refresh_if_expiring:
-                should_refresh = _xai_access_token_is_expiring(access_token, effective_skew)
-            if should_refresh:
-                if not token_endpoint:
-                    token_endpoint = _xai_oauth_discovery(refresh_timeout_seconds)["token_endpoint"]
-                try:
-                    tokens = _refresh_xai_oauth_tokens(
-                        tokens,
-                        token_endpoint=token_endpoint,
-                        redirect_uri=redirect_uri,
-                        timeout_seconds=refresh_timeout_seconds,
+            with root_lock:
+                # A rotated grant left by a failed write is applied before
+                # any new POST (blocker 4).
+                if may_use_root and global_path is not None and _root_auth_lock_path() is not None:
+                    _apply_pending_xai_recovery(global_path)
+                elif not may_use_root:
+                    _apply_pending_xai_recovery(_auth_file_path())
+                # Re-read AFTER taking the lock(s): another process may have
+                # rotated the grant while we waited.
+                data, from_root, root_locations = _read_xai_oauth_tokens_with_origin(_lock=False)
+                if from_root and not may_use_root:
+                    raise RuntimeError(
+                        "xAI OAuth: root-sourced grant resolved without the root lock"
                     )
-                    access_token = str(tokens.get("access_token", "") or "").strip()
-                except AuthError as exc:
-                    if _is_terminal_xai_oauth_refresh_error(exc):
-                        # Terminal failure (HTTP 400/401/403 — invalid_grant, token revoked).
-                        # Clear dead tokens from auth.json so subsequent sessions fail fast
-                        # without a network retry. Mirrors credential_pool.py quarantine.
-                        try:
-                            _q_store = _load_auth_store()
-                            _q_state = _load_provider_state(_q_store, "xai-oauth") or {}
-                            _q_tokens = dict(_q_state.get("tokens") or {})
-                            _q_tokens.pop("access_token", None)
-                            _q_tokens.pop("refresh_token", None)
-                            _q_state["tokens"] = _q_tokens
-                            _q_state["last_auth_error"] = {
-                                "provider": "xai-oauth",
-                                "code": exc.code or "xai_refresh_failed",
-                                "message": str(exc),
-                                "reason": "runtime_refresh_failure",
-                                "relogin_required": True,
-                                "at": datetime.now(timezone.utc).isoformat(),
-                            }
-                            _store_provider_state(_q_store, "xai-oauth", _q_state, set_active=False)
-                            _save_auth_store(_q_store)
-                        except Exception as _save_exc:
-                            logger.debug(
-                                "xAI OAuth: failed to persist quarantined state: %s", _save_exc,
-                            )
-                    raise
+                tokens = dict(data["tokens"])
+                access_token = str(tokens.get("access_token", "") or "").strip()
+                discovery = dict(data.get("discovery") or {})
+                token_endpoint = (
+                    str(discovery.get("token_endpoint", "") or "").strip() or discovered_endpoint
+                )
+                redirect_uri = str(data.get("redirect_uri", "") or "").strip()
+                effective_skew = (
+                    int(refresh_skew_seconds)
+                    if refresh_skew_seconds is not None
+                    else _xai_proactive_refresh_skew_seconds(access_token)
+                )
+                should_refresh = bool(force_refresh)
+                if (not should_refresh) and refresh_if_expiring:
+                    should_refresh = _xai_access_token_is_expiring(access_token, effective_skew)
+                if from_root and should_refresh:
+                    fresh_refresh = str(tokens.get("refresh_token", "") or "").strip()
+                    if access_token != seen_access or fresh_refresh != seen_refresh:
+                        # Already rotated by another seat while we waited:
+                        # use the new pair, never re-spend a refresh token.
+                        logger.debug(
+                            "xAI OAuth: shared root grant already rotated by another "
+                            "process; skipping refresh."
+                        )
+                        should_refresh = False
+                if should_refresh:
+                    if not token_endpoint:
+                        # Discovery was skipped above (the pre-lock read had an
+                        # endpoint). Never do network discovery under the lock.
+                        raise AuthError(
+                            "xAI OAuth token endpoint unknown; retry.",
+                            provider="xai-oauth",
+                            code="xai_token_endpoint_missing",
+                            relogin_required=False,
+                        )
+                    spent_refresh = str(tokens.get("refresh_token", "") or "").strip()
+                    try:
+                        tokens = _refresh_xai_oauth_tokens(
+                            tokens,
+                            token_endpoint=token_endpoint,
+                            redirect_uri=redirect_uri,
+                            timeout_seconds=refresh_timeout_seconds,
+                            persist_to_root=from_root,
+                            root_locations=root_locations,
+                        )
+                        access_token = str(tokens.get("access_token", "") or "").strip()
+                    except AuthError as exc:
+                        if _is_terminal_xai_oauth_refresh_error(exc):
+                            # Terminal failure (HTTP 400/401/403 — invalid_grant, token revoked).
+                            # Clear the dead tokens in the store that owns them so later
+                            # sessions fail fast without a network retry.
+                            try:
+                                _quarantine_xai_oauth_grant(
+                                    exc,
+                                    from_root=from_root,
+                                    spent_refresh_token=spent_refresh,
+                                    root_locations=root_locations,
+                                )
+                            except Exception as _save_exc:
+                                logger.debug(
+                                    "xAI OAuth: failed to persist quarantined state: %s",
+                                    type(_save_exc).__name__,
+                                )
+                        raise
 
     base_url = _xai_validate_inference_base_url(
         os.getenv("HERMES_XAI_BASE_URL", "").strip().rstrip("/")
@@ -5240,9 +6066,20 @@ def resolve_nous_access_token(
     refresh_skew_seconds: int = ACCESS_TOKEN_REFRESH_SKEW_SECONDS,
 ) -> str:
     """Resolve a refresh-aware Nous Portal access token for managed tool gateways."""
-    with _auth_store_lock():
+    with _auth_store_lock(), ExitStack() as _root_guard:
         auth_store = _load_auth_store()
         state, state_source_path = _load_provider_state_with_source(auth_store, "nous")
+        if _is_root_auth_path(state_source_path):
+            # The grant lives in the shared root store: hold <root>/auth.lock
+            # (after the profile lock, BEFORE the Nous shared-store lock, the
+            # same order a root-mode process uses) and re-read under it.
+            _root_guard.enter_context(
+                _root_auth_store_lock(
+                    timeout_seconds=max(timeout_seconds + 5.0, _auth_lock_wait_seconds())
+                )
+            )
+            auth_store = _load_auth_store()
+            state, state_source_path = _load_provider_state_with_source(auth_store, "nous")
 
         if not state:
             raise AuthError(
@@ -5571,9 +6408,18 @@ def resolve_nous_runtime_credentials(
     """
     sequence_id = uuid.uuid4().hex[:12]
 
-    with _auth_store_lock():
+    with _auth_store_lock(), ExitStack() as _root_guard:
         auth_store = _load_auth_store()
         state, state_source_path = _load_provider_state_with_source(auth_store, "nous")
+        if _is_root_auth_path(state_source_path):
+            # Shared root grant: profile lock -> root lock -> Nous shared lock.
+            _root_guard.enter_context(
+                _root_auth_store_lock(
+                    timeout_seconds=max(timeout_seconds + 5.0, _auth_lock_wait_seconds())
+                )
+            )
+            auth_store = _load_auth_store()
+            state, state_source_path = _load_provider_state_with_source(auth_store, "nous")
 
         if not state:
             raise AuthError("Hermes is not logged into Nous Portal.",
